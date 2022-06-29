@@ -1,7 +1,7 @@
+import styles from "@styles/Home.module.css";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   return (
@@ -13,8 +13,11 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+        <h1 className="first-letter:text-6xl text-3xl text-emerald-500">
+          Welcome to{" "}
+          <a className="text-blue-600 " href="https://nextjs.org">
+            Next.js!
+          </a>
         </h1>
 
         <p className={styles.description}>
