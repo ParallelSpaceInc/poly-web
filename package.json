@@ -9,15 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "^9.14.3",
+    "@react-three/fiber": "^8.0.27",
+    "@react-three/xr": "^3.5.0",
     "next": "12.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.33.0"
+    "react-hook-form": "^7.33.0",
+    "three": "^0.141.0"
   },
   "devDependencies": {
     "@types/node": "18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
+    "@types/three": "^0.141.0",
     "autoprefixer": "^10.4.7",
     "eslint": "8.18.0",
     "eslint-config-next": "12.2.0",
