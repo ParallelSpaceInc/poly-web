@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -12,6 +12,9 @@
     "@react-three/drei": "^9.14.3",
     "@react-three/fiber": "^8.0.27",
     "@react-three/xr": "^3.5.0",
+    "@types/bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
+    "mongoose": "^6.4.3",
     "next": "12.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
