@@ -62,6 +62,10 @@ function MyApp({Component, pageProps}: AppProps) {
                     }
                     setUser(userInfo)
                 }
+            } else if (event === 'SIGNED_OUT') {
+                setUser(undefined)
+
+                await router.push('/')
             }
         })
 
