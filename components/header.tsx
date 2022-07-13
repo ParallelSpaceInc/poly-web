@@ -1,11 +1,15 @@
 import React, {useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import Login from "@components/login";
 
 export default function Header(){
 
     const [isOpenLoginCP,setIsOpenLoginCp] = useState(false);
 
+    const closeLoginBox = () : void  => {
+        setIsOpenLoginCp(false)
+    }
 
     return (
         <div className={'relative'}>
@@ -17,6 +21,7 @@ export default function Header(){
                 </Link>
                 <div className={'cursor-pointer'} onClick={()=>setIsOpenLoginCp(!isOpenLoginCP)}>LOGIN</div>
             </div>
+            {isOpenLoginCP && <Login closeLoginBox={closeLoginBox}/>}
         </div>
 
     )
