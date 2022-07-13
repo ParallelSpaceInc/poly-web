@@ -45,9 +45,9 @@ interface ModelViewerElement extends Element {
 
 const Model = () => {
   const info = {
-    src: "http://127.0.0.1:30201/models/국보275_도기_기마인물형_뿔잔/scene.gltf",
+    src: "/getResource/models/국보275_도기_기마인물형_뿔잔/scene.gltf",
     poster:
-      "http://127.0.0.1:30201/models/썸네일/PNG/형국보275 도기 기마인물형 뿔잔 1.png",
+      "/getResource/models/썸네일/PNG/형국보275 도기 기마인물형 뿔잔 1.png",
     alt: "국보275_도기_기마인물형_뿔잔",
     "shadow-intensity": "1",
     "camera-controls": "",
