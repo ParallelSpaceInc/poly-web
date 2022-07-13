@@ -2,12 +2,16 @@ import React, {useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import Login from "@components/login";
+import {UserData} from "../pages/_app";
 
-export default function Header(){
+interface Props {
+    user: UserData | undefined,
+}
 
-    const [isOpenLoginCP,setIsOpenLoginCp] = useState(false);
+export default function Header({user}: Props) {
+    const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
 
-    const closeLoginBox = () : void  => {
+    const closeLoginBox = (): void => {
         setIsOpenLoginCp(false)
     }
 
@@ -19,10 +23,11 @@ export default function Header(){
                         <Image src={'/210105_pspace_logo_W.png'} width={70} height={20}/>
                     </a>
                 </Link>
-                <div className={'cursor-pointer'} onClick={()=>setIsOpenLoginCp(!isOpenLoginCP)}>LOGIN</div>
+                {user !== undefined ? <div className={'flex justify-between items-center space-x-5'}>
+                    <div><p>{user.name}님</p></div>
+                </div> : <div className={'cursor-pointer'} onClick={() => setIsOpenLoginCp(!isOpenLoginCP)}>LOGIN</div>}
             </div>
             {isOpenLoginCP && <Login closeLoginBox={closeLoginBox}/>}
         </div>
-
     )
 }

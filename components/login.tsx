@@ -1,11 +1,22 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Image from "next/image";
+import {supabase} from "@supabase/client";
+import {Provider, User} from "@supabase/gotrue-js";
 
 type props = {
     closeLoginBox: () => void,
 }
 
 export default function Login({closeLoginBox}: props) {
+
+
+    const signIn = async (provider: Provider) => {
+        await supabase.auth.signIn({
+            provider
+        }, {
+            redirectTo : window.location.origin
+        })
+    }
 
     return (
         <div className={'absolute top-0 w-screen h-screen z-10 bg-gray-200 bg-opacity-30'}>
@@ -17,7 +28,7 @@ export default function Login({closeLoginBox}: props) {
                         <Image onClick={closeLoginBox} className={'cursor-pointer'} src={'/closeBtn.png'} width={30} height={30}/>
                     </div>
                     <div className={'flex flex-col justify-around items-center h-full py-20'}>
-                        <button className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
+                        <button onClick={() => signIn('google')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
                             <svg
                                 className='w-5 h-5 ml-2'
                                 aria-hidden='true'
@@ -29,7 +40,7 @@ export default function Login({closeLoginBox}: props) {
                             </svg>
                             <span>Sign In with Google</span>
                         </button>
-                        <button className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
+                        <button onClick={() => signIn('github')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
                             <svg
                                 className='w-5 h-5 ml-2'
                                 aria-hidden='true'
