@@ -1,8 +1,11 @@
 import type { NextPage } from "next";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
-const Model: NextPage = () => {
+const Model = dynamic(() => import("@components/Model"), { ssr: false });
+
+const ModelPage: NextPage = () => {
   const router = useRouter();
   const id = router.query.id;
   return (
@@ -21,7 +24,9 @@ const Model: NextPage = () => {
           className="p-1 pl-3 border-2 rounded-md border-blue-900 border-spacing-2 w-full"
           placeholder="모델명 검색"
         ></input>
-        <div className="h-64 bg-slate-400"></div>
+        <div className="h-64">
+          <Model />
+        </div>
         <span className="block text-2xl mt-4">{id}</span>
         <span className="text-slate-500 text-sm">카테고리 {">"} 국보</span>
         <p className="text-slate-500 text-xs max-h-32 overflow-y-scroll">
@@ -46,4 +51,4 @@ const Model: NextPage = () => {
   );
 };
 
-export default Model;
+export default ModelPage;
