@@ -19,7 +19,7 @@
       "@components/*": ["components/*"],
       "@api/*": ["pages/api/*"],
       "@styles/*": ["styles/*"],
-      "@mongo/*": ["mongo/*"]
+      "@supabase/*": ["supabase/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
