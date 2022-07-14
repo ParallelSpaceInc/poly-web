@@ -9,10 +9,10 @@ const ModelPage: NextPage = () => {
   const id = router.query.id;
   return (
     <div className="flex flex-col space-y-2">
-      <div className="flex bg-blue-900 h-10 p-2.5"></div>
+      <div className="flex bg-slate-500 h-10 p-2.5"></div>
       <div className="mx-8 space-y-2">
         <input
-          className="p-1 pl-3 border-2 rounded-md border-blue-900 border-spacing-2 w-full"
+          className="p-1 pl-3 border-2 rounded-md border-slate-500 border-spacing-2 w-full"
           placeholder="Find model"
         ></input>
         <div className="h-64">
