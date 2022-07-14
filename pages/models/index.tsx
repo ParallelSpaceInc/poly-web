@@ -1,6 +1,14 @@
+import { ModelInfo } from "@customTypes/model";
 import type { NextPage } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import useSWR from "swr";
 
 const ModelsMainPage: NextPage = () => {
+  const { data: modelInfos, error } = useSWR<ModelInfo[]>(
+    "/api/models",
+    (url) => fetch(url).then((res) => res.json())
+  );
   return (
     <div className="flex flex-col space-y-2 ">
       <div className="flex bg-slate-500 h-10 p-2.5"></div>
@@ -11,11 +19,23 @@ const ModelsMainPage: NextPage = () => {
         ></input>
         <div className="flex flex-col mx-10 text-sm"></div>
         <div className="grid grid-cols-2 p-3 gap-3 max-h-full overflow-y-hidden">
-          {Array.from(Array(10).keys()).map((el, i) => (
-            <div key={i}>
-              <div className="border-2 border-slate-400 h-32 rounded-lg"></div>
-            </div>
-          ))}
+          {modelInfos ? (
+            modelInfos.map((info, i) => (
+              <div className="h-32 relative" key={i}>
+                <Link href={`/models/${info.id}`}>
+                  <Image
+                    src={info.thumbnailSrc}
+                    alt={info.name}
+                    layout="fill" // required
+                    objectFit="cover" // change to suit your needs
+                    className="rounded-lg" // just an example
+                  />
+                </Link>
+              </div>
+            ))
+          ) : (
+            <span>Loading...</span>
+          )}
         </div>
       </div>
     </div>
