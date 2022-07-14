@@ -5,7 +5,7 @@ const nextConfig = {
     return [
       {
         source: `/getResource/:path*`,
-        destination: `http://localhost:30201/:path*`,
+        destination: `http://125.131.177.217:30201/:path*`,
       },
     ];
   },
