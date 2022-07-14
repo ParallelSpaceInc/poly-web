@@ -18,6 +18,7 @@
     "paths": {
       "@components/*": ["components/*"],
       "@api/*": ["pages/api/*"],
+      "@customTypes/*": ["customTypes/*"],
       "@styles/*": ["styles/*"]
     }
   },
