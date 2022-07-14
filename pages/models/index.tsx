@@ -21,7 +21,7 @@ const ModelsMainPage: NextPage = () => {
         <div className="grid grid-cols-2 p-3 gap-3 max-w-2xl mx-auto">
           {modelInfos ? (
             modelInfos.map((info, i) => (
-              <div className="h-[25vh] w-[40wh] relative" key={i}>
+              <div className="aspect-[4/3] relative" key={i}>
                 <Link href={`/models/${info.id}`}>
                   <Image
                     src={info.thumbnailSrc}
