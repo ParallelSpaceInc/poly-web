@@ -7,7 +7,7 @@ const ModelsMainPage: NextPage = () => {
       <div className="mx-8">
         <input
           className="p-1 pl-3 border-2 rounded-md border-blue-900 border-spacing-2 w-full"
-          placeholder="모델명 검색"
+          placeholder="Find model"
         ></input>
         <div className="flex flex-col mx-10 text-sm"></div>
         <div className="grid grid-cols-2 p-3 gap-3 max-h-full overflow-y-hidden">

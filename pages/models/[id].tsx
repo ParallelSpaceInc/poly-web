@@ -13,13 +13,13 @@ const ModelPage: NextPage = () => {
       <div className="mx-8 space-y-2">
         <input
           className="p-1 pl-3 border-2 rounded-md border-blue-900 border-spacing-2 w-full"
-          placeholder="모델명 검색"
+          placeholder="Find model"
         ></input>
         <div className="h-64">
           <Model />
         </div>
-        <span className="block text-2xl mt-4">{id}</span>
-        <span className="text-slate-500 text-sm">카테고리 {">"} 국보</span>
+        <span className="block text-2xl mt-4">Model sample 001</span>
+        <span className="text-slate-500 text-sm">Category {">"} Treasure</span>
         <p className="text-slate-500 text-xs max-h-32 overflow-y-scroll">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis non nibh
           eleifend, fringilla massa eget, placerat nisl. Morbi lectus erat,
