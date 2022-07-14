@@ -1,11 +1,5 @@
+import { ModelInfo } from "@customTypes/model";
 import { NextApiRequest, NextApiResponse } from "next";
-
-type ModelInfo = {
-  id: number;
-  name: string;
-  modelSrc: string;
-  thumbnailSrc: string;
-};
 
 const makeModelInfo: (id: number, name: string) => ModelInfo = (id, name) => ({
   id,
