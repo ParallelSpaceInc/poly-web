@@ -8,7 +8,7 @@ const makeModelInfo: (id: number, name: string) => ModelInfo = (id, name) => ({
   thumbnailSrc: `/getResource/models/${id}/thumbnail.png`,
 });
 
-const modelList: ModelInfo[] = Array.from(Array(100).keys()).map((key) =>
+const modelList: ModelInfo[] = Array.from(Array(11).keys()).map((key) =>
   makeModelInfo(key, `Model Sample ${key}`)
 );
 
