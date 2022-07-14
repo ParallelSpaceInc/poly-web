@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useRouter } from "next/router";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
@@ -10,15 +9,7 @@ const ModelPage: NextPage = () => {
   const id = router.query.id;
   return (
     <div className="flex flex-col space-y-2">
-      <div className="flex bg-blue-900 h-10 p-2.5">
-        <Image
-          src="/logo.svg"
-          width={400}
-          height="10rm"
-          alt="pararell space logo"
-          className="justify-self-start block"
-        ></Image>
-      </div>
+      <div className="flex bg-blue-900 h-10 p-2.5"></div>
       <div className="mx-8 space-y-2">
         <input
           className="p-1 pl-3 border-2 rounded-md border-blue-900 border-spacing-2 w-full"
