@@ -14,17 +14,20 @@ const ModelsMainPage: NextPage = () => {
     <div className="flex flex-col min-h-screen">
       <div className="flex bg-slate-500 h-10 p-2.5"></div>
       <div className="flex-1 mt-10 relative w-full px-6 mx-auto max-w-7xl lg:px-8">
-        <input
-          className="p-1 pl-3 border-2 rounded-md border-slate-500 border-spacing-2 w-full"
-          placeholder="Find model"
-        ></input>
-        <div className="flex flex-col mx-10 text-sm"></div>
+        <div className="block mt-6 relative">
+          <div className="">
+            <input
+              className="p-2 pl-4 w-full ring-2 ring-gray-300 focus:ring-indigo-500 text-xl rounded-md outline-none"
+              placeholder="Find model"
+            ></input>
+          </div>
+        </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
           {!loading && modelInfos ? (
             modelInfos.map((info, i) => (
               <Link key={i} href={`/models/${info.id}`}>
                 <div className="flex flex-col relative cursor-pointer">
-                  <div className="block  aspect-[4/3] relative">
+                  <div className="block  aspect-[4/3] relative rounded-lg shadow-md">
                     <Image
                       src={info.thumbnailSrc}
                       alt={info.name}
