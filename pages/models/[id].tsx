@@ -25,7 +25,9 @@ const ModelPage: NextPage = () => {
         <div className="aspect-[4/3] w-full max-w-5xl mx-auto">
           {!loading && data ? <Model info={data[id]} /> : "Loading..."}
         </div>
-        <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">{`Model sample ${id}`}</span>
+        <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
+          {!loading && data ? data[id].name : ""}
+        </span>
         <span className="block mt-2 text-slate-500 text-sm md:text-lg lg:text-xl">
           Category {">"} Treasure
         </span>
