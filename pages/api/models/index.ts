@@ -13,7 +13,7 @@ const modelNames = [
   "보물1167 청주운천동 출토 동종",
   "보물536 아산 평촌리 석조약사여래입상",
   "보물789 청자 쌍사자형 베개",
-  "경복궁 근정전 해태 조각상",
+  "해태 조각상",
 ];
 
 const makeModelInfo: (id: number, name: string) => ModelInfo = (id, name) => ({
