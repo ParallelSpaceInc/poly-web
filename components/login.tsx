@@ -22,13 +22,13 @@ export default function Login({closeLoginBox}: props) {
         <div className={'absolute top-0 w-screen h-screen z-10 bg-gray-200 bg-opacity-30'}>
             <div className={'absolute w-screen h-screen z-20 flex justify-center items-center'}>
                 <div
-                    className={'md:w-1/4 h-2/3 flex flex-col border-4 border-indigo-900 rounded-3xl shadow-2xl bg-white sm:w-1/2'}>
+                    className={'md:w-1/4 h-2/3 flex flex-col border-4 border-gray-400 rounded-3xl shadow-2xl bg-white sm:w-3/4'}>
                     <div className={'text-4xl border-b-2 w-full flex justify-between items-center h-1/5 px-10'}>
                         <p>Login</p>
                         <Image onClick={closeLoginBox} className={'cursor-pointer'} src={'/closeBtn.png'} width={30} height={30}/>
                     </div>
-                    <div className={'flex flex-col justify-around items-center h-full py-20'}>
-                        <button onClick={() => signIn('google')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
+                    <div className={'flex flex-col justify-around items-center h-full py-40'}>
+                        <button onClick={() => signIn('google')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 rounded bg-google-blue shadow shadow-black text-white hover:shadow-md hover:shadow-black'}>
                             <svg
                                 className='w-5 h-5 ml-2'
                                 aria-hidden='true'
@@ -40,7 +40,7 @@ export default function Login({closeLoginBox}: props) {
                             </svg>
                             <span>Sign In with Google</span>
                         </button>
-                        <button onClick={() => signIn('github')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow'}>
+                        <button onClick={() => signIn('github')} className={'border-2 w-2/3 flex justify-center items-center space-x-5 py-3 shadow rounded bg-gray-400 text-white shadow shadow-black text-white hover:shadow-md hover:shadow-black'}>
                             <svg
                                 className='w-5 h-5 ml-2'
                                 aria-hidden='true'
