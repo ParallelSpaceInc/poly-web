@@ -18,8 +18,9 @@
     "paths": {
       "@components/*": ["components/*"],
       "@api/*": ["pages/api/*"],
-      "@customTypes/*": ["customTypes/*"],
-      "@styles/*": ["styles/*"]
+      "@styles/*": ["styles/*"],
+      "@supabase/*": ["supabase/*"],
+      "@customTypes/*": ["customTypes/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
