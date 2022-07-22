@@ -14,6 +14,10 @@ const Model = ({ info }: { info: ModelInfo }) => {
       width: "100%",
       height: "100%",
     },
+    // exposure: "1",
+    // "environment-image": "neutral",
+    // "skybox-image":
+    //   "https://modelviewer.dev/assets/whipple_creek_regional_park_04_1k.hdr",
   };
   return <model-viewer {...parsed} />;
 };

@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Table name starts with uppercase
+// field name use snake_case
+
+model Model {
+  id      String   @id @unique @db.Uuid
+  name    String   @db.VarChar(30)
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+  User    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String   @map("userId") @db.Uuid
+  src     String
+  Post    Post[]
+}
+
+model User {
+  id      String    @id @unique @db.Uuid
+  email   String    @unique
+  created DateTime  @default(now())
+  updated DateTime  @updatedAt
+  name    String    @db.VarChar(100)
+  phone   String?   @unique @db.VarChar(20)
+  class   String    @db.VarChar(20) // "guest"(no data in DB), "user"(data in DB), "admin"(only for maintiner)  
+  Model   Model[]
+  Post    Post[]
+  Comment Comment[]
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  created     DateTime @default(now())
+  updated     DateTime @updatedAt
+  description String
+  User        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String   @map("userId") @db.Uuid
+  Model       Model    @relation(fields: [model_id], references: [id])
+  model_id    String   @map("modelId") @db.Uuid
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  created     DateTime @default(now())
+  updated     DateTime @updatedAt
+  description String
+  User        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String   @map("userId") @db.Uuid
+}

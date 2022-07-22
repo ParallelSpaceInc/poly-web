@@ -15,19 +15,23 @@ const ModelPage: NextPage = () => {
   const loading = !data && !error;
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col">
       <div className="flex bg-slate-500 h-10 p-2.5"></div>
-      <div className="mx-8 space-y-2">
+      <div className="flex-1 mt-10 relative w-full px-6 mx-auto max-w-7xl lg:px-8">
         <input
-          className="p-1 pl-3 border-2 rounded-md border-slate-500 border-spacing-2 w-full"
+          className="p-1 pl-3 lg:text-3xl border-2 rounded-md border-slate-500 border-spacing-2 w-full"
           placeholder="Find model"
         ></input>
-        <div className="h-64">
+        <div className="aspect-[4/3] w-full max-w-5xl mx-auto">
           {!loading && data ? <Model info={data[id]} /> : "Loading..."}
         </div>
-        <span className="block text-2xl mt-4">{`Model sample ${id}`}</span>
-        <span className="text-slate-500 text-sm">Category {">"} Treasure</span>
-        <p className="text-slate-500 text-xs max-h-32 overflow-y-scroll">
+        <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
+          {!loading && data ? data[id].name : ""}
+        </span>
+        <span className="block mt-2 text-slate-500 text-sm md:text-lg lg:text-xl">
+          Category {">"} Treasure
+        </span>
+        <p className="my-2 max-w-3xl mr-auto bg-slate-100 p-2 text-slate-500 text-xs md:text-base max-h-64 overflow-y-auto">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis non nibh
           eleifend, fringilla massa eget, placerat nisl. Morbi lectus erat,
           tristique in euismod eu, faucibus sed neque. Maecenas aliquam pharetra
