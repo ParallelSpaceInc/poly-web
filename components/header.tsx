@@ -3,6 +3,7 @@ import Login from "@components/login";
 import { supabase } from "@supabase/client";
 import Image from 'next/image';
 import { UserData } from "../pages/_app";
+import UserMenuModal from './userMenuModal';
 
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 export default function Header({ user }: Props) {
   const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
   const [isClickUserName, setIsClickUserName] = useState(false);
-  const userBoxRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLDivElement>;;
+  const userBoxRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLDivElement>;
 
 
   const closeLoginBox = (): void => {
@@ -58,13 +59,13 @@ export default function Header({ user }: Props) {
               <svg className={`rotate-${isClickUserName ? '0' : '180'}`} width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.50387 7L8.52387 0.0299997H0.473867L4.50387 7Z" fill="white" />
               </svg>
-              {/* <button className={'border-2 px-2 rounded'} onClick={logOut}>log out</button> */}
             </div>
             :
             <div className={'cursor-pointer'} onClick={() => setIsOpenLoginCp(!isOpenLoginCP)}>LOGIN</div>}
         </div>
       </div>
       {isOpenLoginCP && <Login closeLoginBox={closeLoginBox} />}
+      {isClickUserName && <UserMenuModal logOut={logOut} />}
     </div>
   )
 }
