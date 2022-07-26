@@ -4,6 +4,7 @@ import { supabase } from "@supabase/client";
 import Image from 'next/image';
 import { UserData } from "../pages/_app";
 import UserMenuModal from './userMenuModal';
+import { useRouter } from 'next/router';
 
 
 interface Props {
@@ -15,6 +16,7 @@ export default function Header({ user }: Props) {
   const [isClickUserName, setIsClickUserName] = useState(false);
   const userBoxRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLDivElement>;
 
+  const router = useRouter();
 
   const closeLoginBox = (): void => {
     setIsOpenLoginCp(false)
@@ -45,12 +47,16 @@ export default function Header({ user }: Props) {
     setIsClickUserName(!isClickUserName)
   }
 
+  const uploadRounter = () => {
+    router.push('/upload')
+  }
+
   return (
-    <div className={'relative'}>
+    <div className={`relativev w-full ${router.pathname === '/upload' ? 'fixed top-0 left-0 right-0 z-20' : 'block'}`}>
       <div className={'flex justify-between bg-header-gray w-full h-12  pl-10 pr-8 md:pr-6 items-center text-amber-50'}>
         <div className={'text-3xl'}>POLY</div>
         <div className={'flex justify-between items-center space-x-5'}>
-          <button className={'border bg-white text-black py-1.5 pr-3 pl-2 text-[10px] font-extrabold rounded flex justify-between items-center'}>
+          <button onClick={uploadRounter} className={'border bg-white text-black py-1.5 pr-3 pl-2 text-[10px] font-extrabold rounded flex justify-between items-center'}>
             <Image src='/upload1.png' width={'10px'} height={'10px'} alt='uploadPng' />
             <p className={'ml-1'}>UPLOAD</p></button>
           {user !== undefined ?
