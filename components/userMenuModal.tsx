@@ -1,12 +1,13 @@
 
 type props = {
   logOut: () => void
+  ref: React.MutableRefObject<HTMLDivElement>
 }
 
-const UserMenuModal = ({ logOut }: props) => {
+const UserMenuModal = ({ logOut, ref }: props) => {
 
   return (
-    <div className={'absolute mt-2 right-8 border border-gray-300 rounded shadow-md bg-white shadow-slate-400 z-10'}>
+    <div ref={ref} className={'absolute mt-2 right-8 border border-gray-300 rounded shadow-md bg-white shadow-slate-400 z-10'}>
       <ul className={'divide-y cursor-pointer divide-slate-300'} >
         <li className={'px-16 py-4  text-center'}>
           마이페이지

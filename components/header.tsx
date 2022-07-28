@@ -15,6 +15,7 @@ export default function Header({ user }: Props) {
   const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
   const [isClickUserName, setIsClickUserName] = useState(false);
   const userBoxRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLDivElement>;
+  const userMenuModalRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLDivElement>
 
   const router = useRouter();
 
@@ -24,9 +25,8 @@ export default function Header({ user }: Props) {
 
   useEffect(() => {
 
-
     function handleClickOutside(event: React.BaseSyntheticEvent | MouseEvent) {
-      if (userBoxRef.current && !userBoxRef.current.contains(event.target)) {
+      if (userBoxRef.current && !userBoxRef.current.contains(event.target) && userMenuModalRef.current && !userMenuModalRef.current.contains(event.target)) {
         setIsClickUserName(false)
       }
     }
@@ -40,6 +40,7 @@ export default function Header({ user }: Props) {
 
 
   const logOut = async () => {
+    setIsClickUserName(false)
     await supabase.auth.signOut()
   }
 
@@ -71,7 +72,7 @@ export default function Header({ user }: Props) {
         </div>
       </div>
       {isOpenLoginCP && <Login closeLoginBox={closeLoginBox} />}
-      {isClickUserName && <UserMenuModal logOut={logOut} />}
+      {isClickUserName && <UserMenuModal ref={userMenuModalRef} logOut={logOut} />}
     </div>
   )
 }
