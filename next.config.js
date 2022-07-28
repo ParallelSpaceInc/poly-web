@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  api: {
+    bodyparser: false,
+  },
+  // reactStrictMode: true,
+  env: {
+    S3_KEY_ID: process.env.S3_KEY_ID,
+    S3_KEY: process.env.S3_KEY,
+    S3_REGION: process.env.S3_REGION,
+    S3_BUCKET: process.env.S3_BUCKET,
+  },
   async rewrites() {
     return [
       {
