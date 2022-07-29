@@ -2,6 +2,7 @@ import { ModelInfo } from "@customTypes/model";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 
 const ModelsMainPage: NextPage = () => {
@@ -9,10 +10,14 @@ const ModelsMainPage: NextPage = () => {
     "/api/models",
     (url) => fetch(url).then((res) => res.json())
   );
+
+  const rounter = useRouter();
+
+  console.log(rounter);
+
   const loading = !modelInfos && !error;
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex bg-slate-500 h-10 p-2.5"></div>
       <div className="flex-1 mt-10 relative w-full px-6 mx-auto max-w-7xl lg:px-8">
         <div className="block mt-6 relative">
           <div className="">
