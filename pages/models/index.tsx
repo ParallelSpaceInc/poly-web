@@ -2,7 +2,6 @@ import { ModelInfo } from "@customTypes/model";
 import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import useSWR from "swr";
 
 const ModelsMainPage: NextPage = () => {
@@ -10,10 +9,6 @@ const ModelsMainPage: NextPage = () => {
     "/api/models",
     (url) => fetch(url).then((res) => res.json())
   );
-
-  const rounter = useRouter();
-
-  console.log(rounter);
 
   const loading = !modelInfos && !error;
   return (
