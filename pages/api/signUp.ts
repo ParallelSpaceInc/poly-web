@@ -5,25 +5,30 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const params = req.body.userParams;
-  const user = await prismaClient.user.findUnique({
-    where: {
-      id: params.user_id,
-    },
-  });
-
-  if (!user) {
-    const user = await prismaClient.user.create({
-      data: {
+  try {
+    const params = req.body.userInfo;
+    const user = await prismaClient.user.findUnique({
+      where: {
         id: params.user_id,
-        email: params.email,
-        name: params.name,
-        class: '',
       },
     });
 
-    return res.status(200).json({ success: true, user });
-  }
+    if (!user) {
+      const user = await prismaClient.user.create({
+        data: {
+          id: params.user_id,
+          email: params.email,
+          name: params.name,
+          phone: params.phone,
+          class: '',
+        },
+      });
 
-  res.status(200).json({ success: true, user });
+      return res.status(200).json({ success: true, user });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(400).json({ success: false, error: '로그인 실패' });
+  }
 }
