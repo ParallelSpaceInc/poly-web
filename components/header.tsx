@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import Login from "@components/login";
 import { supabase } from "@supabase/client";
 import Image from 'next/image';
-import { UserData } from "../pages/_app";
+import { User } from "../customTypes/user";
 import UserMenuModal from './userMenuModal';
 import { useRouter } from 'next/router';
 
 
 interface Props {
-  user: UserData | undefined,
+  user: User | undefined,
 }
 
 export default function Header({ user }: Props) {
