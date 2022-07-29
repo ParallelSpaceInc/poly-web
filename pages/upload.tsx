@@ -1,5 +1,4 @@
-import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { supabase } from "@supabase/client";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import s3Client from "lib/s3client";
 import { useState } from "react"
 import Dropzone from "react-dropzone"
@@ -36,47 +35,13 @@ const Upload = () => {
           };
           renameFiles.push(reNameFile)
 
-          // await s3Client.send(new PutObjectCommand(filesParams));
+          await s3Client.send(new PutObjectCommand(filesParams));
 
         } catch (error) {
           return alert('S3 업로드 실패')
         }
       })
 
-      const params = {
-        name: String(form.name),
-        user_id: String(supabase.auth.user()?.id),
-        src: String(uuid),
-        id: String(uuid),
-      }
-
-      const { success, data, error } = await fetch('/api/uploadModel', {
-        method: "POST",
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ params })
-      }).then((res) => { return res.json() })
-
-      if (!success) {
-
-        const obj = {
-          Bucket: process.env.S3_BUCKET,
-          Key: 'models/' + params.id + '/',
-        };
-
-        const { Contents } = await s3Client.send(new ListObjectsCommand(obj))
-        const filterd = Contents?.filter((file) => file.Key?.split('/')[1] === params.id)
-
-        filterd?.forEach(async (file) => {
-          const type = file.Key?.split('/')[2];
-
-          const deleteObject = {
-            Bucket: process.env.S3_BUCKET,
-            Key: "models/" + params.id + '/' + 'scene' + type
-          };
-          const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
-        })
-
-      }
 
     } catch (error) {
       console.error(error)
