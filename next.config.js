@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  api: {
-    bodyparser: false,
-  },
   // reactStrictMode: true,
   env: {
     S3_KEY_ID: process.env.S3_KEY_ID,
