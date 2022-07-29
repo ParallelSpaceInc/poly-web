@@ -1,9 +1,9 @@
 import "@styles/globals.css";
-import type {AppProps} from "next/app";
+import type { AppProps } from "next/app";
 import Header from "@components/header";
-import {supabase} from "@supabase/client";
-import {useEffect, useState} from "react";
-import {useRouter} from "next/router";
+import { supabase } from "@supabase/client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export interface UserData {
   user_id: string | undefined,
@@ -13,7 +13,7 @@ export interface UserData {
   created_at: string | undefined
 }
 
-function MyApp({Component, pageProps}: AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   const [user, setUser] = useState<UserData | undefined>(undefined)
@@ -34,7 +34,7 @@ function MyApp({Component, pageProps}: AppProps) {
   }, [session])
 
   useEffect(() => {
-    const {data: authListener} = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
 
       if (event === 'SIGNED_IN') {
 
@@ -42,12 +42,12 @@ function MyApp({Component, pageProps}: AppProps) {
 
         fetch('/api/auth', {
           method: 'POST',
-          headers: new Headers({'Content-Type': 'application/json'}),
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           credentials: 'same-origin',
-          body: JSON.stringify({event, session}),
+          body: JSON.stringify({ event, session }),
         }).then((res) => res.json())
 
-        const {data} = await supabase.from('profiles').select('*').eq('user_id', loggedInUser?.id);
+        const { data } = await supabase.from('profiles').select('*').eq('user_id', loggedInUser?.id);
 
         const userInfo: UserData = {
           user_id: loggedInUser?.id,
@@ -68,8 +68,6 @@ function MyApp({Component, pageProps}: AppProps) {
 
       } else if (event === 'SIGNED_OUT') {
         setUser(undefined)
-
-        await router.push('/')
       }
     })
 
@@ -80,7 +78,7 @@ function MyApp({Component, pageProps}: AppProps) {
 
   return (
     <>
-      <Header user={user}/>
+      <Header user={user} />
       <Component {...pageProps} />
     </>
   )

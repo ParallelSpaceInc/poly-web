@@ -41,6 +41,7 @@ export default function Header({ user }: Props) {
 
   const logOut = async () => {
     setIsClickUserName(false)
+    router.push('/')
     await supabase.auth.signOut()
   }
 
