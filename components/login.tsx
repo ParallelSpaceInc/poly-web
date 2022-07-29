@@ -1,5 +1,4 @@
-import { supabase } from "@supabase/client";
-import { Provider } from "@supabase/gotrue-js";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 
 type props = {
@@ -7,17 +6,6 @@ type props = {
 };
 
 export default function Login({ closeLoginBox }: props) {
-  const signIn = async (provider: Provider) => {
-    await supabase.auth.signIn(
-      {
-        provider,
-      },
-      {
-        redirectTo: window.location.origin,
-      }
-    );
-  };
-
   return (
     <div className="absolute top-0 w-screen h-screen z-10 bg-gray-200 bg-opacity-30">
       <div className="absolute w-screen h-screen z-20 flex justify-center items-center">
@@ -35,7 +23,7 @@ export default function Login({ closeLoginBox }: props) {
           </div>
           <div className="flex flex-col justify-around items-center h-full py-24 xl:py-40">
             <button
-              onClick={() => signIn("google")}
+              onClick={() => signIn("google", { callbackUrl: "/" })}
               className=" w-2/3 flex justify-center items-center space-x-2 md:space-x-5 py-3 rounded bg-google-blue shadow shadow-gray-600 text-white"
             >
               <svg
@@ -49,8 +37,8 @@ export default function Login({ closeLoginBox }: props) {
               <span className="text-sm md:text-base">Sign In with Google</span>
             </button>
             <button
-              onClick={() => signIn("github")}
-              className="w-2/3 flex justify-center items-center space-x-2 md:space-x-5 py-3 rounded bg-gray-400 text-white shadow shadow-gray-600 text-white"
+              onClick={() => signIn("github", { callbackUrl: "/" })}
+              className="w-2/3 flex justify-center items-center space-x-2 md:space-x-5 py-3 rounded bg-gray-400 shadow shadow-gray-600 text-white"
             >
               <svg
                 className="w-5 h-5 ml-2"
