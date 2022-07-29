@@ -27,7 +27,7 @@ model User {
   created DateTime  @default(now())
   updated DateTime  @updatedAt
   name    String    @db.VarChar(100)
-  phone   String?   @default("") @db.VarChar(20)
+  phone   String?   @unique @db.VarChar(20)
   class   String    @db.VarChar(20) // "guest"(no data in DB), "user"(data in DB), "admin"(only for maintiner)  
   Model   Model[]
   Post    Post[]
