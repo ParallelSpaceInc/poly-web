@@ -1,13 +1,13 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Image from "next/image";
-import {supabase} from "@supabase/client";
-import {Provider, User} from "@supabase/gotrue-js";
+import { supabase } from "@supabase/client";
+import { Provider } from "@supabase/gotrue-js";
 
 type props = {
   closeLoginBox: () => void,
 }
 
-export default function Login({closeLoginBox}: props) {
+export default function Login({ closeLoginBox }: props) {
 
 
   const signIn = async (provider: Provider) => {
@@ -26,7 +26,7 @@ export default function Login({closeLoginBox}: props) {
           <div
             className={'h-1/4 xl:h-1/5 text-3xl xl:text-4xl border-b-2 w-full flex justify-between items-center px-10'}>
             <p>Login</p>
-            <Image onClick={closeLoginBox} className={'cursor-pointer'} src={'/closeBtn.png'} width={30} height={30}/>
+            <Image onClick={closeLoginBox} alt={'closeBtn'} className={'cursor-pointer'} src={'/closeBtn.png'} width={30} height={30} />
           </div>
           <div className={'flex flex-col justify-around items-center h-full py-24 xl:py-40'}>
             <button onClick={() => signIn('google')}
@@ -38,12 +38,12 @@ export default function Login({closeLoginBox}: props) {
                 viewBox='0 0 24 24'
               >
                 <path
-                  d='M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z'/>
+                  d='M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z' />
               </svg>
               <span className={'text-sm md:text-base'}>Sign In with Google</span>
             </button>
             <button onClick={() => signIn('github')}
-              className={'w-2/3 flex justify-center items-center space-x-2 md:space-x-5 py-3 shadow rounded bg-gray-400 text-white shadow shadow-gray-600 text-white'}>
+              className={'w-2/3 flex justify-center items-center space-x-2 md:space-x-5 py-3 shadow rounded bg-gray-400  shadow-gray-600 text-white'}>
               <svg
                 className='w-5 h-5 ml-2'
                 aria-hidden='true'
