@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function Header() {
   const { data: session, status } = useSession();
   const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
+  console.log(session);
 
   const closeLoginBox = (): void => {
     setIsOpenLoginCp(false);
