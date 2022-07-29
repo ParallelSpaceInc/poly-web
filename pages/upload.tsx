@@ -1,15 +1,87 @@
-import { useEffect, useState } from "react"
+import { DeleteObjectCommand, GetObjectCommand, ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { supabase } from "@supabase/client";
+import s3Client from "lib/s3client";
+import { useState } from "react"
 import Dropzone from "react-dropzone"
+import { FieldValues, useForm } from "react-hook-form";
+import { v4 as uuidv4 } from 'uuid'
 
 const Upload = () => {
 
   const [files, setFiles] = useState<File[] | []>([]);
-  const [height, setHeight] = useState<number>(0);
+  const { register, handleSubmit } = useForm();
 
-  useEffect(() => {
-    setHeight(window.innerHeight)
-    console.log(window.innerHeight)
-  }, [])
+  const onValid = async (form: FieldValues) => {
+
+    try {
+      if (files.length === 0) {
+        return alert('파일 업로드해주시길 바랍니다.')
+      }
+
+      if (form.name.trim() === '') {
+        return alert('모델네임을 입력해주시길 바랍니다.')
+      }
+
+      const uuid = uuidv4();
+      let renameFiles: File[] = [];
+
+      files.forEach(async (file) => {
+        try {
+          const type = file.name.split('.')[1];
+          const reNameFile = new File([file], `scene.${type}`);
+          const filesParams = {
+            Bucket: process.env.S3_BUCKET,
+            Key: 'models/' + uuid + '/' + reNameFile.name,
+            Body: reNameFile,
+          };
+          renameFiles.push(reNameFile)
+
+          // await s3Client.send(new PutObjectCommand(filesParams));
+
+        } catch (error) {
+          return alert('S3 업로드 실패')
+        }
+      })
+
+      const params = {
+        name: String(form.name),
+        user_id: String(supabase.auth.user()?.id),
+        src: String(uuid),
+        id: String(uuid),
+      }
+
+      const { success, data, error } = await fetch('/api/uploadModel', {
+        method: "POST",
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ params })
+      }).then((res) => { return res.json() })
+
+      if (!success) {
+
+        const obj = {
+          Bucket: process.env.S3_BUCKET,
+          Key: 'models/' + params.id + '/',
+        };
+
+        const { Contents } = await s3Client.send(new ListObjectsCommand(obj))
+        const filterd = Contents?.filter((file) => file.Key?.split('/')[1] === params.id)
+
+        filterd?.forEach(async (file) => {
+          const type = file.Key?.split('/')[2];
+
+          const deleteObject = {
+            Bucket: process.env.S3_BUCKET,
+            Key: "models/" + params.id + '/' + 'scene' + type
+          };
+          const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
+        })
+
+      }
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <div className="bg-gray-200 w-full">
@@ -48,7 +120,7 @@ const Upload = () => {
                       return (
                         <div key={i} className={'grid grid-cols-2 text-center border-b border-black py-4 divide-x divide-black'}>
                           <p>
-                            {files.name}</p><p>{kbSize > 1000 ? mbSize + "mb" : kbSize + "kb"}
+                            {files.name}</p><p>{size < 1000 ? size + 'bite' : kbSize > 1000 ? mbSize + "mb" : kbSize + "kb"}
                           </p>
                         </div>)
                     })}
@@ -65,18 +137,20 @@ const Upload = () => {
           <p>가나다라.obj</p>
           <p>size</p>
         </div>
-        <form className="flex flex-col justify-around w-2/3">
+        <form onSubmit={handleSubmit(onValid)} className="flex flex-col justify-around w-2/3">
           <div className="flex flex-col space-y-3">
             <label htmlFor="name" className="tracking-[0.3rem]  font-bold">제목</label>
-            <input id="name" className="pl-3 py-2 border border-black rounded-md" />
+            <input id="name" {...register('name', {
+              required: true
+            })} className="pl-3 py-2 border border-black rounded-md" />
           </div>
           <div className="flex flex-col space-y-3">
             <label htmlFor="discription" className=" tracking-[0.3rem] font-bold">내용</label>
-            <input id='discription' className="pl-3 py-1  h-32 border border-black rounded-md" />
+            <input id='discription' {...register('discription')} className="pl-3 py-1  h-32 border border-black rounded-md" />
           </div>
           <div className="flex flex-col space-y-3">
-            <label htmlFor="categories" className="tracking-[0.3rem] font-bold">카테고리</label>
-            <select id="categories" className="pl-3 py-2 border border-black rounded-md">
+            <label htmlFor="category" className="tracking-[0.3rem] font-bold">카테고리</label>
+            <select id="category" {...register('category')} className="pl-3 py-2 border border-black rounded-md">
               <option></option>
               <option>MISC</option>
               <option>FURNITUER</option>
@@ -96,10 +170,10 @@ const Upload = () => {
             </select>
           </div>
           <div className="flex flex-col space-y-3">
-            <label className="tracking-[0.3rem] font-bold">태그</label>
-            <input className="pl-3 py-2 border border-black rounded-md" />
+            <label htmlFor="tag" className="tracking-[0.3rem] font-bold">태그</label>
+            <input id="tag" {...register('tag')} className="pl-3 py-2 border border-black rounded-md" />
           </div>
-          <button className="tracking-widest bg-header-gray text-white py-3 rounded-md">업로드하기</button>
+          <button type="submit" className="tracking-widest bg-header-gray text-white py-3 rounded-md">업로드하기</button>
         </form>
       </div>
     </div >
