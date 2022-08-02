@@ -1,5 +1,8 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { supabase } from "@supabase/client";
+import { rejects } from "assert";
 import s3Client from "lib/s3client";
+import { resolve } from "path";
 import { useState } from "react"
 import Dropzone from "react-dropzone"
 import { FieldValues, useForm } from "react-hook-form";
@@ -24,6 +27,7 @@ const Upload = () => {
       const uuid = uuidv4();
       let renameFiles: File[] = [];
 
+
       files.forEach(async (file) => {
         try {
           const type = file.name.split('.')[1];
@@ -41,6 +45,48 @@ const Upload = () => {
           return alert('S3 업로드 실패')
         }
       })
+      const params = {
+        name: String(form.name),
+        user_id: String(supabase.auth.user()?.id),
+        src: String(uuid),
+        id: String(uuid),
+      }
+
+      const { success, data, error } = await fetch('/api/uploadModel', {
+        method: "POST",
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ params })
+      }).then((res) => { return res.json() })
+
+      // if (!success) {
+
+      //   const obj = {
+      //     Bucket: process.env.S3_BUCKET,
+      //     Key: 'models/' + params.id + '/',
+      //   };
+
+      //   const { Contents } = await s3Client.send(new ListObjectsCommand(obj))
+      //   console.log(Contents)
+      //   const filterd = Contents?.filter((file) => file.Key?.split('/')[1] === params.id)
+      //   console.log(filterd)
+      //   filterd?.forEach(async (file) => {
+      //     const type = file.Key?.split('/')[2];
+
+      //     const deleteObject = {
+      //       Bucket: process.env.S3_BUCKET,
+      //       Key: "models/" + params.id + '/' + 'scene' + type
+      //     };
+      //     const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
+      //     console.log(log)
+      //   })
+
+      //   // const deleteObject = {
+      //   //   Bucket: process.env.S3_BUCKET,
+      //   //   Key: "models/" + params.id + '/'
+      //   // };
+      //   // const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
+
+      // }
 
 
     } catch (error) {
