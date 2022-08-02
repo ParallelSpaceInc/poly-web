@@ -1,10 +1,14 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client } from "@aws-sdk/client-s3";
 
 const id = String(process.env.S3_KEY_ID);
 const key = String(process.env.S3_KEY);
 const region = String(process.env.S3_REGION);
 
-const s3Client = new S3Client({
+declare global {
+  var s3Client: S3Client;
+}
+
+global.s3Client ??= new S3Client({
   credentials: {
     accessKeyId: id,
     secretAccessKey: key,
@@ -12,4 +16,4 @@ const s3Client = new S3Client({
   region: region,
 });
 
-export default s3Client;
+export default global.s3Client;
