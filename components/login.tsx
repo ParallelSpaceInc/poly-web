@@ -14,11 +14,11 @@ export default function Login({ closeLoginBox }: props) {
             <p>Login</p>
             <Image
               onClick={closeLoginBox}
-              className="cursor-pointer"
-              src="/closeBtn.png"
+              alt={"closeBtn"}
+              className={"cursor-pointer"}
+              src={"/closeBtn.png"}
               width={30}
               height={30}
-              alt="closeLoginBox"
             />
           </div>
           <div className="flex flex-col justify-around items-center h-full py-24 xl:py-40">
