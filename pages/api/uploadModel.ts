@@ -1,5 +1,5 @@
-import prismaClient from 'lib/prismaClient';
-import { NextApiRequest, NextApiResponse } from 'next';
+import prismaClient from "@libs/server/prismaClient";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,6 +22,6 @@ export default async function handler(
       data,
     });
   } catch (error) {
-    res.status(400).json({ success: false, error: '모델 업로드 실패' });
+    res.status(400).json({ success: false, error: "모델 업로드 실패" });
   }
 }
