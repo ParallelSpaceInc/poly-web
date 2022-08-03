@@ -1,4 +1,6 @@
 import { ModelInfo } from "@customTypes/model";
+import prismaClient from "@libs/server/prismaClient";
+import { Model } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const modelNames = [
@@ -16,20 +18,27 @@ const modelNames = [
   "해태 조각상",
 ];
 
-const makeModelInfo: (id: number, name: string) => ModelInfo = (id, name) => ({
-  id,
-  name,
-  modelSrc: `/getResource/models/${id}/scene.gltf`,
-  thumbnailSrc: `/getResource/models/${id}/thumbnail.png`,
-});
+const makeModelInfo: (model: Model) => ModelInfo = (model) => {
+  return {
+    ...model,
+    modelSrc: `/getResource/models/${model.id}/scene.gltf`,
+    thumbnailSrc: `/getResource/models/${model.id}/thumbnail.png`,
+  };
+};
 
-const modelList: ModelInfo[] = Array.from(Array(12).keys()).map((key) =>
-  makeModelInfo(key, modelNames[key])
-);
+const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
+  models.map((model) => makeModelInfo(model));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  res.status(200).json(modelList);
+  if (req.method !== "GET") {
+    res.status(405).end();
+    return;
+  }
+  const modelList = await prismaClient.model.findMany();
+  const parsedList = makeModelInfos(modelList);
+
+  res.status(200).json(parsedList);
 }

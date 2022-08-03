@@ -1,7 +1,6 @@
 import { ModelInfo } from "@customTypes/model";
 import type { NextPage } from "next";
-import Image from "next/image";
-import Link from "next/link";
+import { getSession } from "next-auth/react";
 import useSWR from "swr";
 
 const ModelsMainPage: NextPage = () => {
@@ -9,6 +8,9 @@ const ModelsMainPage: NextPage = () => {
     "/api/models",
     (url) => fetch(url).then((res) => res.json())
   );
+
+  console.log(modelInfos);
+  getSession().then((res) => console.log(res));
 
   const loading = !modelInfos && !error;
   return (
@@ -23,9 +25,9 @@ const ModelsMainPage: NextPage = () => {
           </div>
         </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-          {!loading && modelInfos ? (
+          {/* {!loading && modelInfos ? (
             modelInfos.map((info, i) => (
-              <Link key={i} href={`/models/${info.id}`}>
+              <Link key={i} href={`/models/${info.id}`}>s
                 <div className="flex flex-col relative cursor-pointer">
                   <div className="block  aspect-[4/3] relative rounded-lg shadow-md">
                     <Image
@@ -46,7 +48,7 @@ const ModelsMainPage: NextPage = () => {
             ))
           ) : (
             <span>Loading...</span>
-          )}
+          )} */}
         </div>
       </div>
     </div>

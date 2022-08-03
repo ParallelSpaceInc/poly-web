@@ -1,6 +1,5 @@
-export type ModelInfo = {
-  id: number;
-  name: string;
+import { Model } from "@prisma/client";
+export interface ModelInfo extends Model {
   modelSrc: string;
   thumbnailSrc: string;
-};
+}
