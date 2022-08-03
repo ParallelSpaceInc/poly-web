@@ -46,10 +46,10 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  class         String    @default("user") // type : banned, user, admin
+  role          Role      @default(UNAUTHENTICATED)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt()
-  Model         Model[]
+  uploadModels  Model[]
 }
 
 model VerificationToken {
@@ -61,12 +61,37 @@ model VerificationToken {
 }
 
 model Model {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
-  uploader    User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt()
+  uploader    User          @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt()
   userId      String
-  tag         String
-  description String   @db.Text()
+  category    ModelCategory @default(MISE)
+  tags        Json
+  description String        @db.Text()
+}
+
+enum Role {
+  UNAUTHENTICATED
+  USER
+  ADMIN
+}
+
+enum ModelCategory {
+  MISE
+  FUNITURE
+  ARCHITECTURE
+  ANIMALS
+  FOOD
+  CARACTERS
+  NATURE
+  VEHICLES
+  SCENES
+  ACCESSORIES
+  HEALTH
+  INSTRUMENTS
+  PLANTS
+  WEAPONS
+  TECHNOLOGY
 }
