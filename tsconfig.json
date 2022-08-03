@@ -20,6 +20,7 @@
       "@api/*": ["pages/api/*"],
       "@styles/*": ["styles/*"],
       "@supabase/*": ["supabase/*"],
+      "@libs/*": ["libs/*"],
       "@customTypes/*": ["customTypes/*"]
     }
   },
