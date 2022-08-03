@@ -8,7 +8,7 @@ const Home: NextPage = () => {
     router.replace("/models");
   }, [router]);
 
-  return <span>root page</span>;
+  return <span className="text-white">root page</span>;
 };
 
 export default Home;
