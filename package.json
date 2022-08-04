@@ -32,6 +32,7 @@
     "three": "^0.141.0"
   },
   "devDependencies": {
+    "@types/formidable": "^2.0.5",
     "@types/node": "18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
