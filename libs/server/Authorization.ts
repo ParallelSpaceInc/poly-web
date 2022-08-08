@@ -1,8 +1,7 @@
-import { Model, Role, User } from "@prisma/client";
+import { Model, User } from "@prisma/client";
 
 type AuthorizationRequest = {
   operation: Operation;
-  role: Role;
   body: {
     requester?: User; // Not modifiable by user because this is encrypted value in jwt
     model?: Model;
@@ -13,11 +12,8 @@ type Operation = {
   method: "create" | "read" | "update" | "delete";
 };
 
-export function hasRight({
-  role,
-  body,
-  operation,
-}: AuthorizationRequest): boolean {
+export function hasRight({ body, operation }: AuthorizationRequest): boolean {
+  const role = body.requester?.role;
   switch (role) {
     case "ADMIN":
       return true;

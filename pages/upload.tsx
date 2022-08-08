@@ -1,10 +1,6 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import s3Client from "@libs/server/s3client";
-import { supabase } from "@supabase/client";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { FieldValues, useForm } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
 
 const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
@@ -20,69 +16,20 @@ const Upload = () => {
         return alert("모델네임을 입력해주시길 바랍니다.");
       }
 
-      const uuid = uuidv4();
-      let renameFiles: File[] = [];
-
-      files.forEach(async (file) => {
-        try {
-          const type = file.name.split(".")[1];
-          const reNameFile = new File([file], `scene.${type}`);
-          const filesParams = {
-            Bucket: process.env.S3_BUCKET,
-            Key: "models/" + uuid + "/" + reNameFile.name,
-            Body: reNameFile,
-          };
-          renameFiles.push(reNameFile);
-
-          await s3Client.send(new PutObjectCommand(filesParams));
-        } catch (error) {
-          return alert("S3 업로드 실패");
-        }
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("file", file);
       });
-      const params = {
-        name: String(form.name),
-        user_id: String(supabase.auth.user()?.id),
-        src: String(uuid),
-        id: String(uuid),
-      };
-
-      const { success, data, error } = await fetch("/api/uploadModel", {
+      const res = await fetch("/api/models", {
         method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ params }),
-      }).then((res) => {
-        return res.json();
+        body: formData,
       });
-
-      // if (!success) {
-
-      //   const obj = {
-      //     Bucket: process.env.S3_BUCKET,
-      //     Key: 'models/' + params.id + '/',
-      //   };
-
-      //   const { Contents } = await s3Client.send(new ListObjectsCommand(obj))
-      //   console.log(Contents)
-      //   const filterd = Contents?.filter((file) => file.Key?.split('/')[1] === params.id)
-      //   console.log(filterd)
-      //   filterd?.forEach(async (file) => {
-      //     const type = file.Key?.split('/')[2];
-
-      //     const deleteObject = {
-      //       Bucket: process.env.S3_BUCKET,
-      //       Key: "models/" + params.id + '/' + 'scene' + type
-      //     };
-      //     const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
-      //     console.log(log)
-      //   })
-
-      //   // const deleteObject = {
-      //   //   Bucket: process.env.S3_BUCKET,
-      //   //   Key: "models/" + params.id + '/'
-      //   // };
-      //   // const log = await s3Client.send(new DeleteObjectCommand(deleteObject))
-
-      // }
+      const body = (await res.json()) as {
+        status: "ok" | "fail";
+        message: string;
+      };
+      alert(body.message);
+      // setFiles([]);
     } catch (error) {
       console.error(error);
     }
@@ -138,17 +85,17 @@ const Upload = () => {
                       <p className="text-center">
                         파일 포맷은{" "}
                         <span className="text-google-blue font-semibold">
-                          FBX, OBJ, STL, PLY
+                          scene.gltf 파일을 포함한 ZIP
                         </span>{" "}
-                        등을 지원합니다.
+                        을 지원합니다.
                       </p>
-                      <p className="text-center">
+                      {/* <p className="text-center">
                         또한{" "}
                         <span className="text-google-blue font-semibold">
                           ZIP, RAR
                         </span>{" "}
                         등의 텍스처, 메쉬가 포함된 파일을 업로드 할 수 있습니다.
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 ) : (
