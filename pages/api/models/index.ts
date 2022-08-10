@@ -55,6 +55,17 @@ export default async function handler(
     return;
   }
   if (req.method == "GET") {
+    if (req.query.id) {
+      const model = await prismaClient.model.findUnique({
+        where: { id: req.query.id as string },
+      });
+      if (!model) {
+        res.status(404).end();
+        return;
+      }
+      res.json(makeModelInfo(model));
+      return;
+    }
     // send first 30 model info
     const modelList = await prismaClient.model.findMany({ take: 30 });
     const parsedList = makeModelInfos(modelList);

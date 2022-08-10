@@ -1,4 +1,5 @@
 import { UploadForm } from "@customTypes/model";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
@@ -8,6 +9,10 @@ const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
   const { register, handleSubmit } = useForm<UploadForm>();
   const router = useRouter();
+  const session = useSession();
+  if (session.status === "unauthenticated") {
+    router.push("/models");
+  }
 
   const onValid = async (form: FieldValues) => {
     if (files.length === 0) {
