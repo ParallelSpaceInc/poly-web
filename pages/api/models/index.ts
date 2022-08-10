@@ -187,7 +187,7 @@ const getFormidableFileFromReq = async (req: NextApiRequest) => {
   return await new Promise<FormidableResult>((res, rej) => {
     const form = formidable({
       multiples: true,
-      maxFieldsSize: 5 << 20, // 5MB
+      maxFieldsSize: 100 << 20, // 100MB for zip file
       keepExtensions: true,
     });
     form.parse(req, (err, fields, files) => {
