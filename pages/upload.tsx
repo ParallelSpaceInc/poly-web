@@ -1,10 +1,13 @@
+import { UploadForm } from "@customTypes/model";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { FieldValues, useForm } from "react-hook-form";
 
 const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm<UploadForm>();
+  const router = useRouter();
 
   const onValid = async (form: FieldValues) => {
     try {
@@ -12,24 +15,19 @@ const Upload = () => {
         return alert("파일 업로드해주시길 바랍니다.");
       }
 
-      if (form.name.trim() === "") {
-        return alert("모델네임을 입력해주시길 바랍니다.");
-      }
-
       const formData = new FormData();
       files.forEach((file) => {
         formData.append("file", file);
       });
+
+      formData.append("form", JSON.stringify(form));
+
       const res = await fetch("/api/models", {
         method: "POST",
         body: formData,
       });
-      const body = (await res.json()) as {
-        status: "ok" | "fail";
-        message: string;
-      };
-      alert(body.message);
-      // setFiles([]);
+      alert("파일이 업로드 되었습니다.");
+      router.push("/models");
     } catch (error) {
       console.error(error);
     }
@@ -164,14 +162,16 @@ const Upload = () => {
           </div>
           <div className="flex flex-col space-y-3">
             <label
-              htmlFor="discription"
+              htmlFor="description"
               className=" tracking-[0.3rem] font-bold"
             >
               내용
             </label>
             <input
-              id="discription"
-              {...register("discription")}
+              id="description"
+              {...register("description", {
+                required: true,
+              })}
               className="pl-3 py-1  h-32 border border-black rounded-md"
             />
           </div>
@@ -181,12 +181,14 @@ const Upload = () => {
             </label>
             <select
               id="category"
-              {...register("category")}
+              {...register("category", {
+                required: true,
+              })}
               className="pl-3 py-2 border border-black rounded-md"
             >
               <option></option>
               <option>MISC</option>
-              <option>FURNITUER</option>
+              <option>FURNITURE</option>
               <option>ARCHITECTURE</option>
               <option>ANIMALS</option>
               <option>FOOD</option>
