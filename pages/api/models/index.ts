@@ -107,7 +107,7 @@ export default async function handler(
           id: uuid,
           name: form.name,
           category: form.category,
-          tags: form.tag ?? "",
+          tags: form.tag?.split(" ") ?? [],
           description: form.description,
           userId: user.id,
         },
