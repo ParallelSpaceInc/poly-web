@@ -10,27 +10,30 @@ const Upload = () => {
   const router = useRouter();
 
   const onValid = async (form: FieldValues) => {
-    try {
-      if (files.length === 0) {
-        return alert("파일 업로드해주시길 바랍니다.");
-      }
-
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append("file", file);
-      });
-
-      formData.append("form", JSON.stringify(form));
-
-      const res = await fetch("/api/models", {
-        method: "POST",
-        body: formData,
-      });
-      alert("파일이 업로드 되었습니다.");
-      router.push("/models");
-    } catch (error) {
-      console.error(error);
+    if (files.length === 0) {
+      return alert("파일 업로드해주시길 바랍니다.");
     }
+
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    formData.append("form", JSON.stringify(form));
+
+    // const res = await fetch("/api/models", {
+    const res = await fetch("/api/models", {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) {
+      console.log("upload failed");
+      const ans = await res.json().then((e) => e.message);
+      alert(`업로드에 실패하였습니다. ${ans}`);
+      return "error";
+    }
+    alert("파일이 업로드 되었습니다.");
+    router.push("/models");
   };
 
   return (
