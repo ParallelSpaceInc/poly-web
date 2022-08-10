@@ -15,11 +15,14 @@ const ModelPage: NextPage = () => {
   );
 
   const loading = !modelInfos && !error;
+  const modelInfo = modelInfos?.[0];
   if (error) {
-    return <h1>Model not found</h1>;
+    router.push("/");
+    return;
   }
-
-  const modelInfo = (modelInfos as ModelInfo[])[0];
+  if (!modelInfo) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col">

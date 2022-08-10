@@ -11,7 +11,7 @@ const nextConfig = {
     return [
       {
         source: `/getResource/:path*`,
-        destination: `http://125.131.177.217:30201/:path*`,
+        destination: `https://openup-poly.s3.ap-northeast-2.amazonaws.com/:path*`,
       },
     ];
   },
