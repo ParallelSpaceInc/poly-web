@@ -169,7 +169,6 @@ const deleteS3Files = async (uuid: string) => {
       Prefix: `models/${uuid}`,
     })
   );
-  console.log(objects);
   if (!objects.Contents) return Promise.reject("Can't find target.");
   Promise.all(
     objects.Contents.map((file) =>

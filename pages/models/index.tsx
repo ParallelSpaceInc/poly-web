@@ -1,6 +1,5 @@
 import { ModelInfo } from "@customTypes/model";
 import type { NextPage } from "next";
-import { getSession } from "next-auth/react";
 import useSWR from "swr";
 
 const ModelsMainPage: NextPage = () => {
@@ -8,9 +7,6 @@ const ModelsMainPage: NextPage = () => {
     "/api/models",
     (url) => fetch(url).then((res) => res.json())
   );
-
-  console.log(modelInfos);
-  getSession().then((res) => console.log(res));
 
   const loading = !modelInfos && !error;
   return (

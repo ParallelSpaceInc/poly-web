@@ -21,13 +21,11 @@ const Upload = () => {
 
     formData.append("form", JSON.stringify(form));
 
-    // const res = await fetch("/api/models", {
     const res = await fetch("/api/models", {
       method: "POST",
       body: formData,
     });
     if (!res.ok) {
-      console.log("upload failed");
       const ans = await res.json().then((e) => e.message);
       alert(`업로드에 실패하였습니다. ${ans}`);
       return "error";
