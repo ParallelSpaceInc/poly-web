@@ -7,10 +7,10 @@ import { Model } from "@prisma/client";
 import { randomUUID } from "crypto";
 import extract from "extract-zip";
 import formidable from "formidable";
-import { createReadStream, readdirSync, statSync } from "fs";
+import { createReadStream, readdirSync, rename, statSync } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import path from "path";
+import path, { join } from "path";
 
 export const config = {
   api: {
@@ -179,6 +179,9 @@ const extractZipThenSendToS3 = async (
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
   await extract(fileInfo.path, { dir: filePath });
+  rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
+    if (err) throw err;
+  });
   await Promise.all(
     (
       await getFilesPath(filePath)
