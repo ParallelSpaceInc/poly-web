@@ -1,7 +1,9 @@
 import { ModelInfo } from "@customTypes/model";
+import { hasRight } from "@libs/server/Authorization";
+import { User } from "@prisma/client";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 import useSWR from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
@@ -13,12 +15,16 @@ const ModelPage: NextPage = () => {
     `/api/models?${id}`,
     (url) => fetch(url).then((res) => res.json())
   );
+  const { data: user } = useSWR<User>(`/api/users`, (url) =>
+    fetch(url).then((res) => res.json())
+  );
+  console.log(user);
 
   const loading = !modelInfos && !error;
   const modelInfo = modelInfos?.[0];
   if (error) {
     router.push("/");
-    return;
+    return null;
   }
   if (!modelInfo) {
     return null;
@@ -41,9 +47,34 @@ const ModelPage: NextPage = () => {
           {!loading ? modelInfo.description : ""}
         </span>
         <p className="my-2 max-w-3xl mr-auto bg-slate-100 p-2 text-slate-500 text-xs md:text-base max-h-64 overflow-y-auto"></p>
+        <div className="flex space-x-3 mt-10 ">
+          {hasRight({ method: "delete", theme: "model" }, user, modelInfo) ? (
+            <button
+              onClick={() => callDeleteAPI(id, router)}
+              className="m-auto bg-slate-400 h-10"
+            >
+              delete
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
+};
+
+const callDeleteAPI = (id: string, router: NextRouter) => {
+  fetch(`/api/models/${id}`, {
+    method: "DELETE",
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw res.json();
+      }
+      router.push(`/models`);
+    })
+    .catch((error) => {
+      alert(`error : ${error.message}`);
+    });
 };
 
 export default ModelPage;
