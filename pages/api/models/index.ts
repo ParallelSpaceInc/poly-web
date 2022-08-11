@@ -44,7 +44,7 @@ export default async function handler(
         res.status(404).end();
         return;
       }
-      res.json(makeModelInfo(model));
+      res.json([makeModelInfo(model)]);
       return;
     }
     // send first 30 model info
@@ -77,7 +77,7 @@ export default async function handler(
         user
       )
     ) {
-      res.status(403).end();
+      res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
       return;
     }
 

@@ -34,6 +34,7 @@ const ModelsMainPage: NextPage = () => {
                       layout="fill"
                       objectFit="cover"
                       className="rounded-lg"
+                      priority
                     />
                   </div>
                   <div className="flex items-end justify-between">
