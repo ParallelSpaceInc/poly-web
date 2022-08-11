@@ -4,18 +4,13 @@ import { User } from "@prisma/client";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
 const ModelPage: NextPage = () => {
   const router = useRouter();
-  const [id, setId] = useState("");
-  useEffect(() => {
-    if (!router.query.id) return;
-    setId(router.query.id as string);
-  }, [router.query.id]);
+  const id = (router.query.id as string) ?? "";
   const { data: modelInfos, error } = useSWR<ModelInfo[]>(
     `/api/models?id=${id}`,
     (url) => fetch(url).then((res) => res.json())

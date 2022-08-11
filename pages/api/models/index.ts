@@ -189,7 +189,7 @@ const extractZipThenSendToS3 = async (
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
-        Key: `models/${uuid}/${path.basename(file)}`,
+        Key: join(`models/${uuid}`, path.relative(filePath, file)),
         Body: stream,
       };
       return s3client.send(new PutObjectCommand(filesParams));
