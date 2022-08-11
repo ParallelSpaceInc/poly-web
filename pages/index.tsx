@@ -5,8 +5,8 @@ import { useEffect } from "react";
 const Home: NextPage = () => {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/models");
-  }, [router]);
+    router.replace("models");
+  }, []);
 
   return <span className="text-white">root page</span>;
 };

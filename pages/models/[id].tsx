@@ -10,15 +10,14 @@ const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
 const ModelPage: NextPage = () => {
   const router = useRouter();
-  const id = router.query.id as string;
+  const id = (router.query.id as string) ?? "";
   const { data: modelInfos, error } = useSWR<ModelInfo[]>(
-    `/api/models?${id}`,
+    `/api/models?id=${id}`,
     (url) => fetch(url).then((res) => res.json())
   );
   const { data: user } = useSWR<User>(`/api/users`, (url) =>
     fetch(url).then((res) => res.json())
   );
-  console.log(user);
 
   const loading = !modelInfos && !error;
   const modelInfo = modelInfos?.[0];
@@ -43,7 +42,10 @@ const ModelPage: NextPage = () => {
         <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
           {!loading ? modelInfo.name : ""}
         </span>
-        <span className="block mt-2 text-slate-500 text-sm md:text-lg lg:text-xl">
+        <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
+          {!loading ? `Category > ${modelInfo.category}` : ""}
+        </span>
+        <span className="block mt-10 text-slate-500 text-sm md:text-lg lg:text-xl">
           {!loading ? modelInfo.description : ""}
         </span>
         <p className="my-2 max-w-3xl mr-auto bg-slate-100 p-2 text-slate-500 text-xs md:text-base max-h-64 overflow-y-auto"></p>
@@ -54,6 +56,16 @@ const ModelPage: NextPage = () => {
               className="m-auto bg-slate-400 h-10"
             >
               delete
+            </button>
+          ) : null}
+          {hasRight({ method: "read", theme: "model" }, user, modelInfo) ? (
+            <button
+              onClick={() => {
+                router.push(`/getResource/models/${id}/model.zip`);
+              }}
+              className="m-auto bg-slate-400 h-10"
+            >
+              download
             </button>
           ) : null}
         </div>

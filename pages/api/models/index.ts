@@ -7,10 +7,10 @@ import { Model } from "@prisma/client";
 import { randomUUID } from "crypto";
 import extract from "extract-zip";
 import formidable from "formidable";
-import { createReadStream, readdirSync, statSync } from "fs";
+import { createReadStream, readdirSync, rename, statSync } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import path from "path";
+import path, { join } from "path";
 
 export const config = {
   api: {
@@ -44,7 +44,7 @@ export default async function handler(
         res.status(404).end();
         return;
       }
-      res.json(makeModelInfo(model));
+      res.json([makeModelInfo(model)]);
       return;
     }
     // send first 30 model info
@@ -77,7 +77,7 @@ export default async function handler(
         user
       )
     ) {
-      res.status(403).end();
+      res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
       return;
     }
 
@@ -86,7 +86,6 @@ export default async function handler(
     const formidable = await getFormidableFileFromReq(req);
     await extractZipThenSendToS3(uuid, formidable).catch((e) => {
       res.status(500).json({ error: "while uploading to storage" });
-      console.warn(e);
       return;
     });
     const form: UploadForm = JSON.parse(formidable.fields.form as string);
@@ -104,7 +103,6 @@ export default async function handler(
       })
       .catch((e) => {
         res.status(500).json({ error: "while updating db" });
-        console.warn(e);
         deleteS3Files(uuid);
         return;
       });
@@ -181,6 +179,9 @@ const extractZipThenSendToS3 = async (
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
   await extract(fileInfo.path, { dir: filePath });
+  rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
+    if (err) throw err;
+  });
   await Promise.all(
     (
       await getFilesPath(filePath)
@@ -188,7 +189,7 @@ const extractZipThenSendToS3 = async (
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
-        Key: `models/${uuid}/${path.basename(file)}`,
+        Key: join(`models/${uuid}`, path.relative(filePath, file)),
         Body: stream,
       };
       return s3client.send(new PutObjectCommand(filesParams));

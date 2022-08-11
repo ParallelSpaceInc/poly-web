@@ -10,6 +10,11 @@ const Upload = () => {
   const { register, handleSubmit } = useForm<UploadForm>();
   const router = useRouter();
   const session = useSession();
+
+  if (session.status === "loading") {
+    return null;
+  }
+
   if (session.status === "unauthenticated") {
     router.push("/models");
   }
