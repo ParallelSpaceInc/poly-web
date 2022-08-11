@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^1.35.4",
     "@types/extract-zip": "^2.0.1",
     "@types/uuid": "^8.3.4",
+    "eslint-config-prettier": "^8.5.0",
     "extract-zip": "^2.0.1",
     "formidable": "^2.0.1",
     "install": "^0.13.0",
