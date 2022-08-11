@@ -86,7 +86,6 @@ export default async function handler(
     const formidable = await getFormidableFileFromReq(req);
     await extractZipThenSendToS3(uuid, formidable).catch((e) => {
       res.status(500).json({ error: "while uploading to storage" });
-      console.warn(e);
       return;
     });
     const form: UploadForm = JSON.parse(formidable.fields.form as string);
@@ -104,7 +103,6 @@ export default async function handler(
       })
       .catch((e) => {
         res.status(500).json({ error: "while updating db" });
-        console.warn(e);
         deleteS3Files(uuid);
         return;
       });

@@ -18,7 +18,6 @@ const ModelPage: NextPage = () => {
   const { data: user } = useSWR<User>(`/api/users`, (url) =>
     fetch(url).then((res) => res.json())
   );
-  console.log(user);
 
   const loading = !modelInfos && !error;
   const modelInfo = modelInfos?.[0];
