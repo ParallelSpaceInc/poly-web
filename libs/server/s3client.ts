@@ -1,4 +1,8 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  ListObjectsCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 const id = String(process.env.S3_KEY_ID);
 const key = String(process.env.S3_KEY);
@@ -17,3 +21,23 @@ global.s3Client ??= new S3Client({
 });
 
 export default global.s3Client;
+
+export const deleteS3Files = async (uuid: string) => {
+  const objects = await s3Client.send(
+    new ListObjectsCommand({
+      Bucket: process.env.S3_BUCKET,
+      Prefix: `models/${uuid}`,
+    })
+  );
+  if (!objects.Contents) return Promise.reject("Can't find target.");
+  Promise.all(
+    objects.Contents.map((file) =>
+      s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.S3_BUCKET,
+          Key: file.Key,
+        })
+      )
+    )
+  );
+};

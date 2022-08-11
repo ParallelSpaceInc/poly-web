@@ -1,4 +1,4 @@
-import { Model, User } from "@prisma/client";
+import { Model, Role, User } from "@prisma/client";
 
 type AuthorizationRequest = {
   operation: Operation;
@@ -12,19 +12,20 @@ type Operation = {
   method: "create" | "read" | "update" | "delete";
 };
 
-export function hasRight({ body, operation }: AuthorizationRequest): boolean {
-  const role = body.requester?.role;
+export function hasRight(
+  operation: Operation,
+  requester?: User | null,
+  model?: Model | null
+): boolean {
+  const role = requester?.role ?? Role.UNAUTHENTICATED;
   switch (role) {
-    case "ADMIN":
+    case Role.ADMIN:
       return true;
-    case "USER":
+    case Role.USER:
       switch (operation.theme) {
         case "model":
           const userIsUploader =
-            (body.model &&
-              body.requester &&
-              body.model.id == body.requester.id) ??
-            false;
+            (model && requester && model.userId === requester.id) ?? false;
           switch (operation.method) {
             case "create":
               return true;
@@ -48,7 +49,7 @@ export function hasRight({ body, operation }: AuthorizationRequest): boolean {
           }
       }
       return false;
-    case "UNAUTHENTICATED":
+    case Role.UNAUTHENTICATED:
       return false;
   }
   return false;

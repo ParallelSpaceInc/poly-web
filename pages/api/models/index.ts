@@ -1,12 +1,8 @@
-import {
-  DeleteObjectCommand,
-  ListObjectsCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { ModelInfo, UploadForm } from "@customTypes/model";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient from "@libs/server/prismaClient";
-import s3client from "@libs/server/s3client";
+import s3client, { deleteS3Files } from "@libs/server/s3client";
 import { Model } from "@prisma/client";
 import { randomUUID } from "crypto";
 import extract from "extract-zip";
@@ -28,7 +24,7 @@ type FormidableResult = {
   files: formidable.Files;
 };
 
-const allowedMethod = ["GET", "POST"];
+const allowedMethod = ["GET", "POST", "DELETE"];
 
 export default async function handler(
   req: NextApiRequest,
@@ -39,7 +35,7 @@ export default async function handler(
     res.status(405).end();
     return;
   }
-  if (req.method == "GET") {
+  if (req.method === "GET") {
     if (req.query.id) {
       const model = await prismaClient.model.findUnique({
         where: { id: req.query.id as string },
@@ -55,7 +51,7 @@ export default async function handler(
     const modelList = await prismaClient.model.findMany({ take: 30 });
     const parsedList = makeModelInfos(modelList);
     res.status(200).json(parsedList);
-  } else if (req.method == "POST") {
+  } else if (req.method === "POST") {
     // authorize client then upload model. db update return model id.
     const isLogined = !!token;
     if (!isLogined) {
@@ -73,15 +69,13 @@ export default async function handler(
     }
     if (
       // if don't have right, reply code 403.
-      !hasRight({
-        body: {
-          requester: user,
-        },
-        operation: {
+      !hasRight(
+        {
           theme: "model",
           method: "create",
         },
-      })
+        user
+      )
     ) {
       res.status(403).end();
       return;
@@ -118,6 +112,50 @@ export default async function handler(
       .setHeader("Location", "/models")
       .status(303)
       .json({ message: "업로드에 성공하였습니다." });
+  } else if (req.method === "DELETE") {
+    const user = await prismaClient.user.findUnique({
+      where: {
+        email: token?.user?.email ?? undefined, // if undefined, search nothing
+      },
+    });
+    const modelId = Array.isArray(req.query.id)
+      ? req.query.id[0]
+      : req.query.id;
+    if (!modelId) {
+      res.status(400).json({ error: "model id query not found" });
+      return;
+    }
+    const model = await prismaClient.model.findUnique({
+      where: {
+        id: modelId,
+      },
+    });
+    if (
+      !hasRight(
+        {
+          method: "delete",
+          theme: "model",
+        },
+        user,
+        model
+      )
+    ) {
+      res.status(403).end();
+      return;
+    }
+    try {
+      deleteS3Files(modelId);
+      await prismaClient.model.delete({
+        where: {
+          id: modelId,
+        },
+      });
+      res.json({ ok: true, message: "delete success!" });
+      return;
+    } catch (e) {
+      res.status(500).json({ ok: false, message: "Failed while deleting." });
+      return;
+    }
   }
 }
 
@@ -155,26 +193,6 @@ const extractZipThenSendToS3 = async (
       };
       return s3client.send(new PutObjectCommand(filesParams));
     })
-  );
-};
-
-const deleteS3Files = async (uuid: string) => {
-  const objects = await s3Client.send(
-    new ListObjectsCommand({
-      Bucket: process.env.S3_BUCKET,
-      Prefix: `models/${uuid}`,
-    })
-  );
-  if (!objects.Contents) return Promise.reject("Can't find target.");
-  Promise.all(
-    objects.Contents.map((file) =>
-      s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: process.env.S3_BUCKET,
-          Key: file.Key,
-        })
-      )
-    )
   );
 };
 
