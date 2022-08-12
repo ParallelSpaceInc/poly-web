@@ -1,31 +1,21 @@
-import { ModelInfo } from "@customTypes/model";
+import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
-import { User } from "@prisma/client";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
-import useSWR from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
 const ModelPage: NextPage = () => {
   const router = useRouter();
-  const id = (router.query.id as string) ?? "";
-  const { data: modelInfos, error } = useSWR<ModelInfo[]>(
-    `/api/models?id=${id}`,
-    (url) => fetch(url).then((res) => res.json())
-  );
-  const { data: user } = useSWR<User>(`/api/users`, (url) =>
-    fetch(url).then((res) => res.json())
-  );
-
-  const loading = !modelInfos && !error;
-  const modelInfo = modelInfos?.[0];
-  if (error) {
+  const modelId = (router.query.id as string) ?? "";
+  const model = useModelInfo(modelId);
+  const user = useUser();
+  if (model.error || user.error) {
     router.push("/");
     return null;
   }
-  if (!modelInfo) {
+  if (!model.data) {
     return null;
   }
 
@@ -37,31 +27,39 @@ const ModelPage: NextPage = () => {
           placeholder="Find model"
         ></input>
         <div className="aspect-[4/3] w-full max-w-5xl mx-auto mt-8">
-          {!loading ? <Model info={modelInfo} /> : "Loading..."}
+          {!model.loading ? <Model info={model.data} /> : "Loading..."}
         </div>
         <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
-          {!loading ? modelInfo.name : ""}
+          {!model.loading ? model.data.name : ""}
         </span>
         <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
-          {!loading ? `Category > ${modelInfo.category}` : ""}
+          {!model.loading ? `Category > ${model.data.category}` : ""}
         </span>
         <span className="block mt-10 text-slate-500 text-sm md:text-lg lg:text-xl">
-          {!loading ? modelInfo.description : ""}
+          {!model.loading ? model.data.description : ""}
         </span>
         <p className="my-2 max-w-3xl mr-auto bg-slate-100 p-2 text-slate-500 text-xs md:text-base max-h-64 overflow-y-auto"></p>
         <div className="flex space-x-3 mt-10 ">
-          {hasRight({ method: "delete", theme: "model" }, user, modelInfo) ? (
+          {hasRight(
+            { method: "delete", theme: "model" },
+            user.data,
+            model.data
+          ) ? (
             <button
-              onClick={() => callDeleteAPI(id, router)}
+              onClick={() => callDeleteAPI(modelId, router)}
               className="m-auto bg-slate-400 h-10"
             >
               delete
             </button>
           ) : null}
-          {hasRight({ method: "read", theme: "model" }, user, modelInfo) ? (
+          {hasRight(
+            { method: "read", theme: "model" },
+            user.data,
+            model.data
+          ) ? (
             <button
               onClick={() => {
-                router.push(`/getResource/models/${id}/model.zip`);
+                router.push(`/getResource/models/${modelId}/model.zip`);
               }}
               className="m-auto bg-slate-400 h-10"
             >
