@@ -16,7 +16,7 @@ function UsersPage() {
     return;
   }
   router.push(`/users/${user.data.id}`);
-  return <div></div>;
+  return;
 }
 
 export default UsersPage;

@@ -6,7 +6,7 @@ export function useUser() {
   const { data, error } = useSWR<User>(`/api/users`, (url) =>
     fetch(url).then((res) => res.json())
   );
-  const loading = !data && !error;
+  const loading = data === undefined && !error;
   return { loading, data, error };
 }
 
