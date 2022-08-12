@@ -36,6 +36,7 @@ export default async function handler(
     return;
   }
   if (req.method === "GET") {
+    // respone specified model info
     if (req.query.id) {
       const model = await prismaClient.model.findUnique({
         where: { id: req.query.id as string },
@@ -45,6 +46,26 @@ export default async function handler(
         return;
       }
       res.json([makeModelInfo(model)]);
+      return;
+    } else if (req.query.uploader) {
+      // respone specific uploader's models info
+      const uploaders =
+        typeof req.query.uploader === "string"
+          ? [req.query.uploader]
+          : req.query.uploader;
+      const querys = uploaders.map((uploaderId) => {
+        return {
+          uploader: {
+            id: uploaderId,
+          },
+        };
+      });
+      const model = await prismaClient.model.findMany({
+        where: {
+          OR: querys,
+        },
+      });
+      res.json(makeModelInfos(model));
       return;
     }
     // send first 30 model info
