@@ -6,16 +6,14 @@ function UsersPage() {
   const router = useRouter();
   const session = useSession();
   const user = useUser();
-  const loading = session.status === "loading" || user.loading;
-
-  if (loading) {
-    return;
-  }
+  const onLoading =
+    session.status === "loading" || user.loading || !router.isReady;
+  if (onLoading) return;
   if (session.status === "unauthenticated" || !user.data) {
-    router.push("/models");
+    router.replace("/models");
     return;
   }
-  router.push(`/users/${user.data.id}`);
+  router.replace(`/users/${user.data.id}`);
   return;
 }
 
