@@ -10,9 +10,11 @@ export function useUser() {
   return { loading, data, error };
 }
 
-export function useModelInfos() {
-  const { data, error } = useSWR<ModelInfo[]>(`/api/models`, (url) =>
-    fetch(url).then((res) => res.json())
+export function useModelInfos(filter?: { id?: string; uploader?: string }) {
+  const queryString = new URLSearchParams(filter).toString();
+  const { data, error } = useSWR<ModelInfo[]>(
+    `/api/models?${queryString}`,
+    (url) => fetch(url).then((res) => res.json())
   );
   const loading = !data && !error;
   return { loading, data, error };
