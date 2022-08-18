@@ -1,7 +1,7 @@
 import { UploadForm } from "@customTypes/model";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
 import { FieldValues, useForm } from "react-hook-form";
 
@@ -9,11 +9,30 @@ const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
   const {
     register,
+    setValue: setFormValue,
+    watch: getFormValue,
     handleSubmit,
-    formState: { isSubmitting },
+    reset: formReset,
+    formState,
   } = useForm<UploadForm>();
   const router = useRouter();
   const session = useSession();
+  const fields = getFormValue();
+  const isSubmitting = formState.isSubmitting;
+  const formKeyName = "uploadForm";
+
+  useEffect(() => {
+    // set uploadForm if upload form data remained
+    const prev = JSON.parse(localStorage.getItem(formKeyName) ?? "{}");
+    for (const key in prev) {
+      setFormValue(key as any, prev[key]);
+    }
+  }, [setFormValue]);
+
+  useEffect(() => {
+    // remember input to local storage
+    localStorage.setItem(formKeyName, JSON.stringify(fields));
+  }, [fields]);
 
   if (session.status === "loading") {
     return null;
@@ -45,6 +64,8 @@ const Upload = () => {
       return "error";
     }
     alert("파일이 업로드 되었습니다.");
+    localStorage.removeItem(formKeyName);
+    formReset();
     router.push("/models");
   };
 
