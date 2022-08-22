@@ -3,43 +3,19 @@ import UserMenuModal from "@components/userMenuModal";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export default function Header() {
   const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
   const [isClickUserName, setIsClickUserName] = useState(false);
-  const userBoxRef = useRef<HTMLElement>(
-    null
-  ) as React.MutableRefObject<HTMLDivElement>;
-  const userMenuModalRef = useRef<HTMLElement>(
-    null
-  ) as React.MutableRefObject<HTMLDivElement>;
   const { data: session, status } = useSession();
 
   const router = useRouter();
 
   const closeLoginBox = (): void => {
     setIsOpenLoginCp(false);
+    document.body.classList.remove("overflow-hidden");
   };
-
-  useEffect(() => {
-    function handleClickOutside(event: React.BaseSyntheticEvent | MouseEvent) {
-      if (
-        userBoxRef.current &&
-        !userBoxRef.current.contains(event.target) &&
-        userMenuModalRef.current &&
-        !userMenuModalRef.current.contains(event.target)
-      ) {
-        setIsClickUserName(false);
-      }
-    }
-
-    document.addEventListener("click", handleClickOutside, true);
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
-  }, []);
 
   const clickUserNameBox = () => {
     setIsClickUserName(!isClickUserName);
@@ -88,7 +64,6 @@ export default function Header() {
           {status === "authenticated" ? (
             <div
               onClick={clickUserNameBox}
-              ref={userBoxRef}
               className={
                 "flex justify-between items-center space-x-2 cursor-pointer"
               }
@@ -97,7 +72,7 @@ export default function Header() {
                 <p>{session?.user?.name}</p>
               </div>
               <svg
-                className={`rotate-${isClickUserName ? "0" : "180"}`}
+                className={`rotate-${isClickUserName ? "180" : "0"}`}
                 width="9"
                 height="7"
                 viewBox="0 0 9 7"
@@ -113,7 +88,10 @@ export default function Header() {
           ) : (
             <div
               className={"cursor-pointer"}
-              onClick={() => setIsOpenLoginCp(!isOpenLoginCP)}
+              onClick={() => {
+                setIsOpenLoginCp(!isOpenLoginCP);
+                document.body.classList.add("overflow-hidden");
+              }}
             >
               LOGIN
             </div>
@@ -121,9 +99,7 @@ export default function Header() {
         </div>
       </div>
       {isOpenLoginCP && <Login closeLoginBox={closeLoginBox} />}
-      {isClickUserName && (
-        <UserMenuModal ref={userMenuModalRef} logOut={signOut} />
-      )}
+      {isClickUserName && <UserMenuModal logOut={signOut} />}
     </div>
   );
 }
