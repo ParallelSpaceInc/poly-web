@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   ListObjectsCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -40,4 +41,14 @@ export const deleteS3Files = async (uuid: string) => {
       )
     )
   );
+};
+
+export const downloadS3Files = async (uuid: string) => {
+  const objectBuffer = await s3Client.send(
+    new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: `models/${uuid}/model.zip`,
+    })
+  );
+  return objectBuffer;
 };

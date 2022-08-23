@@ -42,7 +42,7 @@ const ModelPage: NextPage = () => {
           ) ? (
             <button
               onClick={() => {
-                router.push(`/getResource/models/${modelId}/model.zip`);
+                router.push(`/api/models/${modelId}`);
               }}
               className=" text-white bg-slate-700 h-10"
             >
