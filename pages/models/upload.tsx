@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
-import { FieldValues, useForm } from "react-hook-form";
+import { FieldError, FieldValues, useForm } from "react-hook-form";
 
 const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
@@ -80,7 +80,6 @@ const Upload = () => {
               if (file.type === "application/zip") {
                 const zipName = file.name.split(".").slice(0, -1).join(".");
                 setFormValue("name", zipName);
-                setFormValue("description", zipName);
               }
             });
           }}
@@ -181,15 +180,16 @@ const Upload = () => {
           <form onSubmit={handleSubmit(onValid)} className="flex-col space-y-5">
             <div className="flex flex-col space-y-3">
               <label htmlFor="name" className="tracking-[0.3rem]  font-bold">
-                모델명
+                모델명*
               </label>
               <input
                 id="name"
                 {...register("name", {
-                  required: true,
+                  required: "모델명을 입력해주세요.",
                 })}
                 className="pl-3 py-2 border border-black rounded-md"
               />
+              <ErrorDiv error={formState.errors.name}></ErrorDiv>
             </div>
             <div className="flex flex-col space-y-3">
               <label
@@ -200,25 +200,24 @@ const Upload = () => {
               </label>
               <input
                 id="description"
-                {...register("description", {
-                  required: true,
-                })}
+                {...register("description")}
                 className="pl-3 py-1  h-32 border border-black rounded-md"
               />
             </div>
             <div className="flex flex-col space-y-3">
               <label htmlFor="category" className="tracking-[0.3rem] font-bold">
-                카테고리
+                카테고리*
               </label>
               <select
                 id="category"
                 {...register("category", {
-                  required: true,
+                  required: "카테고리를 선택해주세요.",
                 })}
+                defaultValue="MISC"
                 className="pl-3 py-2 border border-black rounded-md"
               >
                 <option></option>
-                <option selected>MISC</option>
+                <option value="MISC">MISC</option>
                 <option>FURNITURE</option>
                 <option>ARCHITECTURE</option>
                 <option>ANIMALS</option>
@@ -234,6 +233,7 @@ const Upload = () => {
                 <option>WEAPONS</option>
                 <option>TECHNOLOGY</option>
               </select>
+              <ErrorDiv error={formState.errors.category}></ErrorDiv>
             </div>
             <div className="flex flex-col space-y-3">
               <label htmlFor="tag" className="tracking-[0.3rem] font-bold">
@@ -280,3 +280,9 @@ const Upload = () => {
 };
 
 export default Upload;
+
+const ErrorDiv = ({ error }: { error?: FieldError | undefined }) => (
+  <div className="text-red-600 pl-1">
+    {error?.type === "required" && error.message}
+  </div>
+);
