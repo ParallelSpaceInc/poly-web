@@ -1,34 +1,61 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Poly
 
-## Getting Started
+This is main repository for Poly, the model sharing platform.
 
-First, run the development server:
+## Dependancy
+
+Poly server is dependant on AWS S3 and MySQL.
+
+## Build server
+
+To build you Poly Server, perform the following steps.
+
+- Clone repository and install node packages
+- Prepare S3Server for Poly server
+- Create OAuth ID from Google and Github
+- Update .env file
+- Run Poly Server
+
+### Cloning repository
+
+To clone Poly repository, execute the commands below.
 
 ```bash
-npm run dev
-# or
-yarn dev
+$ git clone --depth=1 https://github.com/parallelspaceRE/poly-web
+$ cd poly-web
+$ npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Preparing S3Server
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Using AWS S3 may be charged under AWS policy.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Create new S3 Bucket for Poly server.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Creating OAuth ID
 
-## Learn More
+Following steps are guides for server which domain name is **poly-web.com**
 
-To learn more about Next.js, take a look at the following resources:
+If you don't have domain and want to run server for test, you can replace domain name to **http://localhost:3000**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Google
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Create OAuth 2.0 Client ID from [Google Cloud console](https://console.cloud.google.com/apis/credentials)
 
-## Deploy on Vercel
+- Click _Create Credentials_ -> OAuth client ID
+- Selecet _Web application_
+- Fill **https://poly-web.com** for Authorized JavaScript origins
+- Fill **https://poly-web.com/api/auth/callback/google** for Authorized redirect URIs
+- Click _Create_ Button
+- Memo your client id and Secret
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### Github
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Create OAuth ID from [Github Developer settings](https://github.com/settings/developers)
+
+- Click _New OAuth App_
+- Fill App name
+- Fill **https://poly-web.com** for Homepage URL
+- Fill **https://poly-web.com/api/auth/callback/github** for Authorized callback URIs
+- Click _Register application_
+- Click _Generate a new client secret_ then memo the secret and Client ID
