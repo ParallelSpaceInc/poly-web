@@ -46,10 +46,11 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  role          Role      @default(UNAUTHENTICATED)
+  role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt()
   uploadModels  Model[]
+  Log           Log[]
 }
 
 model VerificationToken {
@@ -94,4 +95,17 @@ enum ModelCategory {
   PLANTS
   WEAPONS
   TECHNOLOGY
+}
+
+model Log {
+  id        BigInt   @id @default(autoincrement())
+  userId    String
+  action    Action
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+enum Action {
+  MODEL_DOWNLOAD
+  MODEL_UPLOAD
 }
