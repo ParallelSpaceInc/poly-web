@@ -73,7 +73,18 @@ const Upload = () => {
   return (
     <Wrapper>
       <div className="grid lg:grid-cols-2 gap-x-10">
-        <Dropzone onDrop={(acceptedFiles) => setFiles(acceptedFiles)}>
+        <Dropzone
+          onDrop={(acceptedFiles) => {
+            setFiles(acceptedFiles);
+            acceptedFiles.forEach((file) => {
+              if (file.type === "application/zip") {
+                const zipName = file.name.split(".").slice(0, -1).join(".");
+                setFormValue("name", zipName);
+                setFormValue("description", zipName);
+              }
+            });
+          }}
+        >
           {({ getRootProps, getInputProps }) => (
             <div
               className={`w-full border-2 p-10 py-20 border-black border-dashed bg-white flex justify-around flex-col items-center cursor-pointer`}
@@ -207,7 +218,7 @@ const Upload = () => {
                 className="pl-3 py-2 border border-black rounded-md"
               >
                 <option></option>
-                <option>MISC</option>
+                <option selected>MISC</option>
                 <option>FURNITURE</option>
                 <option>ARCHITECTURE</option>
                 <option>ANIMALS</option>
