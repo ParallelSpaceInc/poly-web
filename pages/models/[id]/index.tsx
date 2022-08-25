@@ -50,6 +50,18 @@ const ModelPage: NextPage = () => {
             </button>
           ) : null}
           {hasRight(
+            { method: "update", theme: "model" },
+            user.data,
+            model.data
+          ) ? (
+            <button
+              onClick={() => router.push(`/models/${modelId}/update`)}
+              className=" text-white bg-slate-700 h-10"
+            >
+              modify
+            </button>
+          ) : null}
+          {hasRight(
             { method: "delete", theme: "model" },
             user.data,
             model.data
