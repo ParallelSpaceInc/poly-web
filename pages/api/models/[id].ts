@@ -1,10 +1,11 @@
+import { UploadForm } from "@customTypes/model";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient, { getUser } from "@libs/server/prismaClient";
 import { deleteS3Files, downloadS3Files } from "@libs/server/s3client";
 import { NextApiRequest, NextApiResponse } from "next";
 import internal from "stream";
 
-const allowedMethod = ["GET", "DELETE"];
+const allowedMethod = ["GET", "DELETE", "PATCH"];
 
 // If CDN is adapted, this api can improve performance by checking authority then passing download request to CDN server.
 // still, this api is handling download request.
@@ -23,8 +24,11 @@ export default async function handler(
     return;
   }
   const modelId = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+
   if (!modelId) {
-    res.status(400).json({ error: "Can't find the model id in query." });
+    res
+      .status(400)
+      .json({ ok: false, error: "Can't find the model id in query." });
     return;
   }
   const user = await getUser(req);
@@ -130,6 +134,54 @@ export default async function handler(
       return;
     } catch (e) {
       res.status(500).json({ ok: false, message: "Failed while deleting." });
+      return;
+    }
+  }
+  if (req.method === "PATCH") {
+    const model = await prismaClient.model.findUnique({
+      where: {
+        id: modelId,
+      },
+    });
+    if (model === null) {
+      res.status(404).json({ ok: false, message: "Can't find the model." });
+      return;
+    }
+    if (
+      !hasRight(
+        {
+          method: "update",
+          theme: "model",
+        },
+        user,
+        model
+      )
+    ) {
+      res
+        .status(403)
+        .json({ ok: false, message: "You don't have a permission." });
+      return;
+    }
+    const form: UploadForm | undefined = JSON.parse(req.body);
+    if (!form) {
+      res.json({ ok: false, message: "Form data is not defined." });
+      return;
+    }
+    try {
+      await prismaClient.model.update({
+        where: {
+          id: modelId,
+        },
+        data: {
+          name: form.name,
+          category: form.category,
+          description: form.description,
+        },
+      });
+      res.json({ ok: true, message: "update success!" });
+      return;
+    } catch (e) {
+      res.status(500).json({ ok: false, message: "Failed while updating db." });
       return;
     }
   }
