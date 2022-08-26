@@ -20,7 +20,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
     // "skybox-image":
     //   "https://modelviewer.dev/assets/whipple_creek_regional_park_04_1k.hdr",
   };
-  return <model-viewer {...parsed} />;
+  return <model-viewer id="modelViewer" {...parsed} />;
 };
 
 export default Model;
