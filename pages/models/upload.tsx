@@ -75,13 +75,13 @@ const Upload = () => {
     <Wrapper>
       <div className="grid lg:grid-cols-2 gap-x-10">
         <Dropzone
+          accept={{ zip: [".zip"] }}
+          maxFiles={1}
           onDrop={(acceptedFiles) => {
             setFiles(acceptedFiles);
             acceptedFiles.forEach((file) => {
-              if (file.type === "application/zip") {
-                const zipName = file.name.split(".").slice(0, -1).join(".");
-                setFormValue("name", zipName);
-              }
+              const zipName = file.name.split(".").slice(0, -1).join(".");
+              setFormValue("name", zipName);
             });
           }}
         >

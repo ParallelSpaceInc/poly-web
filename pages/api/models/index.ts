@@ -70,6 +70,8 @@ export default async function handler(
     }
     // send first 30 model info
     const modelList = await prismaClient.model.findMany({ take: 30 });
+    console.log(modelList);
+
     const parsedList = makeModelInfos(modelList);
     res.status(200).json(parsedList);
   } else if (req.method === "POST") {
@@ -105,10 +107,17 @@ export default async function handler(
     // upload to s3
     const uuid = randomUUID();
     const formidable = await getFormidableFileFromReq(req);
-    await extractZipThenSendToS3(uuid, formidable).catch((e) => {
+    const { model: modelName, thumbnail } = await extractZipThenSendToS3(
+      uuid,
+      formidable
+    ).catch((e) => {
       res.status(500).json({ error: "while uploading to storage" });
-      return;
+      return { model: "", thumbnail: "" };
     });
+    if (!modelName && !res.writableEnded) {
+      res.status(400).json({ error: ".gltf or .glb file is missing" });
+      return;
+    }
     const form: UploadForm = JSON.parse(formidable.fields.form as string);
 
     await prismaClient.model
@@ -119,6 +128,8 @@ export default async function handler(
           category: form.category,
           tags: form.tag?.split(" ") ?? [],
           description: form.description,
+          thumbnail: thumbnail,
+          modelFile: modelName,
           userId: user.id,
         },
       })
@@ -181,10 +192,13 @@ export default async function handler(
 // FOR RESPONE TO GET
 
 const makeModelInfo: (model: Model) => ModelInfo = (model) => {
+  const thumbnailSrc = model.thumbnail
+    ? `/getResource/models/${model.id}/${model.thumbnail}`
+    : "";
   return {
     ...model,
-    modelSrc: `/getResource/models/${model.id}/scene.gltf`,
-    thumbnailSrc: `/getResource/models/${model.id}/thumbnail.png`,
+    modelSrc: `/getResource/models/${model.id}/${model.modelFile}`,
+    thumbnailSrc,
   };
 };
 
@@ -196,9 +210,10 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 const extractZipThenSendToS3 = async (
   uuid: string,
   formidable: FormidableResult
-) => {
+): Promise<{ model: string; thumbnail: string }> => {
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
+  let res = { model: "", thumbnail: "" };
   await extract(fileInfo.path, { dir: filePath });
   rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
     if (err) throw err;
@@ -207,6 +222,13 @@ const extractZipThenSendToS3 = async (
     (
       await getFilesPath(filePath)
     ).map((file) => {
+      const type = path.extname(file);
+      if ([".gltf", ".glb"].includes(type)) {
+        res.model = path.basename(file);
+      }
+      if ([".png"].includes(type)) {
+        res.thumbnail = path.basename(file);
+      }
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
@@ -216,6 +238,7 @@ const extractZipThenSendToS3 = async (
       return s3client.send(new PutObjectCommand(filesParams));
     })
   );
+  return res;
 };
 
 const getFormidableFileFromReq = async (req: NextApiRequest) => {
