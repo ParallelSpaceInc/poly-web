@@ -4,19 +4,65 @@ import { hasRight } from "@libs/server/Authorization";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
+
+interface ModelElemet extends Element {
+  showPoster: () => void;
+  dismissPoster: () => void;
+}
 
 const ModelPage: NextPage = () => {
   const router = useRouter();
   const modelId = (router.query.id as string) ?? "";
-  const model = useModelInfo(modelId);
+  const modelInfo = useModelInfo(modelId);
   const user = useUser();
-  if (model.error || user.error) {
+  const timer = useRef(Date.now());
+  const [modelViewer, setModelViewer] = useState<ModelElemet>();
+  const [isLogShown, setIsLogShown] = useState(false);
+  const [logs, setLogs] = useState<string[]>([]);
+  useEffect(() => {
+    // hook modelviewer elemet when loading is complete.
+    const checker = setInterval(() => {
+      const modelElem = document.querySelector("#modelViewer");
+      if (modelElem) {
+        setModelViewer(modelElem as ModelElemet);
+        clearInterval(checker);
+        return;
+      }
+    }, 50);
+    return () => {
+      if (!modelViewer) {
+        clearInterval(checker);
+      }
+    };
+  }, [modelViewer]);
+
+  useEffect(() => {
+    // when modelViewer founded
+    const callback = (e: any) => {
+      if (e.detail?.totalProgress === 1) {
+        const spentTime = (Date.now() - timer.current) / 1000;
+
+        setLogs((log) =>
+          log.concat(`<system> : Loading spent ${spentTime} sec.`)
+        );
+      }
+    };
+    if (modelViewer) {
+      modelViewer.addEventListener("progress", callback);
+    }
+    return () => {
+      modelViewer?.removeEventListener("progress", callback);
+    };
+  }, [modelViewer]);
+
+  if (modelInfo.error || user.error) {
     router.push("/");
     return null;
   }
-  if (!model.data) {
+  if (!modelInfo.data) {
     return null;
   }
 
@@ -27,18 +73,35 @@ const ModelPage: NextPage = () => {
         placeholder="Find model"
       ></input>
       <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
-        {!model.loading ? model.data.name : ""}
+        {!modelInfo.loading ? modelInfo.data.name : ""}
       </span>
       <div className="block my-10 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
-        <div className="aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto mt-8">
+        <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto mt-8">
+          {isLogShown ? (
+            <div className="absolute top-0 right-0 w-auto p-2 justify-start flex flex-col bg-opacity-20 bg-slate-700">
+              {logs.map((log, index) => (
+                <span key={index} className="flex justify-items-start mr-auto">
+                  {log}
+                </span>
+              ))}
+            </div>
+          ) : null}
           {/* <div className="relative min-w-full min-h-full col-span-2"> */}
-          {!model.loading ? <Model info={model.data} /> : "Loading..."}
+          {!modelInfo.loading ? <Model info={modelInfo.data} /> : "Loading..."}
+          <button
+            className="absolute bottom-0 right-5 bg-slate-300 justify-center align-middle px-2 h-12 border-slate-800 shadow-md rounded-md text-gray-800"
+            onClick={() => {
+              setIsLogShown((val) => !val);
+            }}
+          >
+            show log
+          </button>
         </div>
         <div className="flex flex-col space-y-3 mt-10 ">
           {hasRight(
             { method: "read", theme: "model" },
             user.data,
-            model.data
+            modelInfo.data
           ) ? (
             <button
               onClick={() => {
@@ -52,7 +115,7 @@ const ModelPage: NextPage = () => {
           {hasRight(
             { method: "update", theme: "model" },
             user.data,
-            model.data
+            modelInfo.data
           ) ? (
             <button
               onClick={() => router.push(`/models/${modelId}/update`)}
@@ -64,7 +127,7 @@ const ModelPage: NextPage = () => {
           {hasRight(
             { method: "delete", theme: "model" },
             user.data,
-            model.data
+            modelInfo.data
           ) ? (
             <button
               onClick={() => callDeleteAPI(modelId, router)}
@@ -77,10 +140,10 @@ const ModelPage: NextPage = () => {
       </div>
 
       <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
-        {!model.loading ? `Category > ${model.data.category}` : ""}
+        {!modelInfo.loading ? `Category > ${modelInfo.data.category}` : ""}
       </span>
       <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
-        {!model.loading ? model.data.description : ""}
+        {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
     </Wrapper>
   );
