@@ -1,3 +1,4 @@
+import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
@@ -137,6 +138,7 @@ const ModelPage: NextPage = () => {
             </button>
           ) : null}
         </div>
+        <ModelInfo modelId={modelId}></ModelInfo>
       </div>
 
       <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
