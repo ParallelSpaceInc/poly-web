@@ -7,7 +7,14 @@ import { Model } from "@prisma/client";
 import { randomUUID } from "crypto";
 import extract from "extract-zip";
 import formidable from "formidable";
-import { createReadStream, readdirSync, rename, statSync } from "fs";
+import {
+  createReadStream,
+  readdirSync,
+  readFileSync,
+  rename,
+  statSync,
+} from "fs";
+import { validateBytes } from "gltf-validator";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import path, { join } from "path";
@@ -105,12 +112,13 @@ export default async function handler(
     // upload to s3
     const uuid = randomUUID();
     const formidable = await getFormidableFileFromReq(req);
-    const { model: modelName, thumbnail } = await extractZipThenSendToS3(
-      uuid,
-      formidable
-    ).catch((e) => {
-      res.status(500).json({ error: "while uploading to storage" });
-      return { model: "", thumbnail: "" };
+    const {
+      model: modelName,
+      thumbnail,
+      modelInfo,
+    } = await extractZipThenSendToS3(uuid, formidable).catch((e) => {
+      res.status(500).json({ error: `while uploading to storage : ${e}` });
+      return { model: "", thumbnail: "", modelInfo: {} };
     });
     if (!modelName && !res.writableEnded) {
       res.status(400).json({ error: ".gltf or .glb file is missing" });
@@ -129,6 +137,7 @@ export default async function handler(
           thumbnail: thumbnail,
           modelFile: modelName,
           userId: user.id,
+          modelInfo: JSON.stringify(modelInfo),
         },
       })
       .catch((e) => {
@@ -208,10 +217,10 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 const extractZipThenSendToS3 = async (
   uuid: string,
   formidable: FormidableResult
-): Promise<{ model: string; thumbnail: string }> => {
+): Promise<{ model: string; thumbnail: string; modelInfo: object }> => {
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
-  let res = { model: "", thumbnail: "" };
+  let res = { model: "", thumbnail: "", modelInfo: {} };
   await extract(fileInfo.path, { dir: filePath });
   rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
     if (err) throw err;
@@ -223,6 +232,14 @@ const extractZipThenSendToS3 = async (
       const type = path.extname(file);
       if ([".gltf", ".glb"].includes(type)) {
         res.model = path.basename(file);
+        const asset = readFileSync(file);
+        validateBytes(new Uint8Array(asset))
+          .then((report: object) => {
+            res.modelInfo = report;
+          })
+          .catch((e: any) => {
+            console.log(e);
+          });
       }
       if ([".png"].includes(type)) {
         res.thumbnail = path.basename(file);
