@@ -79,7 +79,7 @@ const ModelPage: NextPage = () => {
       <div className="block my-10 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
         <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto mt-8">
           {isLogShown ? (
-            <div className="absolute top-0 right-0 w-auto p-2 justify-start flex flex-col bg-opacity-20 bg-slate-700">
+            <div className="absolute top-0 z-10 right-0 w-auto p-2 justify-start flex flex-col bg-opacity-30 bg-slate-700">
               {logs.map((log, index) => (
                 <span key={index} className="flex justify-items-start mr-auto">
                   {log}
