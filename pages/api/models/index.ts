@@ -14,6 +14,7 @@ import {
   rename,
   statSync,
 } from "fs";
+import { readdir, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
@@ -116,9 +117,11 @@ export default async function handler(
       model: modelName,
       thumbnail,
       modelInfo,
+      totalSize,
     } = await extractZipThenSendToS3(uuid, formidable).catch((e) => {
-      res.status(500).json({ error: `while uploading to storage : ${e}` });
-      return { model: "", thumbnail: "", modelInfo: {} };
+      res.status(500).json({ error: `while uploading to storage` });
+      console.log(e);
+      return { model: "", thumbnail: "", modelInfo: {}, totalSize: 0 };
     });
     if (!modelName && !res.writableEnded) {
       res.status(400).json({ error: ".gltf or .glb file is missing" });
@@ -138,11 +141,13 @@ export default async function handler(
           modelFile: modelName,
           userId: user.id,
           modelInfo: JSON.stringify(modelInfo),
+          modelSize: totalSize.toString() ?? "",
         },
       })
       .catch((e) => {
         res.status(500).json({ error: "while updating db" });
         deleteS3Files(uuid);
+        console.log(e);
         return;
       });
     res
@@ -217,11 +222,17 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 const extractZipThenSendToS3 = async (
   uuid: string,
   formidable: FormidableResult
-): Promise<{ model: string; thumbnail: string; modelInfo: object }> => {
+): Promise<{
+  model: string;
+  thumbnail: string;
+  modelInfo: object;
+  totalSize: number;
+}> => {
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
-  let res = { model: "", thumbnail: "", modelInfo: {} };
+  let res = { model: "", thumbnail: "", modelInfo: {}, totalSize: 0 };
   await extract(fileInfo.path, { dir: filePath });
+  res.totalSize = await dirSize(filePath);
   rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
     if (err) throw err;
   });
@@ -301,4 +312,26 @@ const getFilesPath: (dir: string) => Promise<string[]> = async (
     (all, folderContents) => all.concat(folderContents),
     []
   );
+};
+
+const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
+  const files = await readdir(dir, { withFileTypes: true });
+
+  const paths = files.map(async (file) => {
+    const path = join(dir, file.name);
+
+    if (file.isDirectory()) return await dirSize(path);
+
+    if (file.isFile()) {
+      const { size } = await stat(path);
+
+      return size;
+    }
+
+    return 0;
+  });
+
+  return (await Promise.all(paths))
+    .flat(Infinity)
+    .reduce((i, size) => i + size, 0);
 };

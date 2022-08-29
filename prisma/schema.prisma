@@ -74,6 +74,7 @@ model Model {
   tags        Json
   description String        @db.Text()
   modelInfo   Json          @default("{}")
+  modelSize   String        @default("")
 }
 
 enum Role {
