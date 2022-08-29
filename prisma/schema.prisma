@@ -73,6 +73,7 @@ model Model {
   category    ModelCategory @default(MISC)
   tags        Json
   description String        @db.Text()
+  modelInfo   Json          @default("{}")
 }
 
 enum Role {
