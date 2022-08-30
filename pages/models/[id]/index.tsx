@@ -5,7 +5,7 @@ import { hasRight } from "@libs/server/Authorization";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
@@ -105,9 +105,7 @@ const ModelPage: NextPage = () => {
             modelInfo.data
           ) ? (
             <button
-              onClick={() => {
-                router.push(`/api/models/${modelId}`);
-              }}
+              onClick={() => onDownloadClick(modelId, setLogs)}
               className=" text-white bg-slate-700 h-10"
             >
               download
@@ -164,6 +162,27 @@ const callDeleteAPI = (id: string, router: NextRouter) => {
     .catch((error) => {
       alert(`error : ${error.message}`);
     });
+};
+
+const onDownloadClick = async (
+  modelId: string,
+  setLogs: Dispatch<SetStateAction<string[]>>
+) => {
+  const startAt = performance.now();
+  const res = await fetch(`/api/models/${modelId}`)
+    .then((res) => res.blob())
+    .then((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "model.zip";
+      link.click();
+      link.remove();
+    });
+  const spentTime = Math.floor(performance.now() - startAt);
+  setLogs((logs) =>
+    logs.concat(`<system> : download spent ${spentTime / 1000} sec.`)
+  );
 };
 
 export default ModelPage;
