@@ -1,4 +1,5 @@
 import { useModelInfo } from "@libs/client/AccessDB";
+import { AddUnit } from "@libs/client/Util";
 
 const ModelInfo = ({ modelId }: { modelId: string }) => {
   const model = useModelInfo(modelId);
@@ -7,19 +8,21 @@ const ModelInfo = ({ modelId }: { modelId: string }) => {
     <div className="flex justify-start p-3 space-x-5">
       <div className="flex flex-col">
         <div className="m-auto text-lg">Vertex Count</div>
-        <div className="m-auto">
-          {gltfInfo?.info?.totalVertexCount ?? "unknown"}
+        <div className="m-auto ">
+          {AddUnit(gltfInfo?.info?.totalVertexCount) ?? "unknown"}
         </div>
       </div>
       <div className="flex flex-col">
-        <div className="m-auto text-lg">Triangle Count</div>
+        <div className="m-auto text-lg ">Triangle Count</div>
         <div className="m-auto">
-          {gltfInfo?.info?.totalTriangleCount ?? "unknown"}
+          {AddUnit(gltfInfo?.info?.totalTriangleCount) ?? "unknown"}
         </div>
       </div>
       <div className="flex flex-col">
-        <div className="m-auto text-lg">model Size</div>
-        <div className="m-auto">{model.data?.modelSize ?? "unknown"}</div>
+        <div className="m-auto text-lg">Model Size</div>
+        <div className="m-auto">
+          {AddUnit(model.data?.modelSize) + "B" ?? "unknown"}
+        </div>
       </div>
     </div>
   );
