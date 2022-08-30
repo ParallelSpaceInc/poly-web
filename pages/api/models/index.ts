@@ -77,7 +77,7 @@ export default async function handler(
       return;
     }
     // send first 30 model info
-    const modelList = await prismaClient.model.findMany({ take: 30 });
+    const modelList = await prismaClient.model.findMany();
     const parsedList = makeModelInfos(modelList);
     res.status(200).json(parsedList);
   } else if (req.method === "POST") {
