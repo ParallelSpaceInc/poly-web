@@ -1,4 +1,5 @@
 import ModelInfo from "@components/ModelInfo";
+import ThreeViewer from "@components/ThreeViewer";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
@@ -87,22 +88,18 @@ const ModelPage: NextPage = () => {
               ))}
             </div>
           ) : null}
-          {!modelInfo.loading ? <Model info={modelInfo.data} /> : "Loading..."}
+          {!modelInfo.loading ? (
+            <ThreeViewer display="hidden" url={modelInfo.data.modelSrc} />
+          ) : (
+            "Loading..."
+          )}
           <button
             className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
             onClick={() => {
-              setIsLogShown((val) => !val);
+              router.push(`/models/${modelId}`);
             }}
           >
-            show log
-          </button>
-          <button
-            className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
-            onClick={() => {
-              router.push(`/models/${modelId}/three`);
-            }}
-          >
-            to threejs viewer
+            back to modelviewer
           </button>
         </div>
         <div className="flex flex-col space-y-3 mt-10 ">
