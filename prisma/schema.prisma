@@ -70,6 +70,7 @@ model Model {
   userId      String
   thumbnail   String        @default("thumbnail.png")
   modelFile   String        @default("scene.gltf")
+  modelUsdz   String?
   category    ModelCategory @default(MISC)
   tags        Json
   description String        @db.Text()

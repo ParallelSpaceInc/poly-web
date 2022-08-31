@@ -121,10 +121,17 @@ export default async function handler(
       thumbnail,
       modelInfo,
       totalSize,
+      modelUsdz,
     } = await extractZipThenSendToS3(uuid, formidable).catch((e) => {
       res.status(500).json({ error: `while uploading to storage` });
       console.log(e);
-      return { model: "", thumbnail: "", modelInfo: {}, totalSize: 0 };
+      return {
+        model: "",
+        modelUsdz: "",
+        thumbnail: "",
+        modelInfo: {},
+        totalSize: 0,
+      };
     });
     if (!modelName && !res.writableEnded) {
       res.status(400).json({ error: ".gltf or .glb file is missing" });
@@ -145,6 +152,7 @@ export default async function handler(
           userId: user.id,
           modelInfo: JSON.stringify(modelInfo),
           modelSize: totalSize.toString() ?? "",
+          modelUsdz,
         },
       })
       .catch((e) => {
@@ -210,10 +218,14 @@ const makeModelInfo: (model: Model) => ModelInfo = (model) => {
   const thumbnailSrc = model.thumbnail
     ? `/getResource/models/${model.id}/${model.thumbnail}`
     : "";
+  const usdzSrc = model.modelUsdz
+    ? `/getResource/models/${model.id}/${model.modelUsdz}`
+    : "";
   return {
     ...model,
     modelSrc: `/getResource/models/${model.id}/${model.modelFile}`,
     thumbnailSrc,
+    usdzSrc,
   };
 };
 
@@ -230,10 +242,17 @@ const extractZipThenSendToS3 = async (
   thumbnail: string;
   modelInfo: object;
   totalSize: number;
+  modelUsdz: string;
 }> => {
   const fileInfo = await getFileInfo(formidable.files);
   const filePath = `/tmp/${uuid}`;
-  let res = { model: "", thumbnail: "", modelInfo: {}, totalSize: 0 };
+  let res = {
+    model: "",
+    thumbnail: "",
+    modelInfo: {},
+    totalSize: 0,
+    modelUsdz: "",
+  };
   await extract(fileInfo.path, { dir: filePath });
   res.totalSize = await dirSize(filePath);
   rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
@@ -257,6 +276,9 @@ const extractZipThenSendToS3 = async (
       }
       if ([".png"].includes(type)) {
         res.thumbnail = path.basename(file);
+      }
+      if ([".usdz"].includes(type)) {
+        res.modelUsdz = path.basename(file);
       }
       const stream = createReadStream(file);
       const filesParams = {

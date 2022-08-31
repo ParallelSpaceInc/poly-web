@@ -4,7 +4,7 @@ import "@google/model-viewer";
 const Model = ({ info }: { info: ModelInfo }) => {
   const parsed = {
     src: info.modelSrc,
-    "ios-src": "",
+    "ios-src": info.modelUsdz ?? "",
     poster: info.thumbnailSrc,
     alt: info.name,
     "shadow-intensity": "1",
