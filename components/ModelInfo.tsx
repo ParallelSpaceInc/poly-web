@@ -13,7 +13,7 @@ const ModelInfo = ({ modelId }: { modelId: string }) => {
         </div>
       </div>
       <div className="flex flex-col">
-        <div className="m-auto text-lg ">Triangle Count</div>
+        <div className="m-auto text-lg">Triangle Count</div>
         <div className="m-auto">
           {AddUnit(gltfInfo?.info?.totalTriangleCount) ?? "unknown"}
         </div>

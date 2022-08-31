@@ -22,7 +22,7 @@ function Thumbnails({
                   layout="fill"
                   objectFit="cover"
                   className="rounded-lg"
-                  priority
+                  loading="lazy"
                 />
               </div>
               <div className="flex items-end justify-between">
