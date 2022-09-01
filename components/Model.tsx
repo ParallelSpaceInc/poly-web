@@ -3,7 +3,7 @@ import "@google/model-viewer";
 
 const Model = ({ info }: { info: ModelInfo }) => {
   const parsed = {
-    src: info.modelSrc,
+    src: `${info.modelSrc}?disable_occlusion=false`,
     "ios-src": info.modelUsdz ?? "",
     poster: info.thumbnailSrc,
     alt: info.name,
@@ -11,7 +11,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
     "camera-controls": "",
     "auto-rotate": "",
     ar: "",
-    "ar-modes": "scene-viewer webxr",
+    "ar-modes": "scene-viewer",
     style: {
       width: "100%",
       height: "100%",
