@@ -11,6 +11,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
     "camera-controls": "",
     "auto-rotate": "",
     ar: "",
+    "ar-modes": "scene-viewer webxr",
     style: {
       width: "100%",
       height: "100%",
