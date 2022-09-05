@@ -71,7 +71,7 @@ const Upload = () => {
               </div>
             ) : null}
             <input {...getInputProps()} />
-            <div className="flex flex-col items-center justify-center space-y-3 h-full">
+            <div className="flex flex-col items-center justify-center space-y-3 h-full my-2">
               {files.length === 0 ? (
                 <>
                   <svg
@@ -110,11 +110,15 @@ const Upload = () => {
                   </div>
                 </>
               ) : (
-                <table className="table-auto">
+                <table className="table-auto border-collapse border-slate-400">
                   <thead>
-                    <tr className="border-b-2 border-slate-500">
-                      <th className="p-2 w-52 text-lg">File name</th>
-                      <th className="p-2 w-24 text-lg">Size</th>
+                    <tr>
+                      <th className="border p-2 w-52 text-lg border-slate-300 bg-slate-100">
+                        File name
+                      </th>
+                      <th className="border p-2 w-24 text-lg border-slate-300 bg-slate-100">
+                        Size
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -124,14 +128,11 @@ const Upload = () => {
                       const mbSize = Math.floor(kbSize / 1000);
 
                       return (
-                        <tr
-                          key={i}
-                          // className={
-                          //   "grid grid-cols-2 text-center border-b border-black py-4 divide-x divide-black"
-                          // }
-                        >
-                          <td className="p-2 pl-5">{files.name}</td>
-                          <td className="p-2 text-center">
+                        <tr key={i}>
+                          <td className="border p-2 pl-5 border-slate-300">
+                            {files.name}
+                          </td>
+                          <td className="border p-2 text-center border-slate-300">
                             {size < 1000
                               ? size + "bite"
                               : kbSize > 1000
