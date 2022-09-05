@@ -263,6 +263,7 @@ const extractZipThenSendToS3 = async (
       await getFilesPath(filePath)
     ).map((file) => {
       const type = path.extname(file);
+      const filename = path.extname(file);
       if ([".gltf", ".glb"].includes(type)) {
         res.model = path.basename(file);
         const asset = readFileSync(file);
@@ -274,8 +275,8 @@ const extractZipThenSendToS3 = async (
             console.log(e);
           });
       }
-      if ([".png"].includes(type)) {
-        res.thumbnail = path.basename(file);
+      if ("thumbnail.png" === filename) {
+        res.thumbnail = "thumbnail.png";
       }
       if ([".usdz"].includes(type)) {
         res.modelUsdz = path.basename(file);
