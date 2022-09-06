@@ -75,6 +75,46 @@ export default async function handler(
       });
       res.json(makeModelInfos(model));
       return;
+    } else if (req.query.sort) {
+      const splitQuerySort =
+        typeof req.query.sort === "string" ? req.query.sort.split(",") : "";
+
+      const sortType = splitQuerySort[0];
+      const isDesc = splitQuerySort[1];
+      let modelList;
+      switch (sortType) {
+        case "Last Added":
+          modelList = await prismaClient.model.findMany({
+            orderBy: {
+              createdAt: isDesc === "true" ? "desc" : "asc",
+            },
+          });
+          break;
+        case "Size":
+          modelList = await prismaClient.model.findMany({
+            orderBy: {
+              modelSize: isDesc === "true" ? "desc" : "asc",
+            },
+          });
+          break;
+        case "Alphabetic":
+          modelList = await prismaClient.model.findMany({
+            orderBy: {
+              name: isDesc === "true" ? "desc" : "asc",
+            },
+          });
+          break;
+        default:
+          res.status(401).json({ data: [], error: "query  sort error" });
+          break;
+      }
+      if (modelList) {
+        const parsedList = makeModelInfos(modelList ?? []);
+        res.status(200).json({ data: parsedList, error: undefined });
+        return;
+      } else {
+        res.status(404).json({ data: [], error: "not found model error" });
+      }
     }
     const modelList = await prismaClient.model.findMany({
       orderBy: {
@@ -90,6 +130,7 @@ export default async function handler(
       res.status(401).send("Login first");
       return;
     }
+
     const user = await prismaClient.user.findUnique({
       where: {
         email: token.user?.email ?? undefined, // if undefined, search nothing
