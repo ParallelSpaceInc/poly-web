@@ -15,13 +15,26 @@ export interface ModelInfos {
 const ModelsMainPage: NextPage = () => {
   const [models, setModels] = useState<ModelInfos>()
   const modelsInfos = useModelInfos();
-
+  const [isClickSort, setIsClickSort] = useState<boolean>(false);
+  const closeSortingModel = () => {
+    setIsClickSort(false);
+  }
   return (
+    <div onClick={(e) => {
+      if (e.target instanceof Element) {
+        const isModalClicked = !!e.target.closest("#sorting");
+        if (isModalClicked) {
+          return;
+        }
+      }
+      closeSortingModel();
+    }}>
+      <Wrapper>
+        <SearchBar setModels={setModels} isClickSort={isClickSort} closeSortingModel={closeSortingModel} setIsClickSort={setIsClickSort} />
+        <Thumbnails loading={models ? models?.loading ?? false : modelsInfos.loading} modelInfos={models ? models?.data ?? [] : modelsInfos.data} />
+      </Wrapper>
+    </div>
 
-    <Wrapper>
-      <SearchBar setModels={setModels} />
-      <Thumbnails loading={models ? models?.loading ?? false : modelsInfos.loading} modelInfos={models ? models?.data ?? [] : modelsInfos.data} />
-    </Wrapper>
   );
 };
 

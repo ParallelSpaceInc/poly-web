@@ -5,23 +5,22 @@ import { useForm } from "react-hook-form";
 
 interface props {
   setModels: Dispatch<SetStateAction<ModelInfos | undefined>>
+  isClickSort: boolean,
+  closeSortingModel: () => void
+  setIsClickSort: Dispatch<SetStateAction<boolean>>
 }
 type sortType = "Last Added" | "Size" | "Alphabetic"
 type srotTypes = sortType[]
-function SearchBar(props: props) {
+function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }: props) {
 
   const sortTypes: srotTypes = ["Last Added", "Size", "Alphabetic"]
 
   const { register } = useForm();
 
-
   const [currentSortType, setCurrentSortType] = useState<string>(sortTypes[0])
-  const [isClickSort, setIsClickSort] = useState<boolean>(false);
   const isDescOfLastAdded = useState<boolean>(true)
   const isDescOfSize = useState<boolean>(true)
   const isDescOfAlphabetic = useState<boolean>(false)
-
-
 
   const sortingModel = async (type: string) => {
 
@@ -37,13 +36,13 @@ function SearchBar(props: props) {
       method: "GET",
     }).then((res) => res.json())
     const loading = !data && !error;
-    props.setModels({
+    setModels({
       loading,
       data,
       error
     })
 
-    setIsClickSort(false)
+    closeSortingModel();
   }
 
   const sortTypeState = (type: string): [boolean, Dispatch<SetStateAction<boolean>>] => {
@@ -78,7 +77,7 @@ function SearchBar(props: props) {
           <Image src="/searchIcon.png" width="20px" height="20px" alt="find model" />
         </div>
       </div>
-      <div className="rounded-md ring-2 ring-gray-300 w-1/6 text-center flex justify-center items-center relative cursor-pointer">
+      <div id="sorting" className="rounded-md ring-2 ring-gray-300 w-1/6 text-center flex justify-center items-center relative cursor-pointer">
         <div className="w-full font-semibold text-gray-500 h-full text-sm border-none outline-none flex justify-center items-center"
           onClick={() => {
             setIsClickSort(!isClickSort)
