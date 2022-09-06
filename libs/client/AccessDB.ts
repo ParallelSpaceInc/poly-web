@@ -10,7 +10,11 @@ export function useUser() {
   return { loading, data, error };
 }
 
-export function useModelInfos(filter?: { id?: string; uploader?: string }) {
+export function useModelInfos(filter?: {
+  id?: string;
+  uploader?: string;
+  sort?: string;
+}) {
   const queryString = new URLSearchParams(filter).toString();
   const { data, error } = useSWR<ModelInfo[]>(
     `/api/models?${queryString}`,
