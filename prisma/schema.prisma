@@ -62,20 +62,23 @@ model VerificationToken {
 }
 
 model Model {
-  id          String        @id @default(uuid())
-  name        String
-  uploader    User          @relation(fields: [userId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now()) @updatedAt()
-  userId      String
-  thumbnail   String        @default("thumbnail.png")
-  modelFile   String        @default("scene.gltf")
-  modelUsdz   String?
-  category    ModelCategory @default(MISC)
-  tags        Json
-  description String        @db.Text()
-  modelInfo   Json          @default("{}")
-  modelSize   String        @default("")
+  id            String        @id @default(uuid())
+  name          String
+  uploader      User          @relation(fields: [userId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt()
+  userId        String
+  thumbnail     String?       @default("thumbnail.png")
+  modelFile     String        @default("scene.gltf")
+  modelUsdz     String?
+  category      ModelCategory @default(MISC)
+  tags          Json?
+  description   String?       @db.Text()
+  modelVertex   BigInt?       @default(0)
+  modelTriangle BigInt?       @default(0)
+  modelSize     BigInt?       @default(0)
+  usdzSize      BigInt?       @default(0)
+  zipSize       BigInt?       @default(0)
 }
 
 enum Role {
