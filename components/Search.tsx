@@ -104,6 +104,21 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
     setInputValue(e.target.value)
   }
 
+  const arrowIcon = (sortType: string): React.ReactElement<HTMLSpanElement> => {
+    const wahtArrow = (isDesc: boolean) => {
+      if (isDesc) {
+        return <span>&darr;</span>
+      }
+      return <span>&uarr;</span>
+    }
+
+    if (sortType === currentSortType) {
+      return wahtArrow(!isDesc[getSortTypeKey(sortType)])
+    }
+    return wahtArrow(isDesc[getSortTypeKey(sortType)])
+
+  }
+
   return (
 
     <div className="w-full flex justify-between mt-6">
@@ -136,7 +151,7 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
           {sortTypes.map((list) => {
             return <li key={list} className="md:px-3  px-2 md:py-3 py-2  justify-center w-full text-sm font-semibold text-gray-500 flex items-center cursor-pointer"
               onClick={() => sortingModel(list)}>
-              <p className="w-full break-words md:text-sm text-[11px] md:leading-normal leading-tight ">{list} {isDesc[getSortTypeKey(currentSortType)] ? <span>&darr;</span> : <span>&uarr;</span>}
+              <p className="w-full break-words md:text-sm text-[11px] md:leading-normal leading-tight ">{list} {arrowIcon(list)}
               </p>
             </li>
           })}
