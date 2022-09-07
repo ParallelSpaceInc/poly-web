@@ -122,9 +122,11 @@ export default async function handler(
     if (doesFormExist) {
       const form: UploadForm = JSON.parse(formidable.fields.form as string);
       updateModel(model, getModelFromForm(form));
+    } else {
+      model.category = "MISC"; // add if form data is not exist.
     }
     const files = makeMaybeArrayToArray<formidable.File>(formidable.files.file);
-    const results = await Promise.allSettled(
+    const results = await Promise.all(
       files.map((file) => handlePOST(file, model))
     );
     res.json({ results });
