@@ -74,17 +74,18 @@ model Model {
   category      ModelCategory @default(MISC)
   tags          Json?
   description   String?       @db.Text()
-  modelVertex   BigInt?       @default(0)
-  modelTriangle BigInt?       @default(0)
-  modelSize     BigInt?       @default(0)
-  usdzSize      BigInt?       @default(0)
-  zipSize       BigInt?       @default(0)
+  modelVertex   String?       @default("0")
+  modelTriangle String?       @default("0")
+  modelSize     String?       @default("0")
+  usdzSize      String?       @default("0")
+  zipSize       String?       @default("0")
 }
 
 enum Role {
   UNAUTHENTICATED
   USER
   ADMIN
+  DEVELOPER
 }
 
 enum ModelCategory {

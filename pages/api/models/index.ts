@@ -40,7 +40,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const token = await getSession({ req });
+  const session = await getSession({ req });
   if (!allowedMethod.includes(req.method ?? "")) {
     res.status(405).end();
     return;
@@ -87,14 +87,14 @@ export default async function handler(
     res.status(200).json(parsedList);
   } else if (req.method === "POST") {
     // authorize client then upload model. db update return model id.
-    const isLogined = !!token;
+    const isLogined = !!session;
     if (!isLogined) {
       res.status(401).send("Login first");
       return;
     }
     const user = await prismaClient.user.findUnique({
       where: {
-        email: token.user?.email ?? undefined, // if undefined, search nothing
+        email: session.user?.email ?? undefined, // if undefined, search nothing
       },
     });
     if (user === null) {
@@ -114,11 +114,11 @@ export default async function handler(
       res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
       return;
     }
-
     // upload to s3
     const formidable = await getFormidableFileFromReq(req);
     const doesFormExist = !!formidable.fields.form;
     const model: OptionalModel = {};
+    model.userId = user.id;
     if (doesFormExist) {
       const form: UploadForm = JSON.parse(formidable.fields.form as string);
       updateModel(model, getModelFromForm(form));
@@ -131,7 +131,7 @@ export default async function handler(
   } else if (req.method === "DELETE") {
     const user = await prismaClient.user.findUnique({
       where: {
-        email: token?.user?.email ?? undefined, // if undefined, search nothing
+        email: session?.user?.email ?? undefined, // if undefined, search nothing
       },
     });
     const modelId = Array.isArray(req.query.id)
@@ -213,22 +213,26 @@ const getFormidableFileFromReq = async (req: NextApiRequest) => {
 
 async function handlePOST(file: formidable.File, original: OptionalModel) {
   const model = Object.assign({}, original);
+  console.log(`herer is copied model ${JSON.stringify(model)}`);
   const uuid = randomUUID();
   model.id = uuid;
   const extRes = await extractZip(uuid, file);
   model.name ??= trimExt(extRes.filename);
-  model.zipSize = BigInt(extRes.zipSize);
+  model.zipSize = extRes.zipSize.toString();
 
+  updateModel(model, await getModelFromDir(extRes.newDirPath));
+  console.log(`now model ${JSON.stringify(model)}`);
   updateModel(
     model,
     await getModelFromGltfReport(
-      await getGltfInfo(path.join(extRes.newDirPath, extRes.filename))
+      await getGltfInfo(
+        path.join(extRes.newDirPath, model.modelFile ?? "Error")
+      )
     )
   );
-  updateModel(model, await getModelFromDir(extRes.newDirPath));
   checkModel(model);
   uploadModelToS3(extRes.newDirPath, uuid);
-  updatePrismaDB(model as Model).catch((e) => {
+  updatePrismaDB(model).catch((e) => {
     deleteS3Files(uuid);
     throw e;
   });

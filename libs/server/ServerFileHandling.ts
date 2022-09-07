@@ -1,7 +1,6 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { OptionalModel, UploadForm, ValidatorInfo } from "@customTypes/model";
 import s3client from "@libs/server/s3client";
-import { Model } from "@prisma/client";
 
 import extract from "extract-zip";
 import formidable from "formidable";
@@ -9,7 +8,7 @@ import {
   createReadStream,
   readdirSync,
   readFileSync,
-  rename,
+  renameSync,
   statSync,
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
@@ -63,10 +62,8 @@ export async function extractZip(
   const filename = fileInfo.originalName;
   const newZipPath = join(newDirPath, "model.zip");
   await extract(fileInfo.loadedFile, { dir: newDirPath });
-  rename(fileInfo.loadedFile, newZipPath, (err) => {
-    if (err) throw err;
-  });
-  const zipSize = statSync(newZipPath).size;
+  renameSync(fileInfo.loadedFile, newZipPath);
+  const zipSize = await stat(newZipPath).then((res) => res.size);
   return { newDirPath, filename, zipSize };
 }
 // name, zipSize
@@ -91,15 +88,14 @@ export async function getModelFromGltfReport(
   report: ValidatorInfo.RootObject
 ): Promise<OptionalModel> {
   return {
-    modelTriangle: BigInt(report.info.totalTriangleCount),
-    modelVertex: BigInt(report.info.totalVertexCount),
-    modelSize: BigInt(
-      report.info.resources
-        .map((resoucre) => {
-          return resoucre.byteLength;
-        })
-        .reduce((prev, cur) => prev + cur, 0)
-    ),
+    modelTriangle: report.info.totalTriangleCount.toString(),
+    modelVertex: report.info.totalVertexCount.toString(),
+    modelSize: report.info.resources
+      .map((resoucre) => {
+        return resoucre.byteLength;
+      })
+      .reduce((prev, cur) => prev + cur, 0)
+      .toString(),
   };
 }
 
@@ -117,21 +113,34 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
     }
     if ("scene.usdz" === relativeFileName) {
       model.modelUsdz = relativeFileName;
-      model.usdzSize = BigInt(statSync(file).size);
+      model.usdzSize = statSync(file).size.toString();
     }
     if ("description.txt" === relativeFileName) {
       model.description = await readTextFile(file);
     }
   });
+
   return model;
 }
 //name??=, thum??= ...
 
 //update if not exist
-export function updateModel(target: OptionalModel, newObject: OptionalModel) {
-  target = JSON.parse(JSON.stringify(target));
-  newObject = JSON.parse(JSON.stringify(newObject));
-  return (target = Object.assign(newObject, target));
+export function updateModel(
+  target: OptionalModel,
+  newObject: OptionalModel
+): OptionalModel {
+  target.id ??= newObject.id;
+  target.category ??= newObject.category;
+  target.description ??= newObject.description;
+  target.modelFile ??= newObject.modelFile;
+  target.modelSize ??= newObject.modelSize;
+  target.modelTriangle ??= newObject.modelTriangle;
+  target.usdzSize ??= newObject.modelUsdz;
+  target.modelVertex ??= newObject.modelVertex;
+  target.name ??= newObject.name;
+  target.tags ??= newObject.tags;
+  target.thumbnail ??= newObject.thumbnail;
+  return target;
 }
 //
 
@@ -139,19 +148,19 @@ export function updateModel(target: OptionalModel, newObject: OptionalModel) {
 
 // 3 chech Model requirement
 export function checkModel(model: OptionalModel) {
-  if (model.category) {
+  if (!model.category) {
     throw Error("category is not exist");
   }
-  if (model.id) {
+  if (!model.id) {
     throw Error("modelId is not exist");
   }
-  if (model.name) {
+  if (!model.name) {
     throw Error("name is not exist");
   }
-  if (model.userId) {
+  if (!model.userId) {
     throw Error("uploader is not exist");
   }
-  if (model.modelFile) {
+  if (!model.modelFile) {
     throw Error("ModelFile is not exist");
   }
   return model;
@@ -159,10 +168,23 @@ export function checkModel(model: OptionalModel) {
 
 // 4-a update db
 // use prisma code
-export async function updatePrismaDB(model: Model) {
-  prismaClient.model.create({
+export async function updatePrismaDB(model: OptionalModel) {
+  if (!model.userId) throw Error("Cant find uploader id");
+  await prismaClient.model.create({
     data: {
-      ...model,
+      name: model.name ?? "",
+      category: model.category,
+      description: model.description,
+      id: model.id,
+      userId: model.userId,
+      modelFile: model.modelFile,
+      modelVertex: model.modelVertex,
+      modelTriangle: model.modelTriangle,
+      zipSize: model.zipSize,
+      modelUsdz: model.usdzSize ?? undefined,
+      usdzSize: model.usdzSize ?? undefined,
+      thumbnail: model.thumbnail ?? undefined,
+      modelSize: model.modelSize,
       tags: JSON.stringify(model.tags),
     },
   });
