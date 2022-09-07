@@ -33,17 +33,21 @@ const Upload = () => {
     const res = await fetch("/api/models?massiveUpload=true", {
       method: "POST",
       body: formData,
-    });
-    if (!res.ok) {
-      const ans = await res.json().then((e) => e.message);
-      alert(`업로드에 실패하였습니다. ${ans}`);
-      return "error";
-    }
-    console.log(await res.json());
-
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        const results: { status: "fulfilled" | "rejected" }[] = json.results;
+        console.log(results);
+        const successCnt = results
+          .map((res) => (res.status === "fulfilled" ? 1 : 0))
+          .reduce((prev: any, cur: any) => prev + cur, 0);
+        return { total: results.length, successCnt };
+      });
     setIsSubmitting(false);
-    // alert("파일이 업로드 되었습니다.");
-    // router.push("/models");
+    alert(
+      `업로드 파일 수 : ${res.total}\n 성공한 업로드 수 : ${res.successCnt}`
+    );
+    setFiles([]);
   };
 
   return (
