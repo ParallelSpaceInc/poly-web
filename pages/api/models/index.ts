@@ -3,24 +3,15 @@ import { hasRight } from "@libs/server/Authorization";
 import prismaClient from "@libs/server/prismaClient";
 import { deleteS3Files } from "@libs/server/s3client";
 import {
-  checkModel,
-  extractZip,
-  getGltfInfo,
-  getModelFromDir,
   getModelFromForm,
-  getModelFromGltfReport,
+  handlePOST,
   makeMaybeArrayToArray,
-  trimExt,
   updateModel,
-  updatePrismaDB,
-  uploadModelToS3,
 } from "@libs/server/ServerFileHandling";
 import { Model } from "@prisma/client";
-import { randomUUID } from "crypto";
 import formidable from "formidable";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import path from "path";
 
 export const config = {
   api: {
@@ -212,30 +203,3 @@ const getFormidableFileFromReq = async (req: NextApiRequest) => {
     });
   });
 };
-
-async function handlePOST(file: formidable.File, original: OptionalModel) {
-  const model = Object.assign({}, original);
-  console.log(`herer is copied model ${JSON.stringify(model)}`);
-  const uuid = randomUUID();
-  model.id = uuid;
-  const extRes = await extractZip(uuid, file);
-  model.name ??= trimExt(extRes.filename);
-  model.zipSize = extRes.zipSize.toString();
-
-  updateModel(model, await getModelFromDir(extRes.newDirPath));
-  console.log(`now model ${JSON.stringify(model)}`);
-  updateModel(
-    model,
-    await getModelFromGltfReport(
-      await getGltfInfo(
-        path.join(extRes.newDirPath, model.modelFile ?? "Error")
-      )
-    )
-  );
-  checkModel(model);
-  uploadModelToS3(extRes.newDirPath, uuid);
-  updatePrismaDB(model).catch((e) => {
-    deleteS3Files(uuid);
-    throw e;
-  });
-}

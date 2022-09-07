@@ -1,6 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { OptionalModel, UploadForm, ValidatorInfo } from "@customTypes/model";
-import s3client from "@libs/server/s3client";
+import s3client, { deleteS3Files } from "@libs/server/s3client";
+import { randomUUID } from "crypto";
 
 import extract from "extract-zip";
 import formidable from "formidable";
@@ -23,6 +24,35 @@ type FormidableResult = {
 
 //
 
+export async function handlePOST(
+  file: formidable.File,
+  original: OptionalModel
+) {
+  const model = Object.assign({}, original);
+  console.log(`herer is copied model ${JSON.stringify(model)}`);
+  const uuid = randomUUID();
+  model.id = uuid;
+  const extRes = await extractZip(uuid, file);
+  model.name ??= trimExt(extRes.filename);
+  model.zipSize = extRes.zipSize.toString();
+
+  updateModel(model, await getModelFromDir(extRes.newDirPath));
+  console.log(`now model ${JSON.stringify(model)}`);
+  updateModel(
+    model,
+    await getModelFromGltfReport(
+      await getGltfInfo(
+        path.join(extRes.newDirPath, model.modelFile ?? "Error")
+      )
+    )
+  );
+  checkModel(model);
+  uploadModelToS3(extRes.newDirPath, uuid);
+  updatePrismaDB(model).catch((e) => {
+    deleteS3Files(uuid);
+    throw e;
+  });
+}
 // devide multiple request and not multiple request -> [form, formidable.Files(Array)]
 
 // for each upload requirement -----------------------
