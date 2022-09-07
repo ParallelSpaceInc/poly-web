@@ -7,7 +7,7 @@ export interface ModelInfo extends Model {
 
 export type UploadForm = {
   name: string;
-  description: string;
+  description?: string;
   category: ModelCategory;
   tag?: string;
 };
@@ -62,3 +62,9 @@ export declare module ValidatorInfo {
     info: Info;
   }
 }
+
+type NotRequired<T> = {
+  [P in keyof T]+?: T[P];
+};
+
+export type OptionalModel = NotRequired<Model>;

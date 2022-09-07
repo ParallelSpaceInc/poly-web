@@ -1,13 +1,26 @@
-import { ModelInfo, UploadForm } from "@customTypes/model";
+import { ModelInfo, OptionalModel, UploadForm } from "@customTypes/model";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient from "@libs/server/prismaClient";
 import { deleteS3Files } from "@libs/server/s3client";
-import { extractZipThenSendToS3 } from "@libs/server/ServerFileHandling";
+import {
+  checkModel,
+  extractZip,
+  getGltfInfo,
+  getModelFromDir,
+  getModelFromForm,
+  getModelFromGltfReport,
+  makeMaybeArrayToArray,
+  trimExt,
+  updateModel,
+  updatePrismaDB,
+  uploadModelToS3,
+} from "@libs/server/ServerFileHandling";
 import { Model } from "@prisma/client";
 import { randomUUID } from "crypto";
 import formidable from "formidable";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
+import path from "path";
 
 export const config = {
   api: {
@@ -103,57 +116,18 @@ export default async function handler(
     }
 
     // upload to s3
-    const uuid = randomUUID();
     const formidable = await getFormidableFileFromReq(req);
-    const {
-      model: modelName,
-      thumbnail,
-      modelInfo,
-      totalSize,
-      modelUsdz,
-    } = await extractZipThenSendToS3(uuid, formidable).catch((e) => {
-      res.status(500).json({ error: `while uploading to storage` });
-      console.log(e);
-      return {
-        model: "",
-        modelUsdz: "",
-        thumbnail: "",
-        modelInfo: {},
-        totalSize: 0,
-      };
-    });
-    if (!modelName && !res.writableEnded) {
-      res.status(400).json({ error: ".gltf or .glb file is missing" });
-      return;
+    const doesFormExist = !!formidable.fields.form;
+    const model: OptionalModel = {};
+    if (doesFormExist) {
+      const form: UploadForm = JSON.parse(formidable.fields.form as string);
+      updateModel(model, getModelFromForm(form));
     }
-    const form: UploadForm = JSON.parse(formidable.fields.form as string);
-
-    await prismaClient.model
-      .create({
-        data: {
-          id: uuid,
-          name: form.name,
-          category: form.category,
-          tags: form.tag?.split(" ") ?? [],
-          description: form.description,
-          thumbnail: thumbnail,
-          modelFile: modelName,
-          userId: user.id,
-          modelInfo: JSON.stringify(modelInfo),
-          modelSize: totalSize.toString() ?? "",
-          modelUsdz,
-        },
-      })
-      .catch((e) => {
-        res.status(500).json({ error: "while updating db" });
-        deleteS3Files(uuid);
-        console.log(e);
-        return;
-      });
-    res
-      .setHeader("Location", "/models")
-      .status(303)
-      .json({ message: "업로드에 성공하였습니다." });
+    const files = makeMaybeArrayToArray<formidable.File>(formidable.files.file);
+    const results = await Promise.allSettled(
+      files.map((file) => handlePOST(file, model))
+    );
+    res.json({ results });
   } else if (req.method === "DELETE") {
     const user = await prismaClient.user.findUnique({
       where: {
@@ -236,3 +210,26 @@ const getFormidableFileFromReq = async (req: NextApiRequest) => {
     });
   });
 };
+
+async function handlePOST(file: formidable.File, original: OptionalModel) {
+  const model = Object.assign({}, original);
+  const uuid = randomUUID();
+  model.id = uuid;
+  const extRes = await extractZip(uuid, file);
+  model.name ??= trimExt(extRes.filename);
+  model.zipSize = BigInt(extRes.zipSize);
+
+  updateModel(
+    model,
+    await getModelFromGltfReport(
+      await getGltfInfo(path.join(extRes.newDirPath, extRes.filename))
+    )
+  );
+  updateModel(model, await getModelFromDir(extRes.newDirPath));
+  checkModel(model);
+  uploadModelToS3(extRes.newDirPath, uuid);
+  updatePrismaDB(model as Model).catch((e) => {
+    deleteS3Files(uuid);
+    throw e;
+  });
+}

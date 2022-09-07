@@ -1,5 +1,5 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { ValidatorInfo } from "@customTypes/model";
+import { OptionalModel, UploadForm, ValidatorInfo } from "@customTypes/model";
 import s3client from "@libs/server/s3client";
 import { Model } from "@prisma/client";
 
@@ -33,55 +33,75 @@ type FormidableResult = {
 // 0. generate uuid
 
 // 0. update Model from form. do nothing if undefined. (name, tags, description, category)
+export function getModelFromForm(form: UploadForm): OptionalModel {
+  return {
+    category: form.category,
+    description: form.description,
+    tags: form.tag,
+    name: form.name,
+  };
+}
+
+export function makeMaybeArrayToArray<T>(target: T | T[]) {
+  if (!(target instanceof Array)) {
+    return [target];
+  } else {
+    return target;
+  }
+}
 
 // 1. extractZip (name)
 export async function extractZip(
   uuid: string,
-  formidableFiles: formidable.Files
+  formidableFile: formidable.File
 ) {
-  const fileInfo = await getFileInfo(formidableFiles);
+  const fileInfo = await getOriginalNameAndPath(formidableFile);
   if (path.extname(fileInfo.loadedFile) !== ".zip") {
     throw Error("File is not .zip");
   }
-  const newPath = `/tmp/${uuid}`;
-  const filenameWithoutExt = trimExt(fileInfo.originalName);
-  const newZipPath = join(newPath, "model.zip");
-  await extract(fileInfo.loadedFile, { dir: newPath });
+  const newDirPath = `/tmp/${uuid}`;
+  const filename = fileInfo.originalName;
+  const newZipPath = join(newDirPath, "model.zip");
+  await extract(fileInfo.loadedFile, { dir: newDirPath });
   rename(fileInfo.loadedFile, newZipPath, (err) => {
     if (err) throw err;
   });
   const zipSize = statSync(newZipPath).size;
-  return { newPath, filenameWithoutExt, zipSize };
+  return { newDirPath, filename, zipSize };
 }
 // name, zipSize
 
-type NotRequired<T> = {
-  [P in keyof T]+?: T[P];
-};
-
-type OptionalModel = NotRequired<Model>;
-
-function trimExt(name: string) {
-  if (!name.includes(".")) {
-    return name;
-  }
-  return name.split(".").slice(0, -1).join(".");
-}
-
 // 2-1 Update Model from dir (vertex, triangle, gltf length)
 export async function getGltfInfo(
-  gltf: string
-): Promise<ValidatorInfo.Resource> {
+  gltf?: string | undefined
+): Promise<ValidatorInfo.RootObject> {
+  if (!gltf) {
+    throw Error("Model Path is not found.");
+  }
   const asset = readFileSync(gltf);
-  return validateBytes(new Uint8Array(asset))
-    .then((report: ValidatorInfo.RootObject) => {
+  return validateBytes(new Uint8Array(asset)).then(
+    (report: ValidatorInfo.RootObject) => {
       return report;
-    })
-    .catch((e: any) => {
-      throw e;
-    });
+    }
+  );
 }
 // vertex=, tri, model size
+
+export async function getModelFromGltfReport(
+  report: ValidatorInfo.RootObject
+): Promise<OptionalModel> {
+  return {
+    modelTriangle: BigInt(report.info.totalTriangleCount),
+    modelVertex: BigInt(report.info.totalVertexCount),
+    modelSize: BigInt(
+      report.info.resources
+        .map((resoucre) => {
+          return resoucre.byteLength;
+        })
+        .reduce((prev, cur) => prev + cur, 0)
+    ),
+  };
+}
 
 // 2-2 update Model from dir (name, thumbnail. usdz, usdzSize, zipSize, description)
 export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
@@ -109,8 +129,12 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
 
 //update if not exist
 export function updateModel(target: OptionalModel, newObject: OptionalModel) {
-  return Object.assign(newObject, target);
+  target = JSON.parse(JSON.stringify(target));
+  newObject = JSON.parse(JSON.stringify(newObject));
+  return (target = Object.assign(newObject, target));
 }
+//
+
 //
 
 // 3 chech Model requirement
@@ -119,18 +143,33 @@ export function checkModel(model: OptionalModel) {
     throw Error("category is not exist");
   }
   if (model.id) {
-    throw Error("model is not exist");
+    throw Error("modelId is not exist");
   }
   if (model.name) {
     throw Error("name is not exist");
   }
+  if (model.userId) {
+    throw Error("uploader is not exist");
+  }
+  if (model.modelFile) {
+    throw Error("ModelFile is not exist");
+  }
+  return model;
 }
 
 // 4-a update db
 // use prisma code
+export async function updatePrismaDB(model: Model) {
+  prismaClient.model.create({
+    data: {
+      ...model,
+      tags: JSON.stringify(model.tags),
+    },
+  });
+}
 
 // 4-b sendToS3
-export async function uploadModelToS3(dirPath: string, res: Model) {
+export async function uploadModelToS3(dirPath: string, uuid: string) {
   await Promise.all(
     (
       await getFilesPath(dirPath)
@@ -138,7 +177,7 @@ export async function uploadModelToS3(dirPath: string, res: Model) {
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
-        Key: join(`models/${res.id}`, path.relative(dirPath, file)),
+        Key: join(`models/${uuid}`, path.relative(dirPath, file)),
         Body: stream,
       };
       return s3client.send(new PutObjectCommand(filesParams));
@@ -151,14 +190,8 @@ function readTextFile(textFile: string) {
   return buffer;
 }
 
-const getFileInfo = (fileData: formidable.Files) => {
-  if (typeof fileData === "string") {
-    return Promise.reject("Can't find uploaded file");
-  }
-  if (fileData.file instanceof Array) {
-    throw Promise.reject("Can't resolve multiple files");
-  }
-  const parsed = fileData.file.toJSON();
+const getOriginalNameAndPath = (fileData: formidable.File) => {
+  const parsed = fileData.toJSON();
   return Promise.resolve({
     originalName: parsed.originalFilename ?? "noName",
     loadedFile: parsed.filepath,
@@ -183,6 +216,13 @@ const getFilesPath: (dir: string) => Promise<string[]> = async (
     []
   );
 };
+
+export function trimExt(name: string) {
+  if (!name.includes(".")) {
+    return name;
+  }
+  return name.split(".").slice(0, -1).join(".");
+}
 
 // useless for now.
 const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
