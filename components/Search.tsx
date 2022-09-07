@@ -61,7 +61,7 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
 
   const searchModel = async (e?: React.KeyboardEvent<HTMLInputElement>) => {
 
-    if (e?.key !== 'Enter') {
+    if (e && e?.key !== 'Enter') {
       return
     }
 
