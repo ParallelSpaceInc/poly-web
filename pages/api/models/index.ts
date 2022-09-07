@@ -126,7 +126,7 @@ export default async function handler(
       model.category = "MISC"; // add if form data is not exist.
     }
     const files = makeMaybeArrayToArray<formidable.File>(formidable.files.file);
-    const results = await Promise.all(
+    const results = await Promise.allSettled(
       files.map((file) => handlePOST(file, model))
     );
     res.json({ results });
