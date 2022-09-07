@@ -85,6 +85,11 @@ export default async function handler(
       switch (sortType) {
         case "Last Added":
           modelList = await prismaClient.model.findMany({
+            where: {
+              name: {
+                contains: req.query.filterByName?.toString(),
+              },
+            },
             orderBy: {
               createdAt: isDesc === "true" ? "desc" : "asc",
             },
@@ -92,6 +97,11 @@ export default async function handler(
           break;
         case "Size":
           modelList = await prismaClient.model.findMany({
+            where: {
+              name: {
+                contains: req.query.filterByName?.toString(),
+              },
+            },
             orderBy: {
               modelSize: isDesc === "true" ? "desc" : "asc",
             },
@@ -99,6 +109,11 @@ export default async function handler(
           break;
         case "Alphabetic":
           modelList = await prismaClient.model.findMany({
+            where: {
+              name: {
+                contains: req.query.filterByName?.toString(),
+              },
+            },
             orderBy: {
               name: isDesc === "true" ? "desc" : "asc",
             },
