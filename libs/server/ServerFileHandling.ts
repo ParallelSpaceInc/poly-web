@@ -29,15 +29,12 @@ export async function handlePOST(
   original: OptionalModel
 ) {
   const model = Object.assign({}, original);
-  console.log(`herer is copied model ${JSON.stringify(model)}`);
   const uuid = randomUUID();
   model.id = uuid;
   const extRes = await extractZip(uuid, file);
   model.name ??= trimExt(extRes.filename);
   model.zipSize = extRes.zipSize.toString();
-
   updateModel(model, await getModelFromDir(extRes.newDirPath));
-  console.log(`now model ${JSON.stringify(model)}`);
   updateModel(
     model,
     await getModelFromGltfReport(
@@ -133,22 +130,24 @@ export async function getModelFromGltfReport(
 export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
   let model: OptionalModel = {};
   const files = await getFilesPath(dirPath);
-  files.forEach(async (file) => {
-    const relativeFileName = path.relative(dirPath, file);
-    if (["scene.gltf", "scene.glb"].includes(relativeFileName)) {
-      model.modelFile = relativeFileName;
-    }
-    if ("thumbnail.png" === relativeFileName) {
-      model.thumbnail = relativeFileName;
-    }
-    if ("scene.usdz" === relativeFileName) {
-      model.modelUsdz = relativeFileName;
-      model.usdzSize = statSync(file).size.toString();
-    }
-    if ("description.txt" === relativeFileName) {
-      model.description = await readTextFile(file);
-    }
-  });
+  await Promise.all(
+    files.map(async (file) => {
+      const relativeFileName = path.relative(dirPath, file);
+      if (["scene.gltf", "scene.glb"].includes(relativeFileName)) {
+        model.modelFile = relativeFileName;
+      }
+      if ("thumbnail.png" === relativeFileName) {
+        model.thumbnail = relativeFileName;
+      }
+      if ("scene.usdz" === relativeFileName) {
+        model.modelUsdz = relativeFileName;
+        model.usdzSize = statSync(file).size.toString();
+      }
+      if ("description.txt" === relativeFileName) {
+        model.description = await readTextFile(file);
+      }
+    })
+  );
 
   return model;
 }
@@ -237,8 +236,8 @@ export async function uploadModelToS3(dirPath: string, uuid: string) {
   );
 }
 
-function readTextFile(textFile: string) {
-  const buffer = readFile(textFile, { encoding: "utf-8" });
+async function readTextFile(textFile: string) {
+  const buffer = await readFile(textFile, { encoding: "utf-8" });
   return buffer;
 }
 
