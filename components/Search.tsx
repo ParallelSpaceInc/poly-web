@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ModelInfos } from "pages/models";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 interface props {
   setModels: Dispatch<SetStateAction<ModelInfos | undefined>>
   isClickSort: boolean,
@@ -34,13 +34,25 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
   const [filterByName, setFilterByName] = useState<string>("")
   const [inputValue, setInputValue] = useState<string>("");
 
+  const getModelsCallBack = useCallback(async () => {
+    const isDescOfSort = isDesc[getSortTypeKey(currentSortType)]
+    const query = getQuery(currentSortType, isDescOfSort, filterByName);
+    const { data, error } = await fetch(`/api/models?${query}`, {
+      method: "GET",
+    }).then((res) => res.json())
+    const loading = !data && !error;
+    setModels({
+      loading,
+      data,
+      error
+    })
+  }, [currentSortType, filterByName, isDesc, setModels])
+
   useEffect(() => {
-    (async () => {
-      await getModels(currentSortType, filterByName);
 
-    })();
+    getModelsCallBack()
 
-  }, [currentSortType, JSON.stringify(isDesc), filterByName])
+  }, [getModelsCallBack])
 
   const sortingModel = async (type: string) => {
     const sortType = getSortTypeKey(type)
