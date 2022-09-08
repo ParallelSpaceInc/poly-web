@@ -48,6 +48,17 @@ export default async function handler(
     if (req.query.id) {
       const model = await prismaClient.model.findUnique({
         where: { id: req.query.id as string },
+        include: {
+          Comment: {
+            include: {
+              commenter: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
       if (!model) {
         res.status(404).end();
@@ -214,7 +225,7 @@ export default async function handler(
 
 // FOR RESPONE TO GET
 
-const makeModelInfo: (model: Model) => ModelInfo = (model) => {
+const makeModelInfo: (model: any) => ModelInfo = (model) => {
   const thumbnailSrc = model.thumbnail
     ? `/getResource/models/${model.id}/${model.thumbnail}`
     : "";

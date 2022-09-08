@@ -153,7 +153,12 @@ const ModelPage: NextPage = () => {
       <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
-      <Comments comments={comments} className="mt-10"></Comments>
+      {!modelInfo.loading ? (
+        <Comments
+          comments={modelInfo.data.Comment}
+          className="mt-10"
+        ></Comments>
+      ) : null}
     </Wrapper>
   );
 };
