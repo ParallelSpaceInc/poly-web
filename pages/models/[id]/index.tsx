@@ -1,3 +1,4 @@
+import Comments from "@components/Comments";
 import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
@@ -152,9 +153,21 @@ const ModelPage: NextPage = () => {
       <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
+      <Comments comments={comments} className="mt-10"></Comments>
     </Wrapper>
   );
 };
+
+const comments = Array(10)
+  .fill(null)
+  .map((_, i) => ({
+    id: i,
+    modelId: "93023e86-95d5-48a6-aeea-b904b354dcd5",
+    text: `example text ${i}`,
+    createdAt: Date(),
+    updatedAt: Date(),
+    userId: "cl7scxx7e0014t2i0pc1o3zxg",
+  }));
 
 const callDeleteAPI = (id: string, router: NextRouter) => {
   fetch(`/api/models/${id}`, {
