@@ -82,11 +82,11 @@ model Model {
 
 model Comment {
   id             Int      @id @default(autoincrement())
-  commenter      User     @relation(fields: [userId], references: [id])
+  commenter      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt()
   text           String
-  modelCommented Model    @relation(fields: [modelId], references: [id])
+  modelCommented Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
   userId         String
   modelId        String
 }
