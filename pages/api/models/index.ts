@@ -81,7 +81,7 @@ export default async function handler(
 
       const sortType = splitQuerySort[0];
       const isDesc = splitQuerySort[1];
-      let modelList;
+      let modelList: Model[] = [];
       switch (sortType) {
         case "Last Added":
           modelList = await prismaClient.model.findMany({
@@ -120,16 +120,23 @@ export default async function handler(
           });
           break;
         default:
-          res.status(401).json({ data: [], error: "query  sort error" });
-          break;
+          res.status(400).json({
+            data: [],
+            error: `query  sort error sort:${req.query.sort}`,
+          });
+          return;
       }
-      if (modelList) {
-        const parsedList = makeModelInfos(modelList ?? []);
-        res.status(200).json({ data: parsedList, error: undefined });
+      if (modelList?.length === 0) {
+        res.status(404).json({
+          data: modelList,
+          error:
+            `We couldn't find any matches for "` + req.query.filterByName + `"`,
+        });
         return;
-      } else {
-        res.status(404).json({ data: [], error: "not found model error" });
       }
+      const parsedList = makeModelInfos(modelList);
+      res.status(200).json({ data: parsedList, error: undefined });
+      return;
     }
     const modelList = await prismaClient.model.findMany({
       orderBy: {

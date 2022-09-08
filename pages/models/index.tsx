@@ -9,7 +9,7 @@ import { useState } from "react";
 export interface ModelInfos {
   loading: boolean,
   data: ModelInfo[] | undefined,
-  error: any
+  error: any,
 }
 
 const ModelsMainPage: NextPage = () => {
@@ -19,6 +19,7 @@ const ModelsMainPage: NextPage = () => {
   const closeSortingModel = () => {
     setIsClickSort(false);
   }
+
   return (
     <div onClick={(e) => {
       if (e.target instanceof Element) {
@@ -31,7 +32,11 @@ const ModelsMainPage: NextPage = () => {
     }}>
       <Wrapper>
         <SearchBar setModels={setModels} isClickSort={isClickSort} closeSortingModel={closeSortingModel} setIsClickSort={setIsClickSort} />
-        <Thumbnails loading={models ? models?.loading ?? false : modelsInfos.loading} modelInfos={models ? models?.data ?? [] : modelsInfos.data} />
+        {models?.error ? <div className="w-full rounded-md h-96 border-2 mt-5 flex justify-center items-center">
+          <div className="text-gray-400 font-bold md:text-lg text-sm">{models.error}</div>
+        </div> :
+          <Thumbnails loading={models ? models?.loading ?? false : modelsInfos.loading} modelInfos={models ? models?.data ?? [] : modelsInfos.data} />
+        }
       </Wrapper>
     </div>
 
