@@ -76,56 +76,19 @@ export default async function handler(
       res.json(makeModelInfos(model));
       return;
     } else if (req.query.sort) {
-      const splitQuerySort =
-        typeof req.query.sort === "string" ? req.query.sort.split(",") : "";
+      let options = {
+        where: {
+          name: {
+            contains: req.query.filterByName?.toString(),
+          },
+        },
+        orderBy: {
+          [`${req.query.sort}`]: req.query.orderBy,
+        },
+      };
 
-      const sortType = splitQuerySort[0];
-      const isDesc = splitQuerySort[1];
-      let modelList: Model[] = [];
-      switch (sortType) {
-        case "Last Added":
-          modelList = await prismaClient.model.findMany({
-            where: {
-              name: {
-                contains: req.query.filterByName?.toString(),
-              },
-            },
-            orderBy: {
-              createdAt: isDesc === "true" ? "desc" : "asc",
-            },
-          });
-          break;
-        case "Size":
-          modelList = await prismaClient.model.findMany({
-            where: {
-              name: {
-                contains: req.query.filterByName?.toString(),
-              },
-            },
-            orderBy: {
-              modelSize: isDesc === "true" ? "desc" : "asc",
-            },
-          });
-          break;
-        case "Alphabetic":
-          modelList = await prismaClient.model.findMany({
-            where: {
-              name: {
-                contains: req.query.filterByName?.toString(),
-              },
-            },
-            orderBy: {
-              name: isDesc === "true" ? "desc" : "asc",
-            },
-          });
-          break;
-        default:
-          res.status(400).json({
-            data: [],
-            error: `query  sort error sort:${req.query.sort}`,
-          });
-          return;
-      }
+      const modelList = await prismaClient.model.findMany(options);
+
       if (modelList?.length === 0) {
         res.status(404).json({
           data: modelList,
