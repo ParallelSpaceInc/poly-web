@@ -97,21 +97,6 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
     return queryString
   }
 
-  const getModels = async (type: string, filterByName: string) => {
-
-    const isDescOfSort = isDesc[getSortTypeKey(type)]
-    const query = getQuery(type, isDescOfSort, filterByName);
-    const { data, error } = await fetch(`/api/models?${query}`, {
-      method: "GET",
-    }).then((res) => res.json())
-    const loading = !data && !error;
-    setModels({
-      loading,
-      data,
-      error
-    })
-  }
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }
