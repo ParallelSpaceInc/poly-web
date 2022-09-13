@@ -1,11 +1,9 @@
+import { Categories } from "@libs/client/Util";
 import Image from "next/image";
 import { ModelInfos } from "pages/models";
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 interface Props {
   setModels: Dispatch<SetStateAction<ModelInfos | undefined>>
-  isClickSort: boolean,
-  closeSortingModel: () => void
-  setIsClickSort: Dispatch<SetStateAction<boolean>>
 }
 type Query = {
   sort: string,
@@ -34,7 +32,10 @@ const orderByKey: OrderByKey = {
   alphabetic: "name"
 }
 
-function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }: Props) {
+const categories: string[] = ["All categories", ...Categories]
+
+
+function SearchBar({ setModels }: Props) {
 
   const defaultIsDesc: IsDescOfSortType = {
     lastAdded: true,
@@ -47,6 +48,43 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
   const [isDesc, setIsDesc] = useState<IsDescOfSortType>({ ...defaultIsDesc })
   const [filterByName, setFilterByName] = useState<string>("")
   const [inputValue, setInputValue] = useState<string>("");
+  const [currentCategory, setCurrentCategory] = useState<string>(categories[0])
+
+  const [isClickSort, setIsClickSort] = useState<boolean>(false);
+  const [isClickCategory, setIsClickCategory] = useState<boolean>(false);
+
+  const closeSortingModel = () => {
+    setIsClickSort(false);
+  }
+  const closeCategoryModel = () => {
+    setIsClickCategory(false)
+  }
+
+  useEffect(() => {
+    const handleClickOutSide = (e: MouseEvent) => {
+      if (e.target instanceof Element) {
+        const isModalClicked = !!e.target.closest("#sorting");
+        if (isModalClicked) {
+          closeCategoryModel();
+          return;
+        }
+        const isCategoryModalClicked = !!e.target.closest("#category");
+        if (isCategoryModalClicked) {
+          closeSortingModel();
+          return;
+        }
+
+      }
+      closeCategoryModel();
+      closeSortingModel();
+    }
+
+    document.addEventListener('mousedown', handleClickOutSide)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutSide)
+    }
+  }, [])
 
   const getModelsCallBack = useCallback(async () => {
     const isDescOfSort = isDesc[getSortTypeKey(currentSortType)]
@@ -60,7 +98,9 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
     if (filter) {
       Object.assign(query, { filterByName: filter })
     }
+
     const queryString = new URLSearchParams(query).toString();
+
     const { data, error } = await fetch(`/api/models?${queryString}`, {
       method: "GET",
     }).then((res) => res.json())
@@ -105,7 +145,7 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
 
 
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }
 
@@ -124,6 +164,11 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
 
   }
 
+  const onChangeCategory = (category: string) => {
+    setCurrentCategory(category)
+    setIsClickCategory(false)
+  }
+
   return (
     <div className="space-y-5">
       <div className="w-full flex justify-between mt-6">
@@ -133,7 +178,7 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
               className="w-full outline-none"
               placeholder="Find model"
               defaultValue={inputValue}
-              onChange={onChange}
+              onChange={onChangeFilter}
               onKeyDown={(e) => searchModel(e)}
             />
           </div>
@@ -163,7 +208,25 @@ function SearchBar({ setModels, isClickSort, closeSortingModel, setIsClickSort }
           </ul>
         </div>
       </div >
+      <div className="py-2w-full space-x-3 flex item-center flex-row">
+        <div className=" text-center  w-[12%] cursor-pointer text-sm text-gray-500  relative" id="category">
+          <div className="space-x-1 p-2 w-full rounded-md border-2" onClick={() => setIsClickCategory(true)}>
+            <p className="inline-block">{currentCategory}</p>
+            <p className="inline-block">
+              <Image src="/list_gray.png" width="10px" height="10px" alt="list" />
+            </p>
+          </div>
+          <div className="absolute w-full z-10 left-0 top-11">
+            <ul className={`w-full divide-y border-2 shadow-md rounded-md  bg-white overflow-hidden ${isClickCategory ? "block" : "hidden border-none"}`}>
+              {categories.map((list) => {
+                return <li key={list} className="py-2 text-xs" onClick={() => onChangeCategory(list)}>{list}</li>
+              })}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
+
   );
 }
 
