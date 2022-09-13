@@ -4,9 +4,13 @@ import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
 import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+import { useSWRConfig } from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
@@ -24,6 +28,21 @@ const ModelPage: NextPage = () => {
   const [modelViewer, setModelViewer] = useState<ModelElemet>();
   const [isLogShown, setIsLogShown] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const session = useSession();
+  const { register, formState, reset: resetComment, handleSubmit } = useForm();
+  const { mutate: globalMutate } = useSWRConfig();
+  const onValid = async (form: FieldValues) => {
+    if (formState.isSubmitting) return;
+    const res = await fetch(`/api/comment?modelId=${modelId}`, {
+      method: "POST",
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) {
+      alert("코멘트 업로드에 실패하였습니다.");
+    }
+    globalMutate(`/api/models?id=${modelId}`);
+    resetComment();
+  };
   useEffect(() => {
     // hook modelviewer elemet when loading is complete.
     const checker = setInterval(() => {
@@ -159,20 +178,31 @@ const ModelPage: NextPage = () => {
           className="mt-10"
         ></Comments>
       ) : null}
+      {session.data ? (
+        <form onSubmit={handleSubmit(onValid)}>
+          <div className="border-2 p-2 mt-4 border-blue-100 rounded-md flex-col flex space-y-3">
+            <div className="flex">
+              <Image
+                className="rounded-full"
+                src={session.data.user?.image ?? ""}
+                height="40"
+                width="40"
+                alt="profile"
+              />
+              <div className="text-lg self-end pb-1 ml-3 text-blue-500">
+                {session.data.user?.name}
+              </div>
+            </div>
+            <input
+              {...register("text", { required: true, maxLength: 300 })}
+              className="ml-1 text-sm border-2 rounded p-2"
+            ></input>
+          </div>
+        </form>
+      ) : null}
     </Wrapper>
   );
 };
-
-const comments = Array(10)
-  .fill(null)
-  .map((_, i) => ({
-    id: i,
-    modelId: "93023e86-95d5-48a6-aeea-b904b354dcd5",
-    text: `example text ${i}`,
-    createdAt: Date(),
-    updatedAt: Date(),
-    userId: "cl7scxx7e0014t2i0pc1o3zxg",
-  }));
 
 const callDeleteAPI = (id: string, router: NextRouter) => {
   fetch(`/api/models/${id}`, {
