@@ -30,7 +30,7 @@ const ModelPage: NextPage = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const session = useSession();
   const { register, formState, reset: resetComment, handleSubmit } = useForm();
-  const { mutate: globalMutate } = useSWRConfig();
+  const { mutate: componentMutate } = useSWRConfig();
   const onValid = async (form: FieldValues) => {
     if (formState.isSubmitting) return;
     const res = await fetch(`/api/comment?modelId=${modelId}`, {
@@ -40,7 +40,7 @@ const ModelPage: NextPage = () => {
     if (!res.ok) {
       alert("코멘트 업로드에 실패하였습니다.");
     }
-    globalMutate(`/api/models?id=${modelId}`);
+    componentMutate(`/api/models?id=${modelId}`);
     resetComment();
   };
   useEffect(() => {
@@ -86,6 +86,8 @@ const ModelPage: NextPage = () => {
   if (!modelInfo.data) {
     return null;
   }
+
+  console.log("da", user.data);
 
   return (
     <Wrapper>
@@ -176,6 +178,12 @@ const ModelPage: NextPage = () => {
         <Comments
           comments={modelInfo.data.Comment}
           className="mt-10"
+          handleDelete={(commentId: string) =>
+            handleDelete(commentId, () => {
+              componentMutate(`/api/models?id=${modelId}`);
+            })
+          }
+          user={user.data}
         ></Comments>
       ) : null}
       {session.data ? (
@@ -239,5 +247,18 @@ const onDownloadClick = async (
     logs.concat(`<system> : download spent ${spentTime / 1000} sec.`)
   );
 };
+
+async function handleDelete(commentId: string, refresh: () => void) {
+  const res = await fetch(`/api/comment?commentId=${commentId}`, {
+    method: "DELETE",
+  }).then((res) => res.json());
+  if (!res.ok) {
+    const message = res.message ? "\n" + res.message : "";
+    alert(`코멘트 삭제에 실패했습니다.` + message);
+  }
+  {
+    refresh();
+  }
+}
 
 export default ModelPage;
