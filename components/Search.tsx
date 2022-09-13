@@ -99,6 +99,11 @@ function SearchBar({ setModels }: Props) {
       Object.assign(query, { filterByName: filter })
     }
 
+    if (currentCategory !== categories[0]) {
+
+      Object.assign(query, { category: currentCategory })
+    }
+
     const queryString = new URLSearchParams(query).toString();
 
     const { data, error } = await fetch(`/api/models?${queryString}`, {
@@ -110,7 +115,7 @@ function SearchBar({ setModels }: Props) {
       data,
       error
     })
-  }, [currentSortType, filterByName, isDesc, setModels])
+  }, [currentSortType, filterByName, isDesc, setModels, currentCategory])
 
   useEffect(() => {
     getModelsCallBack()

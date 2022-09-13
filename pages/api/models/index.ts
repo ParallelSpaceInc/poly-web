@@ -1,5 +1,6 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { ModelInfo, UploadForm } from "@customTypes/model";
+import { Categories } from "@libs/client/Util";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient from "@libs/server/prismaClient";
 import s3client, { deleteS3Files } from "@libs/server/s3client";
@@ -76,24 +77,53 @@ export default async function handler(
       res.json(makeModelInfos(model));
       return;
     } else if (req.query.sort) {
+      let errorMessage = undefined;
+
+      const { sort, category, filterByName, orderBy } = req.query;
       let options = {
         where: {
           name: {
-            contains: req.query.filterByName?.toString(),
+            contains: filterByName?.toString(),
           },
         },
         orderBy: {
-          [`${req.query.sort}`]: req.query.orderBy,
+          [`${sort}`]: orderBy,
         },
       };
+      if (category) {
+        if (Categories.includes(category?.toString())) {
+          const where = Object.assign(options.where, {
+            category: category.toString().toUpperCase(),
+          });
+
+          options.where = where;
+        }
+      }
 
       const modelList = await prismaClient.model.findMany(options);
 
       if (modelList?.length === 0) {
+        if (filterByName) {
+          if (category) {
+            errorMessage =
+              `We couldn't find any matches for "` +
+              req.query.filterByName +
+              `" ` +
+              "in " +
+              category;
+          } else {
+            errorMessage =
+              `We couldn't find any matches for "` +
+              req.query.filterByName +
+              `"`;
+          }
+        } else if (category) {
+          errorMessage = `We couldn't find any matches in "` + category + `"`;
+        }
+
         res.status(404).json({
           data: modelList,
-          error:
-            `We couldn't find any matches for "` + req.query.filterByName + `"`,
+          error: errorMessage,
         });
         return;
       }
