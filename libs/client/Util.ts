@@ -13,3 +13,41 @@ export function AddUnit(number: string | number | undefined): string | null {
   }
   return parsedNumber.toString();
 }
+
+export const Categories: string[] = [
+  "Misc",
+  "Furniture",
+  "Architecture",
+  "Animals",
+  "Food",
+  "Characters",
+  "Nature",
+  "Vehicles",
+  "Scenes",
+  "Accessories",
+  "Health",
+  "Instruments",
+  "Plants",
+  "Weapons",
+  "Technology",
+];
+
+// export const Categories: string[] = [
+//   "Animals & Pets",
+//   "Architecture",
+//   "Art & Abstract",
+//   "Cars & Vehicles",
+//   "Cultural Heritage & History",
+//   "Electronics & Gadgets",
+//   "Fashion & Style",
+//   "Food & Drink",
+//   "Furniture & Home",
+//   "Music",
+//   "Nature & Plants",
+//   "News & Politics",
+//   "People",
+//   "Places & Travel",
+//   "Science & Technology",
+//   "Sports & Fitness",
+//   "Weapons & Military",
+// ];
