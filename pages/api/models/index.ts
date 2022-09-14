@@ -75,6 +75,31 @@ export default async function handler(
       });
       res.json(makeModelInfos(model));
       return;
+    } else if (req.query.sort) {
+      let options = {
+        where: {
+          name: {
+            contains: req.query.filterByName?.toString(),
+          },
+        },
+        orderBy: {
+          [`${req.query.sort}`]: req.query.orderBy,
+        },
+      };
+
+      const modelList = await prismaClient.model.findMany(options);
+
+      if (modelList?.length === 0) {
+        res.status(404).json({
+          data: modelList,
+          error:
+            `We couldn't find any matches for "` + req.query.filterByName + `"`,
+        });
+        return;
+      }
+      const parsedList = makeModelInfos(modelList);
+      res.status(200).json({ data: parsedList, error: undefined });
+      return;
     }
     const modelList = await prismaClient.model.findMany({
       orderBy: {
@@ -90,6 +115,7 @@ export default async function handler(
       res.status(401).send("Login first");
       return;
     }
+
     const user = await prismaClient.user.findUnique({
       where: {
         email: token.user?.email ?? undefined, // if undefined, search nothing
