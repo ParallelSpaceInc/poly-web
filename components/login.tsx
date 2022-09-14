@@ -7,7 +7,7 @@ type props = {
 export default function Login({ closeLoginBox }: props) {
   return (
     <div
-      className="fixed top-0 w-screen h-screen z-10 bg-gray-900 bg-opacity-30 overscroll-none"
+      className="fixed top-0 w-screen h-screen z-50 bg-gray-900 bg-opacity-30 overscroll-none"
       onClick={(e) => {
         if (e.target instanceof Element) {
           const isModalClicked = !!e.target.closest("#modal");

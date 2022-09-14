@@ -29,6 +29,6 @@ export default NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 15 * 60, // session duration. logout after 15 min idle.
+    maxAge: 24 * 60 * 60, // session duration. logout after 24h idle.
   },
 });

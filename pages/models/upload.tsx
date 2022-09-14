@@ -1,10 +1,11 @@
+import ErrorDiv from "@components/ErrorDiv";
 import Wrapper from "@components/Wrapper";
 import { UploadForm } from "@customTypes/model";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
-import { FieldError, FieldValues, useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 
 const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
@@ -74,13 +75,13 @@ const Upload = () => {
     <Wrapper>
       <div className="grid lg:grid-cols-2 gap-x-10">
         <Dropzone
+          accept={{ zip: [".zip"] }}
+          maxFiles={1}
           onDrop={(acceptedFiles) => {
             setFiles(acceptedFiles);
             acceptedFiles.forEach((file) => {
-              if (file.type === "application/zip") {
-                const zipName = file.name.split(".").slice(0, -1).join(".");
-                setFormValue("name", zipName);
-              }
+              const zipName = file.name.split(".").slice(0, -1).join(".");
+              setFormValue("name", zipName);
             });
           }}
         >
@@ -280,9 +281,3 @@ const Upload = () => {
 };
 
 export default Upload;
-
-const ErrorDiv = ({ error }: { error?: FieldError | undefined }) => (
-  <div className="text-red-600 pl-1">
-    {error?.type === "required" && error.message}
-  </div>
-);

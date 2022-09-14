@@ -3,13 +3,15 @@ import "@google/model-viewer";
 
 const Model = ({ info }: { info: ModelInfo }) => {
   const parsed = {
-    src: info.modelSrc,
+    src: `${info.modelSrc}?disable_occlusion=false`,
+    "ios-src": info.modelUsdz ?? "",
     poster: info.thumbnailSrc,
     alt: info.name,
     "shadow-intensity": "1",
     "camera-controls": "",
     "auto-rotate": "",
     ar: "",
+    "ar-modes": "scene-viewer",
     style: {
       width: "100%",
       height: "100%",
@@ -19,7 +21,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
     // "skybox-image":
     //   "https://modelviewer.dev/assets/whipple_creek_regional_park_04_1k.hdr",
   };
-  return <model-viewer {...parsed} />;
+  return <model-viewer id="modelViewer" {...parsed} />;
 };
 
 export default Model;

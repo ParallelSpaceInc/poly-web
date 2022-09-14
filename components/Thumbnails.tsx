@@ -17,12 +17,12 @@ function Thumbnails({
             <div className="flex flex-col relative cursor-pointer">
               <div className="block  aspect-[4/3] relative rounded-lg shadow-md">
                 <Image
-                  src={info.thumbnailSrc}
+                  src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
                   alt={info.name}
                   layout="fill"
                   objectFit="cover"
                   className="rounded-lg"
-                  priority
+                  loading="lazy"
                 />
               </div>
               <div className="flex items-end justify-between">
