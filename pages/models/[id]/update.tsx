@@ -28,13 +28,12 @@ const UpdatePage: NextPage = () => {
     const res = await fetch(`/api/models/${modelId}`, {
       method: "PATCH",
       body: JSON.stringify(form),
-    });
-
+    }).then((res) => res.json());
     if (!res.ok) {
-      const ans = await res.json().then((e) => e.message);
-      alert(`업데이트에 실패하였습니다. ${ans}`);
+      alert(`업데이트에 실패하였습니다. ${res.message ?? ""}`);
       return "error";
     }
+
     router.push(`/models/${modelId}`);
   };
   return (

@@ -21,9 +21,13 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, account, isNewUser, profile, user }) {
       // account(oauthInfo), profile, user(dbUserInfo), isNewUser are only passed one time after user signs in.
+      if (user) {
+        token.role = user.role;
+      }
       return token;
     },
     async session({ session, token }) {
+      session.role = token.role;
       return session;
     },
   },

@@ -1,25 +1,18 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { ModelInfo, UploadForm } from "@customTypes/model";
+import { ModelInfo, OptionalModel, UploadForm } from "@customTypes/model";
 import { Categories } from "@libs/client/Util";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient from "@libs/server/prismaClient";
-import s3client, { deleteS3Files } from "@libs/server/s3client";
-import { Model } from "@prisma/client";
-import { randomUUID } from "crypto";
-import extract from "extract-zip";
-import formidable from "formidable";
+import { deleteS3Files } from "@libs/server/s3client";
 import {
-  createReadStream,
-  readdirSync,
-  readFileSync,
-  rename,
-  statSync,
-} from "fs";
-import { readdir, stat } from "fs/promises";
-import { validateBytes } from "gltf-validator";
+  getModelFromForm,
+  handlePOST,
+  makeMaybeArrayToArray,
+  updateModel,
+} from "@libs/server/ServerFileHandling";
+import { Model } from "@prisma/client";
+import formidable from "formidable";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import path, { join } from "path";
 
 export const config = {
   api: {
@@ -39,7 +32,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const token = await getSession({ req });
+  const session = await getSession({ req });
   if (!allowedMethod.includes(req.method ?? "")) {
     res.status(405).end();
     return;
@@ -140,7 +133,7 @@ export default async function handler(
     res.status(200).json(parsedList);
   } else if (req.method === "POST") {
     // authorize client then upload model. db update return model id.
-    const isLogined = !!token;
+    const isLogined = !!session;
     if (!isLogined) {
       res.status(401).send("Login first");
       return;
@@ -148,7 +141,7 @@ export default async function handler(
 
     const user = await prismaClient.user.findUnique({
       where: {
-        email: token.user?.email ?? undefined, // if undefined, search nothing
+        email: session.user?.email ?? undefined, // if undefined, search nothing
       },
     });
     if (user === null) {
@@ -168,63 +161,39 @@ export default async function handler(
       res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
       return;
     }
-
     // upload to s3
-    const uuid = randomUUID();
-    const formidable = await getFormidableFileFromReq(req);
-    const {
-      model: modelName,
-      thumbnail,
-      modelInfo,
-      totalSize,
-      modelUsdz,
-    } = await extractZipThenSendToS3(uuid, formidable).catch((e) => {
-      res.status(500).json({ error: `while uploading to storage` });
-      console.log(e);
-      return {
-        model: "",
-        modelUsdz: "",
-        thumbnail: "",
-        modelInfo: {},
-        totalSize: 0,
-      };
-    });
-    if (!modelName && !res.writableEnded) {
-      res.status(400).json({ error: ".gltf or .glb file is missing" });
+    const isAdminOrDev = user.role === "ADMIN" || user.role === "DEVELOPER";
+    const option: formidable.Options | undefined = isAdminOrDev
+      ? { multiples: true, maxFileSize: Infinity, keepExtensions: true }
+      : undefined;
+    const formidable = await getFormidableFileFromReq(req, option).catch(
+      (e) => "Failed"
+    );
+    if (typeof formidable === "string") {
+      res.json({
+        ok: false,
+        message: "Failed to parse your request. Check your model size.",
+      });
       return;
     }
-    const form: UploadForm = JSON.parse(formidable.fields.form as string);
-
-    await prismaClient.model
-      .create({
-        data: {
-          id: uuid,
-          name: form.name,
-          category: form.category,
-          tags: form.tag?.split(" ") ?? [],
-          description: form.description,
-          thumbnail: thumbnail,
-          modelFile: modelName,
-          userId: user.id,
-          modelInfo: JSON.stringify(modelInfo),
-          modelSize: totalSize.toString() ?? "",
-          modelUsdz,
-        },
-      })
-      .catch((e) => {
-        res.status(500).json({ error: "while updating db" });
-        deleteS3Files(uuid);
-        console.log(e);
-        return;
-      });
-    res
-      .setHeader("Location", "/models")
-      .status(303)
-      .json({ message: "업로드에 성공하였습니다." });
+    const doesFormExist = !!formidable.fields.form;
+    const model: OptionalModel = {};
+    model.userId = user.id;
+    if (doesFormExist) {
+      const form: UploadForm = JSON.parse(formidable.fields.form as string);
+      updateModel(model, getModelFromForm(form));
+    } else {
+      model.category = "MISC"; // add if form data is not exist.
+    }
+    const files = makeMaybeArrayToArray<formidable.File>(formidable.files.file);
+    const results = await Promise.allSettled(
+      files.map((file) => handlePOST(file, model))
+    );
+    res.json({ results });
   } else if (req.method === "DELETE") {
     const user = await prismaClient.user.findUnique({
       where: {
-        email: token?.user?.email ?? undefined, // if undefined, search nothing
+        email: session?.user?.email ?? undefined, // if undefined, search nothing
       },
     });
     const modelId = Array.isArray(req.query.id)
@@ -290,130 +259,21 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 
 // FOR RESPONE TO POST
 
-const extractZipThenSendToS3 = async (
-  uuid: string,
-  formidable: FormidableResult
-): Promise<{
-  model: string;
-  thumbnail: string;
-  modelInfo: object;
-  totalSize: number;
-  modelUsdz: string;
-}> => {
-  const fileInfo = await getFileInfo(formidable.files);
-  const filePath = `/tmp/${uuid}`;
-  let res = {
-    model: "",
-    thumbnail: "",
-    modelInfo: {},
-    totalSize: 0,
-    modelUsdz: "",
-  };
-  await extract(fileInfo.path, { dir: filePath });
-  res.totalSize = await dirSize(filePath);
-  rename(fileInfo.path, join(filePath, "model.zip"), (err) => {
-    if (err) throw err;
-  });
-  await Promise.all(
-    (
-      await getFilesPath(filePath)
-    ).map((file) => {
-      const type = path.extname(file);
-      const filename = path.extname(file);
-      if ([".gltf", ".glb"].includes(type)) {
-        res.model = path.basename(file);
-        const asset = readFileSync(file);
-        validateBytes(new Uint8Array(asset))
-          .then((report: object) => {
-            res.modelInfo = report;
-          })
-          .catch((e: any) => {
-            console.log(e);
-          });
-      }
-      if ("thumbnail.png" === filename) {
-        res.thumbnail = "thumbnail.png";
-      }
-      if ([".usdz"].includes(type)) {
-        res.modelUsdz = path.basename(file);
-      }
-      const stream = createReadStream(file);
-      const filesParams = {
-        Bucket: process.env.S3_BUCKET,
-        Key: join(`models/${uuid}`, path.relative(filePath, file)),
-        Body: stream,
-      };
-      return s3client.send(new PutObjectCommand(filesParams));
-    })
-  );
-  return res;
-};
-
-const getFormidableFileFromReq = async (req: NextApiRequest) => {
+const getFormidableFileFromReq = async (
+  req: NextApiRequest,
+  options?: formidable.Options
+) => {
   return await new Promise<FormidableResult>((res, rej) => {
-    const form = formidable({
-      multiples: true,
-      maxFieldsSize: 100 << 20, // 100MB for zip file
-      keepExtensions: true,
-    });
-    form.parse(req, (err, fields, files) => {
+    const form = formidable(
+      options ?? {
+        multiples: true,
+        maxFileSize: 100 << 20, // 100MB for zip file
+        keepExtensions: true,
+      }
+    );
+    form.parse(req, (err: Error, fields, files) => {
       if (err) return rej(err);
       return res({ err, fields, files });
     });
   });
-};
-
-const getFileInfo = (fileData: formidable.Files) => {
-  if (typeof fileData === "string") {
-    return Promise.reject("Can't find uploaded file");
-  }
-  if (fileData.file instanceof Array) {
-    throw Promise.reject("Can't resolve multiple files");
-  }
-  const parsed = fileData.file.toJSON();
-  return Promise.resolve({
-    name: parsed.originalFilename ?? "noName",
-    path: parsed.filepath,
-  });
-};
-
-const getFilesPath: (dir: string) => Promise<string[]> = async (
-  dir: string
-) => {
-  const files = readdirSync(dir);
-  const res = await Promise.all(
-    files.map(async (file) => {
-      const filePath = path.join(dir, file);
-      const stats = statSync(filePath);
-      if (stats.isDirectory()) return getFilesPath(filePath);
-      else return filePath;
-    })
-  );
-  if (res === undefined) return [];
-  return res.reduce<string[]>(
-    (all, folderContents) => all.concat(folderContents),
-    []
-  );
-};
-
-const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
-  const files = await readdir(dir, { withFileTypes: true });
-
-  const paths = files.map(async (file) => {
-    const path = join(dir, file.name);
-
-    if (file.isDirectory()) return await dirSize(path);
-
-    if (file.isFile()) {
-      const { size } = await stat(path);
-
-      return size;
-    }
-
-    return 0;
-  });
-
-  return (await Promise.all(paths))
-    .flat(Infinity)
-    .reduce((i, size) => i + size, 0);
 };
