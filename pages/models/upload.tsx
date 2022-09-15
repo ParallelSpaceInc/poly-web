@@ -59,10 +59,11 @@ const Upload = () => {
     const res = await fetch("/api/models", {
       method: "POST",
       body: formData,
-    });
+    }).then((res) => res.json());
+
     if (!res.ok) {
-      const ans = await res.json().then((e) => e.message);
-      alert(`업로드에 실패하였습니다. ${ans}`);
+      const ans = await res.message;
+      alert(`업로드에 실패하였습니다.${ans ? "\n" + ans : ""}`);
       return "error";
     }
     alert("파일이 업로드 되었습니다.");

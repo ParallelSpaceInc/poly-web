@@ -106,7 +106,20 @@ export default async function handler(
       return;
     }
     // upload to s3
-    const formidable = await getFormidableFileFromReq(req);
+    const isAdminOrDev = user.role === "ADMIN" || user.role === "DEVELOPER";
+    const option: formidable.Options | undefined = isAdminOrDev
+      ? { multiples: true, maxFileSize: Infinity, keepExtensions: true }
+      : undefined;
+    const formidable = await getFormidableFileFromReq(req, option).catch(
+      (e) => "Failed"
+    );
+    if (typeof formidable === "string") {
+      res.json({
+        ok: false,
+        message: "Failed to parse your request. Check your model size.",
+      });
+      return;
+    }
     const doesFormExist = !!formidable.fields.form;
     const model: OptionalModel = {};
     model.userId = user.id;
@@ -190,14 +203,19 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 
 // FOR RESPONE TO POST
 
-const getFormidableFileFromReq = async (req: NextApiRequest) => {
+const getFormidableFileFromReq = async (
+  req: NextApiRequest,
+  options?: formidable.Options
+) => {
   return await new Promise<FormidableResult>((res, rej) => {
-    const form = formidable({
-      multiples: true,
-      maxFieldsSize: 100 << 20, // 100MB for zip file
-      keepExtensions: true,
-    });
-    form.parse(req, (err, fields, files) => {
+    const form = formidable(
+      options ?? {
+        multiples: true,
+        maxFileSize: 100 << 20, // 100MB for zip file
+        keepExtensions: true,
+      }
+    );
+    form.parse(req, (err: Error, fields, files) => {
       if (err) return rej(err);
       return res({ err, fields, files });
     });

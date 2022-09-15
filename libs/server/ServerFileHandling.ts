@@ -31,7 +31,9 @@ export async function handlePOST(
   const model = Object.assign({}, original);
   const uuid = randomUUID();
   model.id = uuid;
-  const extRes = await extractZip(uuid, file);
+  const extRes = await extractZip(uuid, file).catch(
+    (e) => "Failed while extract zip"
+  );
   model.name ??= trimExt(extRes.filename);
   model.zipSize = extRes.zipSize.toString();
   updateModel(model, await getModelFromDir(extRes.newDirPath));
@@ -47,7 +49,7 @@ export async function handlePOST(
   uploadModelToS3(extRes.newDirPath, uuid);
   updatePrismaDB(model).catch((e) => {
     deleteS3Files(uuid);
-    throw e;
+    throw "Failed while updateDB";
   });
 }
 // devide multiple request and not multiple request -> [form, formidable.Files(Array)]

@@ -7,7 +7,7 @@ export interface ModelInfo extends Model {
 
 export type UploadForm = {
   name: string;
-  description?: string;
+  description?: string | null;
   category: ModelCategory;
   tag?: string;
 };
