@@ -214,8 +214,8 @@ function SearchBar({ setModels }: Props) {
         </div>
       </div >
       <div className="py-2w-full space-x-3 flex item-center flex-row">
-        <div className=" text-center  w-[12%] cursor-pointer text-sm text-gray-500  relative" id="category">
-          <div className="space-x-1 p-2 w-full rounded-md border-2" onClick={() => setIsClickCategory(true)}>
+        <div className="text-center  md:w-[12%] w-1/2 cursor-pointer text-sm text-gray-500  relative" id="category">
+          <div className="space-x-1 md:p-2 py-2 w-full rounded-md border-2" onClick={() => setIsClickCategory(!isClickCategory)}>
             <p className="inline-block">{currentCategory}</p>
             <p className="inline-block">
               <Image src="/list_gray.png" width="10px" height="10px" alt="list" />
