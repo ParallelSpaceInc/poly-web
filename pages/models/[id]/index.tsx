@@ -1,11 +1,16 @@
+import Comments from "@components/Comments";
 import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
 import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+import { useSWRConfig } from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
@@ -23,6 +28,21 @@ const ModelPage: NextPage = () => {
   const [modelViewer, setModelViewer] = useState<ModelElemet>();
   const [isLogShown, setIsLogShown] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const session = useSession();
+  const { register, formState, reset: resetComment, handleSubmit } = useForm();
+  const { mutate: componentMutate } = useSWRConfig();
+  const onValid = async (form: FieldValues) => {
+    if (formState.isSubmitting) return;
+    const res = await fetch(`/api/comment?modelId=${modelId}`, {
+      method: "POST",
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) {
+      alert("코멘트 업로드에 실패하였습니다.");
+    }
+    componentMutate(`/api/models?id=${modelId}`);
+    resetComment();
+  };
   useEffect(() => {
     // hook modelviewer elemet when loading is complete.
     const checker = setInterval(() => {
@@ -66,6 +86,8 @@ const ModelPage: NextPage = () => {
   if (!modelInfo.data) {
     return null;
   }
+
+  console.log("da", user.data);
 
   return (
     <Wrapper>
@@ -152,6 +174,40 @@ const ModelPage: NextPage = () => {
       <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
+      {!modelInfo.loading ? (
+        <Comments
+          comments={modelInfo.data.Comment}
+          className="mt-10"
+          handleDelete={(commentId: string) =>
+            handleDelete(commentId, () => {
+              componentMutate(`/api/models?id=${modelId}`);
+            })
+          }
+          user={user.data}
+        ></Comments>
+      ) : null}
+      {session.data ? (
+        <form onSubmit={handleSubmit(onValid)}>
+          <div className="border-2 p-2 mt-4 border-blue-100 rounded-md flex-col flex space-y-3">
+            <div className="flex">
+              <Image
+                className="rounded-full"
+                src={session.data.user?.image ?? ""}
+                height="40"
+                width="40"
+                alt="profile"
+              />
+              <div className="text-lg self-end pb-1 ml-3 text-blue-500">
+                {session.data.user?.name}
+              </div>
+            </div>
+            <input
+              {...register("text", { required: true, maxLength: 300 })}
+              className="ml-1 text-sm border-2 rounded p-2"
+            ></input>
+          </div>
+        </form>
+      ) : null}
     </Wrapper>
   );
 };
@@ -195,5 +251,18 @@ const onDownloadClick = async (
     logs.concat(`<system> : download spent ${spentTime / 1000} sec.`)
   );
 };
+
+async function handleDelete(commentId: string, refresh: () => void) {
+  const res = await fetch(`/api/comment?commentId=${commentId}`, {
+    method: "DELETE",
+  }).then((res) => res.json());
+  if (!res.ok) {
+    const message = res.message ? "\n" + res.message : "";
+    alert(`코멘트 삭제에 실패했습니다.` + message);
+  }
+  {
+    refresh();
+  }
+}
 
 export default ModelPage;
