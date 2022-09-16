@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
-import { FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 const Upload = () => {
   const [files, setFiles] = useState<File[] | []>([]);
@@ -44,7 +44,7 @@ const Upload = () => {
     router.push("/models");
   }
 
-  const onValid = async (form: FieldValues) => {
+  const onValid = async (form: UploadForm) => {
     if (files.length === 0) {
       return alert("파일 업로드해주시길 바랍니다.");
     }
@@ -59,10 +59,11 @@ const Upload = () => {
     const res = await fetch("/api/models", {
       method: "POST",
       body: formData,
-    });
+    }).then((res) => res.json());
+
     if (!res.ok) {
-      const ans = await res.json().then((e) => e.message);
-      alert(`업로드에 실패하였습니다. ${ans}`);
+      const ans = await res.message;
+      alert(`업로드에 실패하였습니다.${ans ? "\n" + ans : ""}`);
       return "error";
     }
     alert("파일이 업로드 되었습니다.");
