@@ -136,7 +136,7 @@ const ModelPage: NextPage = () => {
             modelInfo.data
           ) ? (
             <button
-              onClick={() => callDeleteAPI(modelId, router)}
+              onClick={() => handleDeleteRequest(modelId, router)}
               className=" text-white bg-red-500 h-10"
             >
               delete
@@ -156,19 +156,23 @@ const ModelPage: NextPage = () => {
   );
 };
 
-const callDeleteAPI = (id: string, router: NextRouter) => {
-  fetch(`/api/models/${id}`, {
-    method: "DELETE",
-  })
-    .then((res) => {
-      if (!res.ok) {
-        throw res.json();
-      }
-      router.push(`/models`);
+const handleDeleteRequest = (id: string, router: NextRouter) => {
+  if (window.confirm("정말로 삭제하시겠습니까?")) {
+    fetch(`/api/models/${id}`, {
+      method: "DELETE",
     })
-    .catch((error) => {
-      alert(`error : ${error.message}`);
-    });
+      .then((res) => {
+        if (!res.ok) {
+          throw res.json();
+        }
+        router.push(`/models`);
+      })
+      .catch((error) => {
+        alert(`error : ${error.message}`);
+      });
+  } else {
+    // do nothing
+  }
 };
 
 const onDownloadClick = async (

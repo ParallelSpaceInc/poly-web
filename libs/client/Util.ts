@@ -1,4 +1,4 @@
-export function AddUnit(number: string | number | undefined): string | null {
+export function AddUnit(number?: string | number | null): string | null {
   if (!number) return null;
   const parsedNumber = typeof number === "string" ? +number : number;
   if (parsedNumber === NaN) return null;

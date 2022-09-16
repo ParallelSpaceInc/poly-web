@@ -31,9 +31,7 @@ export async function handlePOST(
   const model = Object.assign({}, original);
   const uuid = randomUUID();
   model.id = uuid;
-  const extRes = await extractZip(uuid, file).catch(
-    (e) => "Failed while extract zip"
-  );
+  const extRes = await extractZip(uuid, file);
   model.name ??= trimExt(extRes.filename);
   model.zipSize = extRes.zipSize.toString();
   updateModel(model, await getModelFromDir(extRes.newDirPath));
@@ -119,22 +117,26 @@ export async function getModelFromGltfReport(
   return {
     modelTriangle: report.info.totalTriangleCount.toString(),
     modelVertex: report.info.totalVertexCount.toString(),
-    modelSize: report.info.resources
-      .map((resoucre) => {
-        return resoucre.byteLength;
-      })
-      .reduce((prev, cur) => prev + cur, 0)
-      .toString(),
+    // modelSize: report.info.resources
+    //   .map((resoucre) => {
+    //     console.log(resoucre.byteLength);
+    //     return resoucre.byteLength;
+    //   })
+    //   .reduce((prev, cur) => prev + cur, 0)
+    //   .toString(),
   };
 }
 
 // 2-2 update Model from dir (name, thumbnail. usdz, usdzSize, zipSize, description)
 export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
   let model: OptionalModel = {};
+  let modelSize = 0;
   const files = await getFilesPath(dirPath);
   await Promise.all(
     files.map(async (file) => {
       const relativeFileName = path.relative(dirPath, file);
+      const fileSzie = statSync(file).size;
+      modelSize += fileSzie;
       if (["scene.gltf", "scene.glb"].includes(relativeFileName)) {
         model.modelFile = relativeFileName;
       }
@@ -148,9 +150,12 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
       if ("description.txt" === relativeFileName) {
         model.description = await readTextFile(file);
       }
+      if ("model.zip" === relativeFileName) {
+        modelSize -= fileSzie;
+      }
     })
   );
-
+  model.modelSize = modelSize.toString();
   return model;
 }
 //name??=, thum??= ...
