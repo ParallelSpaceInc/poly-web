@@ -51,6 +51,7 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt()
   uploadModels  Model[]
   Log           Log[]
+  Comment       Comment[]
 }
 
 model VerificationToken {
@@ -79,6 +80,18 @@ model Model {
   modelSize     String?       @default("0")
   usdzSize      String?       @default("0")
   zipSize       String?       @default("0")
+  Comment       Comment[]
+}
+
+model Comment {
+  id             Int      @id @default(autoincrement())
+  commenter      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt()
+  text           String
+  modelCommented Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  userId         String
+  modelId        String
 }
 
 enum Role {

@@ -3,6 +3,7 @@ export interface ModelInfo extends Model {
   modelSrc: string;
   thumbnailSrc: string;
   usdzSrc: string;
+  [key: string]: any;
 }
 
 export type UploadForm = {
@@ -68,3 +69,13 @@ type NotRequired<T> = {
 };
 
 export type OptionalModel = NotRequired<Model>;
+
+export type Comment = {
+  id: number;
+  profileUrl: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  text: string;
+  userName: string;
+};
