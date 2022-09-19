@@ -60,8 +60,8 @@ const Upload = () => {
       method: "POST",
       body: formData,
     }).then((res) => res.json());
-
-    if (!res.ok) {
+    const resStatus: "fulfilled" | "rejected" = res.results[0].status;
+    if (resStatus === "rejected") {
       const ans = await res.message;
       alert(`업로드에 실패하였습니다.${ans ? "\n" + ans : ""}`);
       return "error";
