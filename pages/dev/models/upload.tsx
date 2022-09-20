@@ -35,14 +35,7 @@ const Upload = () => {
       body: formData,
     })
       .then((res) => res.json())
-      .then((json) => {
-        const results: { status: "fulfilled" | "rejected" }[] = json.results;
-        console.log(results);
-        const successCnt = results
-          .map((res) => (res.status === "fulfilled" ? 1 : 0))
-          .reduce((prev: any, cur: any) => prev + cur, 0);
-        return { total: results.length, successCnt };
-      });
+      .then((json) => SuccessCounter(json.results));
     setIsSubmitting(false);
     alert(
       `업로드 파일 수 : ${res.total}\n 성공한 업로드 수 : ${res.successCnt}`
@@ -186,3 +179,16 @@ const Upload = () => {
 };
 
 export default Upload;
+
+export function SuccessCounter(results: AllSettleResult[]) {
+  const successCnt = results
+    .map((res) => (res.status === "fulfilled" ? 1 : 0))
+    .reduce((prev: number, cur: number) => prev + cur, 0);
+  return { total: results.length, successCnt };
+}
+
+export type AllSettleResult = {
+  status: "fulfilled" | "rejected";
+  reason?: string;
+  [key: string]: any;
+};

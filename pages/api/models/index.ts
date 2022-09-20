@@ -1,7 +1,8 @@
+import { getAnyQueryValueOfKey } from "@api/comment";
 import { ModelInfo, OptionalModel, UploadForm } from "@customTypes/model";
 import { Categories } from "@libs/client/Util";
 import { hasRight } from "@libs/server/Authorization";
-import prismaClient from "@libs/server/prismaClient";
+import prismaClient, { getUser } from "@libs/server/prismaClient";
 import { deleteS3Files } from "@libs/server/s3client";
 import {
   getModelFromForm,
@@ -9,7 +10,7 @@ import {
   makeMaybeArrayToArray,
   updateModel,
 } from "@libs/server/ServerFileHandling";
-import { Model } from "@prisma/client";
+import { Model, User } from "@prisma/client";
 import formidable from "formidable";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
@@ -139,6 +140,13 @@ export default async function handler(
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        uploader: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     const parsedList = makeModelInfos(modelList);
     res.status(200).json(parsedList);
@@ -180,6 +188,7 @@ export default async function handler(
     const formidable = await getFormidableFileFromReq(req, option).catch(
       (e) => "Failed"
     );
+
     if (typeof formidable === "string") {
       res.json({
         ok: false,
@@ -202,49 +211,53 @@ export default async function handler(
     );
     res.json({ results });
   } else if (req.method === "DELETE") {
-    const user = await prismaClient.user.findUnique({
-      where: {
-        email: session?.user?.email ?? undefined, // if undefined, search nothing
-      },
-    });
-    const modelId = Array.isArray(req.query.id)
-      ? req.query.id[0]
-      : req.query.id;
-    if (!modelId) {
-      res.status(400).json({ error: "model id query not found" });
-      return;
-    }
-    const model = await prismaClient.model.findUnique({
-      where: {
-        id: modelId,
-      },
-    });
-    if (
-      !hasRight(
-        {
-          method: "delete",
-          theme: "model",
-        },
-        user,
-        model
-      )
-    ) {
-      res.status(403).end();
-      return;
-    }
-    try {
-      deleteS3Files(modelId);
-      await prismaClient.model.delete({
+    const user = await getUser(req);
+    let models: (Model | null)[] = [];
+    if (getAnyQueryValueOfKey(req, "massive") === "true") {
+      const {
+        err,
+        fields: { modelList },
+      } = await getFormidableFileFromReq(req);
+      if (err) {
+        res.status(500).json({ ok: false, message: "Failed parsing request." });
+        return;
+      }
+      models = await prismaClient.model.findMany({
         where: {
-          id: modelId,
+          id: { in: modelList },
         },
       });
-      res.json({ ok: true, message: "delete success!" });
-      return;
-    } catch (e) {
-      res.status(500).json({ ok: false, message: "Failed while deleting." });
-      return;
+    } else {
+      const modelId = getAnyQueryValueOfKey(req, "id");
+      if (!modelId) {
+        res.status(400).json({ error: "model id query not found" });
+        return;
+      }
+      models = [
+        await prismaClient.model.findUnique({
+          where: {
+            id: modelId,
+          },
+        }),
+      ];
     }
+    const results = await Promise.allSettled(
+      models.map((model) =>
+        (async () => {
+          if (!model) {
+            throw "Couldn't find model by id.";
+          }
+          if (!user) {
+            throw "Couldn't find user.";
+          }
+          await deleteModelFromDBAndS3(model, user);
+          return "Success!";
+        })()
+      )
+    );
+    console.log(results);
+
+    res.json(results);
   }
 }
 
@@ -286,5 +299,28 @@ const getFormidableFileFromReq = async (
       if (err) return rej(err);
       return res({ err, fields, files });
     });
+  });
+};
+
+// FOR RESPONE TO DELETE
+
+const deleteModelFromDBAndS3 = async (model: Model, user: User) => {
+  if (
+    !hasRight(
+      {
+        method: "delete",
+        theme: "model",
+      },
+      user,
+      model
+    )
+  ) {
+    throw `User <${user.name}> doesn't have right to delete model <${model.name}>.`;
+  }
+  await deleteS3Files(model.id);
+  await prismaClient.model.delete({
+    where: {
+      id: model.id,
+    },
   });
 };
