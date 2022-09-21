@@ -66,7 +66,7 @@ export default async function handler(
   }
 }
 
-function getAnyQueryValueOfKey(req: NextApiRequest, key: string) {
+export function getAnyQueryValueOfKey(req: NextApiRequest, key: string) {
   return Array.isArray(req.query[key])
     ? req.query[key]?.[0]
     : (req.query[key] as string);

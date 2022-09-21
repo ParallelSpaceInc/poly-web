@@ -30,7 +30,7 @@ export const deleteS3Files = async (uuid: string) => {
       Prefix: `models/${uuid}`,
     })
   );
-  if (!objects.Contents) return Promise.reject("Can't find target.");
+  if (!objects.Contents) throw "Can't find target.";
   Promise.all(
     objects.Contents.map((file) =>
       s3Client.send(
