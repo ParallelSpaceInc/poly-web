@@ -12,6 +12,7 @@ const DeleteModelsPage = () => {
     register,
     handleSubmit,
     formState: { isSubmitting },
+    watch,
   } = useForm();
   return (
     <Wrapper>
@@ -43,7 +44,9 @@ const DeleteModelsPage = () => {
                       className="form-checkbox h-5 w-5 mx-auto flex"
                     ></input>
                   </td>
-                  <td className="pt-1 pl-3 border-b text-lg">{model.name}</td>
+                  <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
+                    {model.name}
+                  </td>
                   <td className="pt-1 border-b text-lg text-center">
                     {new Date(model.createdAt).toUTCString()}
                   </td>
@@ -57,6 +60,10 @@ const DeleteModelsPage = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="fixed right-32 bottom-32 text-lg border-blue-200 bg-blue-100 border-2 p-3 rounded-lg">
+          선택된 모델 개수 :{" "}
+          {Object.entries(watch()).filter(([key, val]) => val === true).length}
         </div>
         <button
           disabled={isSubmitting}
