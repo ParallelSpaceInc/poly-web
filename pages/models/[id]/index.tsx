@@ -171,7 +171,7 @@ const ModelPage: NextPage = () => {
       <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
         {!modelInfo.loading ? `Category > ${modelInfo.data.category}` : ""}
       </span>
-      <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
+      <span className="block whitespace-pre-line mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
       {!modelInfo.loading ? (
