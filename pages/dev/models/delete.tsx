@@ -27,6 +27,7 @@ const DeleteModelsPage = () => {
             <thead>
               <tr>
                 <th className="border-b pb-3">Check</th>
+                <th className="border-b pb-3">Number</th>
                 <th className="border-b pb-3 text-left pl-3">Name</th>
                 <th className="border-b pb-3">UploadAt</th>
                 <th className="border-b pb-3">Size</th>
@@ -42,6 +43,9 @@ const DeleteModelsPage = () => {
                       {...register(model.id)}
                       className="form-checkbox h-5 w-5 mx-auto flex"
                     ></input>
+                  </td>
+                  <td className="pt-1 pl-3 border-b text-lg text-center">
+                    {i}
                   </td>
                   <td className="pt-1 pl-3 border-b text-lg">{model.name}</td>
                   <td className="pt-1 border-b text-lg text-center">
