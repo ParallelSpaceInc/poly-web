@@ -30,6 +30,8 @@ const DeleteModelsPage = () => {
           <table className="table-auto border-collapse w-full">
             <thead>
               <tr>
+                <th className="border-b pb-3">Check</th>
+                <th className="border-b pb-3">Number</th>
                 <th className="border-b pb-3">
                   Check
                   <input
@@ -62,6 +64,10 @@ const DeleteModelsPage = () => {
                       className="form-checkbox h-5 w-5 mx-auto flex"
                     ></input>
                   </td>
+                  <td className="pt-1 pl-3 border-b text-lg text-center">
+                    {i}
+                  </td>
+                  <td className="pt-1 pl-3 border-b text-lg">{model.name}</td>
                   <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
                     {model.name}
                   </td>
