@@ -1,6 +1,7 @@
 import Wrapper from "@components/Wrapper";
 import { useModelInfos } from "@libs/client/AccessDB";
 import { AddUnit } from "@libs/client/Util";
+import { SyntheticEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
 import { AllSettleResult, SuccessCounter } from "./upload";
@@ -12,7 +13,10 @@ const DeleteModelsPage = () => {
     register,
     handleSubmit,
     formState: { isSubmitting },
+    setValue,
+    watch,
   } = useForm();
+
   return (
     <Wrapper>
       <form
@@ -28,6 +32,21 @@ const DeleteModelsPage = () => {
               <tr>
                 <th className="border-b pb-3">Check</th>
                 <th className="border-b pb-3">Number</th>
+                <th className="border-b pb-3">
+                  Check
+                  <input
+                    id="main-checkbox"
+                    type="checkbox"
+                    onClick={(e: SyntheticEvent<HTMLInputElement>) => {
+                      const boxes = watch();
+                      const bool = e.currentTarget.checked;
+                      Object.entries(boxes).forEach(([key, val]) => {
+                        setValue(key, bool);
+                      });
+                    }}
+                    className="flex m-auto h-5 w-5"
+                  ></input>
+                </th>
                 <th className="border-b pb-3 text-left pl-3">Name</th>
                 <th className="border-b pb-3">UploadAt</th>
                 <th className="border-b pb-3">Size</th>
@@ -41,6 +60,7 @@ const DeleteModelsPage = () => {
                     <input
                       type="checkbox"
                       {...register(model.id)}
+                      onClick={UncheckMainboxIfslaveUnchecked}
                       className="form-checkbox h-5 w-5 mx-auto flex"
                     ></input>
                   </td>
@@ -48,6 +68,9 @@ const DeleteModelsPage = () => {
                     {i}
                   </td>
                   <td className="pt-1 pl-3 border-b text-lg">{model.name}</td>
+                  <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
+                    {model.name}
+                  </td>
                   <td className="pt-1 border-b text-lg text-center">
                     {new Date(model.createdAt).toUTCString()}
                   </td>
@@ -61,6 +84,10 @@ const DeleteModelsPage = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="fixed right-32 bottom-32 text-lg border-blue-200 bg-blue-100 border-2 p-3 rounded-lg">
+          선택된 모델 개수 :{" "}
+          {Object.entries(watch()).filter(([key, val]) => val === true).length}
         </div>
         <button
           disabled={isSubmitting}
@@ -118,4 +145,13 @@ async function onValid(form: object, refresh: () => void) {
           .reduce((prev, cur) => prev + `${cur.reason}\n`, "실패한 이유 \n")
       );
   refresh();
+}
+
+function UncheckMainboxIfslaveUnchecked(e: SyntheticEvent<HTMLInputElement>) {
+  const masterCheckbox = document.getElementById(
+    "main-checkbox"
+  ) as HTMLInputElement;
+  if (e.currentTarget.checked === false) {
+    masterCheckbox.checked = false;
+  }
 }
