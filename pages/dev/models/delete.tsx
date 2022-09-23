@@ -1,6 +1,7 @@
 import Wrapper from "@components/Wrapper";
 import { useModelInfos } from "@libs/client/AccessDB";
 import { AddUnit } from "@libs/client/Util";
+import { SyntheticEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
 import { AllSettleResult, SuccessCounter } from "./upload";
@@ -12,8 +13,10 @@ const DeleteModelsPage = () => {
     register,
     handleSubmit,
     formState: { isSubmitting },
+    setValue,
     watch,
   } = useForm();
+
   return (
     <Wrapper>
       <form
@@ -27,7 +30,21 @@ const DeleteModelsPage = () => {
           <table className="table-auto border-collapse w-full">
             <thead>
               <tr>
-                <th className="border-b pb-3">Check</th>
+                <th className="border-b pb-3">
+                  Check
+                  <input
+                    id="main-checkbox"
+                    type="checkbox"
+                    onClick={(e: SyntheticEvent<HTMLInputElement>) => {
+                      const boxes = watch();
+                      const bool = e.currentTarget.checked;
+                      Object.entries(boxes).forEach(([key, val]) => {
+                        setValue(key, bool);
+                      });
+                    }}
+                    className="flex m-auto h-5 w-5"
+                  ></input>
+                </th>
                 <th className="border-b pb-3 text-left pl-3">Name</th>
                 <th className="border-b pb-3">UploadAt</th>
                 <th className="border-b pb-3">Size</th>
@@ -41,6 +58,7 @@ const DeleteModelsPage = () => {
                     <input
                       type="checkbox"
                       {...register(model.id)}
+                      onClick={UncheckMainboxIfslaveUnchecked}
                       className="form-checkbox h-5 w-5 mx-auto flex"
                     ></input>
                   </td>
@@ -121,4 +139,13 @@ async function onValid(form: object, refresh: () => void) {
           .reduce((prev, cur) => prev + `${cur.reason}\n`, "실패한 이유 \n")
       );
   refresh();
+}
+
+function UncheckMainboxIfslaveUnchecked(e: SyntheticEvent<HTMLInputElement>) {
+  const masterCheckbox = document.getElementById(
+    "main-checkbox"
+  ) as HTMLInputElement;
+  if (e.currentTarget.checked === false) {
+    masterCheckbox.checked = false;
+  }
 }
