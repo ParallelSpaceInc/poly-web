@@ -30,8 +30,6 @@ const DeleteModelsPage = () => {
           <table className="table-auto border-collapse w-full">
             <thead>
               <tr>
-                <th className="border-b pb-3">Check</th>
-                <th className="border-b pb-3">Number</th>
                 <th className="border-b pb-3">
                   Check
                   <input
@@ -47,6 +45,7 @@ const DeleteModelsPage = () => {
                     className="flex m-auto h-5 w-5"
                   ></input>
                 </th>
+                <th className="border-b pb-3">Number</th>
                 <th className="border-b pb-3 text-left pl-3">Name</th>
                 <th className="border-b pb-3">UploadAt</th>
                 <th className="border-b pb-3">Size</th>
@@ -67,7 +66,6 @@ const DeleteModelsPage = () => {
                   <td className="pt-1 pl-3 border-b text-lg text-center">
                     {i}
                   </td>
-                  <td className="pt-1 pl-3 border-b text-lg">{model.name}</td>
                   <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
                     {model.name}
                   </td>
