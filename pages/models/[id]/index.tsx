@@ -1,4 +1,4 @@
-import Comments from "@components/Comments";
+import Comments, { NewComment } from "@components/Comments";
 import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
@@ -6,7 +6,6 @@ import { hasRight } from "@libs/server/Authorization";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -86,8 +85,6 @@ const ModelPage: NextPage = () => {
   if (!modelInfo.data) {
     return null;
   }
-
-  console.log("da", user.data);
 
   return (
     <Wrapper>
@@ -175,38 +172,28 @@ const ModelPage: NextPage = () => {
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
       {!modelInfo.loading ? (
-        <Comments
-          comments={modelInfo.data.Comment}
-          className="mt-10"
-          handleDelete={(commentId: string) =>
-            handleDelete(commentId, () => {
-              componentMutate(`/api/models?id=${modelId}`);
-            })
-          }
-          user={user.data}
-        ></Comments>
-      ) : null}
-      {session.data ? (
-        <form onSubmit={handleSubmit(onValid)}>
-          <div className="border-2 p-2 mt-4 border-blue-100 rounded-md flex-col flex space-y-3">
-            <div className="flex">
-              <Image
-                className="rounded-full"
-                src={session.data.user?.image ?? ""}
-                height="40"
-                width="40"
-                alt="profile"
-              />
-              <div className="text-lg self-end pb-1 ml-3 text-blue-500">
-                {session.data.user?.name}
-              </div>
-            </div>
-            <input
-              {...register("text", { required: true, maxLength: 300 })}
-              className="ml-1 text-sm border-2 rounded p-2"
-            ></input>
+        <div className="p-2 border-2 border-slate-500 rounded-lg align-middle justify-center mt-10">
+          <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
+            {`Comments (${modelInfo.data.Comment?.length})`}
           </div>
-        </form>
+          <Comments
+            comments={modelInfo.data.Comment}
+            handleDelete={(commentId: string) =>
+              handleDelete(commentId, () => {
+                componentMutate(`/api/models?id=${modelId}`);
+              })
+            }
+            user={user.data}
+          ></Comments>
+          <NewComment
+            session={session}
+            handler={handleSubmit(onValid)}
+            register={register}
+            openLogin={() => {
+              document.getElementById("login-button")?.click();
+            }}
+          ></NewComment>
+        </div>
       ) : null}
     </Wrapper>
   );
