@@ -70,7 +70,10 @@ export function NewComment({ session, handler, register, openLogin }: any) {
     return (
       <div className="flex justify-center py-10 whitespace-pre">
         댓글을 달기 위해서는{" "}
-        <span onClick={openLogin} className="text-blue-600 font-bold">
+        <span
+          onClick={openLogin}
+          className="text-blue-600 font-bold cursor-pointer"
+        >
           로그인
         </span>
         이 필요합니다.
