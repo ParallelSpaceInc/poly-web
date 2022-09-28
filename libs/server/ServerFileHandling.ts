@@ -33,7 +33,7 @@ export async function handlePOST(
   model.id = uuid;
   const extRes = await extractZip(uuid, file);
   model.name ??= trimExt(extRes.filename);
-  model.zipSize = extRes.zipSize.toString();
+  model.zipSize = BigInt(extRes.zipSize);
   updateModel(model, await getModelFromDir(extRes.newDirPath));
   updateModel(
     model,
@@ -115,15 +115,8 @@ export async function getModelFromGltfReport(
   report: ValidatorInfo.RootObject
 ): Promise<OptionalModel> {
   return {
-    modelTriangle: report.info.totalTriangleCount.toString(),
-    modelVertex: report.info.totalVertexCount.toString(),
-    // modelSize: report.info.resources
-    //   .map((resoucre) => {
-    //     console.log(resoucre.byteLength);
-    //     return resoucre.byteLength;
-    //   })
-    //   .reduce((prev, cur) => prev + cur, 0)
-    //   .toString(),
+    modelTriangle: BigInt(report.info.totalTriangleCount),
+    modelVertex: BigInt(report.info.totalVertexCount),
   };
 }
 
@@ -145,7 +138,7 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
       }
       if ("scene.usdz" === relativeFileName) {
         model.modelUsdz = relativeFileName;
-        model.usdzSize = statSync(file).size.toString();
+        model.usdzSize = BigInt(statSync(file).size);
       }
       if ("description.txt" === relativeFileName) {
         model.description = await readTextFile(file);
@@ -155,7 +148,7 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
       }
     })
   );
-  model.modelSize = modelSize.toString();
+  model.modelSize = BigInt(modelSize);
   return model;
 }
 //name??=, thum??= ...
@@ -171,7 +164,7 @@ export function updateModel(
   target.modelFile ??= newObject.modelFile;
   target.modelSize ??= newObject.modelSize;
   target.modelTriangle ??= newObject.modelTriangle;
-  target.usdzSize ??= newObject.modelUsdz;
+  target.usdzSize ??= newObject.usdzSize;
   target.modelVertex ??= newObject.modelVertex;
   target.name ??= newObject.name;
   target.tags ??= newObject.tags;

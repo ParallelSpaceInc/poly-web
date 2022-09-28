@@ -87,8 +87,6 @@ const ModelPage: NextPage = () => {
     return null;
   }
 
-  console.log("da", user.data);
-
   return (
     <Wrapper>
       <input

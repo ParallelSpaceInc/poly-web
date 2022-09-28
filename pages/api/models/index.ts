@@ -21,6 +21,10 @@ export const config = {
   },
 };
 
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 type FormidableResult = {
   err: string;
   fields: formidable.Fields;
@@ -255,8 +259,6 @@ export default async function handler(
         })()
       )
     );
-    console.log(results);
-
     res.json(results);
   }
 }
