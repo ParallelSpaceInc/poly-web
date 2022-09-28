@@ -217,7 +217,7 @@ export async function updatePrismaDB(model: OptionalModel) {
       modelVertex: model.modelVertex,
       modelTriangle: model.modelTriangle,
       zipSize: model.zipSize,
-      modelUsdz: model.usdzSize ?? undefined,
+      modelUsdz: model.modelFile ?? undefined,
       usdzSize: model.usdzSize ?? undefined,
       thumbnail: model.thumbnail ?? undefined,
       modelSize: model.modelSize,
