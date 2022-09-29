@@ -87,6 +87,7 @@ export default function Header() {
             </div>
           ) : (
             <div
+              id="login-button"
               className={"cursor-pointer"}
               onClick={() => {
                 setIsOpenLoginCp(!isOpenLoginCP);
