@@ -3,6 +3,7 @@ import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
+import { Role } from "@prisma/client";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -108,22 +109,28 @@ const ModelPage: NextPage = () => {
             </div>
           ) : null}
           {!modelInfo.loading ? <Model info={modelInfo.data} /> : "Loading..."}
-          <button
-            className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
-            onClick={() => {
-              setIsLogShown((val) => !val);
-            }}
-          >
-            show log
-          </button>
-          <button
-            className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
-            onClick={() => {
-              router.push(`/models/${modelId}/three`);
-            }}
-          >
-            to threejs viewer
-          </button>
+          {([Role.ADMIN, Role.DEVELOPER] as any).includes(
+            user?.data?.role ?? Role.UNAUTHENTICATED
+          ) ? (
+            <>
+              <button
+                className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                onClick={() => {
+                  setIsLogShown((val) => !val);
+                }}
+              >
+                show log
+              </button>
+              <button
+                className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                onClick={() => {
+                  router.push(`/models/${modelId}/three`);
+                }}
+              >
+                to threejs viewer
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="flex flex-col space-y-3 mt-10 ">
           {hasRight(
