@@ -138,7 +138,9 @@ const ModelPage: NextPage = () => {
             modelInfo.data
           ) ? (
             <button
-              onClick={() => onDownloadClick(modelId, setLogs)}
+              onClick={() =>
+                onDownloadClick(modelId, setLogs, modelInfo.data?.name)
+              }
               className=" text-white bg-slate-700 h-10"
             >
               download
@@ -227,7 +229,8 @@ const handleDeleteRequest = (id: string, router: NextRouter) => {
 
 const onDownloadClick = async (
   modelId: string,
-  setLogs: Dispatch<SetStateAction<string[]>>
+  setLogs: Dispatch<SetStateAction<string[]>>,
+  zipName?: string
 ) => {
   const startAt = performance.now();
   const res = await fetch(`/api/models/${modelId}`)
@@ -236,7 +239,7 @@ const onDownloadClick = async (
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "model.zip";
+      link.download = zipName + ".zip" ?? "model.zip";
       link.click();
       link.remove();
     });
