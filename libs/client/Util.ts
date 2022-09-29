@@ -1,4 +1,6 @@
-export function AddUnit(number?: string | number | null): string | null {
+export function AddUnit(
+  number?: string | number | null | BigInt
+): string | null {
   if (!number) return null;
   const parsedNumber = typeof number === "string" ? +number : number;
   if (parsedNumber === NaN) return null;
@@ -9,7 +11,7 @@ export function AddUnit(number?: string | number | null): string | null {
   ];
   for (const [limit, Unit] of numberUnitPair) {
     if (parsedNumber >= limit)
-      return Math.floor(parsedNumber / limit).toString() + Unit;
+      return Math.floor(+parsedNumber.toString() / limit).toString() + Unit;
   }
   return parsedNumber.toString();
 }
