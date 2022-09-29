@@ -3,7 +3,7 @@ import "@google/model-viewer";
 
 const Model = ({ info }: { info: ModelInfo }) => {
   const parsed = {
-    src: `${info.modelSrc}?disable_occlusion=false`,
+    src: `${info.modelSrc}`,
     "ios-src": info.modelUsdz ?? "",
     poster: info.thumbnailSrc,
     alt: info.name,
