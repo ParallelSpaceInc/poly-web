@@ -69,7 +69,7 @@ export default async function handler(
 
     // download file from s3
     const objectbuffer = await downloadS3Files(modelId).catch((error) => {
-      return Error("Can't find model.");
+      throw Error("Can't find model.");
     });
     if (objectbuffer instanceof Error) {
       res.json({

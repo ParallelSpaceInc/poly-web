@@ -11,8 +11,7 @@ const nextConfig = {
     return [
       {
         source: `/getResource/:path*`,
-        destination: `https://openup-poly.s3.ap-northeast-2.amazonaws.com/:path*`,
-        // destination: `https://poly-localdev1.s3.ap-northeast-2.amazonaws.com/:path*`,
+        destination: process.env.RESOURCE_URL,
       },
     ];
   },

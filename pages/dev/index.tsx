@@ -5,11 +5,18 @@ import Link from "next/link";
 const DevIndexPage: NextPage = () => {
   return (
     <Wrapper>
-      <Link href="/dev/models/upload">
-        <div className="w-32 bg-slate-100  p-3 text-center">
-          모델 여러개 업로드
-        </div>
-      </Link>
+      <div className="flex space-x-3">
+        <Link href="/dev/models/upload">
+          <div className="w-32 bg-slate-100  p-3 text-center">
+            모델 여러개 업로드
+          </div>
+        </Link>
+        <Link href="/dev/models/delete">
+          <div className="w-32 bg-slate-100  p-3 text-center">
+            모델 여러개 삭제
+          </div>
+        </Link>
+      </div>
     </Wrapper>
   );
 };

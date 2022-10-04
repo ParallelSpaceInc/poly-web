@@ -1,12 +1,12 @@
-import Comments from "@components/Comments";
+import Comments, { NewComment } from "@components/Comments";
 import ModelInfo from "@components/ModelInfo";
 import Wrapper from "@components/Wrapper";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
+import { Role } from "@prisma/client";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -87,8 +87,6 @@ const ModelPage: NextPage = () => {
     return null;
   }
 
-  console.log("da", user.data);
-
   return (
     <Wrapper>
       <input
@@ -110,22 +108,28 @@ const ModelPage: NextPage = () => {
             </div>
           ) : null}
           {!modelInfo.loading ? <Model info={modelInfo.data} /> : "Loading..."}
-          <button
-            className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
-            onClick={() => {
-              setIsLogShown((val) => !val);
-            }}
-          >
-            show log
-          </button>
-          <button
-            className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
-            onClick={() => {
-              router.push(`/models/${modelId}/three`);
-            }}
-          >
-            to threejs viewer
-          </button>
+          {([Role.ADMIN, Role.DEVELOPER] as any).includes(
+            user?.data?.role ?? Role.UNAUTHENTICATED
+          ) ? (
+            <>
+              <button
+                className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                onClick={() => {
+                  setIsLogShown((val) => !val);
+                }}
+              >
+                show log
+              </button>
+              <button
+                className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                onClick={() => {
+                  router.push(`/models/${modelId}/three`);
+                }}
+              >
+                to threejs viewer
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="flex flex-col space-y-3 mt-10 ">
           {hasRight(
@@ -134,7 +138,9 @@ const ModelPage: NextPage = () => {
             modelInfo.data
           ) ? (
             <button
-              onClick={() => onDownloadClick(modelId, setLogs)}
+              onClick={() =>
+                onDownloadClick(modelId, setLogs, modelInfo.data?.name)
+              }
               className=" text-white bg-slate-700 h-10"
             >
               download
@@ -171,42 +177,32 @@ const ModelPage: NextPage = () => {
       <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
         {!modelInfo.loading ? `Category > ${modelInfo.data.category}` : ""}
       </span>
-      <span className="block mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
+      <span className="block whitespace-pre-line mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
       {!modelInfo.loading ? (
-        <Comments
-          comments={modelInfo.data.Comment}
-          className="mt-10"
-          handleDelete={(commentId: string) =>
-            handleDelete(commentId, () => {
-              componentMutate(`/api/models?id=${modelId}`);
-            })
-          }
-          user={user.data}
-        ></Comments>
-      ) : null}
-      {session.data ? (
-        <form onSubmit={handleSubmit(onValid)}>
-          <div className="border-2 p-2 mt-4 border-blue-100 rounded-md flex-col flex space-y-3">
-            <div className="flex">
-              <Image
-                className="rounded-full"
-                src={session.data.user?.image ?? ""}
-                height="40"
-                width="40"
-                alt="profile"
-              />
-              <div className="text-lg self-end pb-1 ml-3 text-blue-500">
-                {session.data.user?.name}
-              </div>
-            </div>
-            <input
-              {...register("text", { required: true, maxLength: 300 })}
-              className="ml-1 text-sm border-2 rounded p-2"
-            ></input>
+        <div className="p-2 border-2 border-slate-500 rounded-lg align-middle justify-center mt-10">
+          <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
+            {`댓글 (${modelInfo.data.Comment?.length})`}
           </div>
-        </form>
+          <Comments
+            comments={modelInfo.data.Comment}
+            handleDelete={(commentId: string) =>
+              handleDelete(commentId, () => {
+                componentMutate(`/api/models?id=${modelId}`);
+              })
+            }
+            user={user.data}
+          ></Comments>
+          <NewComment
+            session={session}
+            handler={handleSubmit(onValid)}
+            register={register}
+            openLogin={() => {
+              document.getElementById("login-button")?.click();
+            }}
+          ></NewComment>
+        </div>
       ) : null}
     </Wrapper>
   );
@@ -233,7 +229,8 @@ const handleDeleteRequest = (id: string, router: NextRouter) => {
 
 const onDownloadClick = async (
   modelId: string,
-  setLogs: Dispatch<SetStateAction<string[]>>
+  setLogs: Dispatch<SetStateAction<string[]>>,
+  zipName?: string
 ) => {
   const startAt = performance.now();
   const res = await fetch(`/api/models/${modelId}`)
@@ -242,7 +239,7 @@ const onDownloadClick = async (
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "model.zip";
+      link.download = zipName + ".zip" ?? "model.zip";
       link.click();
       link.remove();
     });
