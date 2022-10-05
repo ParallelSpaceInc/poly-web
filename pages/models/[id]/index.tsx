@@ -180,7 +180,7 @@ const ModelPage: NextPage = () => {
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
       {!modelInfo.loading ? (
-        <div className="p-2 border-2 border-slate-500 rounded-lg align-middle justify-center mt-10">
+        <div className="p-2 shadow-md rounded-lg align-middle justify-center mt-10">
           <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
             {`댓글 (${modelInfo.data.Comment?.length})`}
           </div>

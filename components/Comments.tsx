@@ -33,34 +33,42 @@ export function Comment({ comment, handleDelete, user }: any) {
   return (
     <div
       key={comment.id}
-      className="border-2 border-slate-300 p-2 pb-4 rounded-md flex-col flex space-y-3"
+      className="p-2 pb-4 rounded-md flex-col flex space-y-3"
     >
       <div className="flex">
-        <Image
+        {/* <Image
           className="rounded-full"
           src="/cube.png"
           height="40"
           width="40"
           alt="profile"
-        />
-        <div className="text-lg self-end pb-1 ml-3 text-slate-600">
-          {comment.commenter.name}
-        </div>
-        {hasRight(
-          { method: "delete", theme: "comment" },
-          user,
-          null,
-          comment
-        ) ? (
-          <div
-            className="ml-auto select-none"
-            onClick={() => handleDelete(comment.id)}
-          >
-            X
+        /> */}
+        <div className="h-10 w-10 bg-gray-500 rounded-full " />
+        <div>
+          <div className="flex-col text self-end pb-1 ml-3 text-slate-600">
+            {comment.commenter.name}
+            <div className="flex mt-2 text-sm whitespace-normal">
+              {comment.text}
+            </div>
+            <span className="flex mt-1 text-sm text-gray-500 ">
+              about 7 hours ago
+            </span>
+            {hasRight(
+              { method: "delete", theme: "comment" },
+              user,
+              null,
+              comment
+            ) ? (
+              <span
+                className="ml-auto text-sm text-blue-700 select-none"
+                onClick={() => handleDelete(comment.id)}
+              >
+                Delete
+              </span>
+            ) : null}
           </div>
-        ) : null}
+        </div>
       </div>
-      <div className="flex ml-3 text-sm whitespace-normal">{comment.text}</div>
     </div>
   );
 }
