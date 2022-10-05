@@ -56,6 +56,7 @@ function SearchBar({ setModels }: Props) {
     "Size",
     "Alphabetic",
   ];
+
   const [currentSortType, setCurrentSortType] = useState<SortType>(
     sortTypes[0]
   );
@@ -251,7 +252,8 @@ function SearchBar({ setModels }: Props) {
           </ul>
         </div>
       </div>
-      <div className="py-2w-full space-x-3 flex item-center flex-row">
+      {/* <div className="py-2w-full space-x-3 flex item-center flex-row">
+
         <div
           className="text-center  md:w-[12%] w-1/2 cursor-pointer text-sm text-gray-500  relative"
           id="category"
@@ -290,7 +292,7 @@ function SearchBar({ setModels }: Props) {
             </ul>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
