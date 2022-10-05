@@ -82,6 +82,13 @@ export default async function handler(
         where: {
           OR: querys,
         },
+        include: {
+          _count: {
+            select: {
+              Comment: true,
+            },
+          },
+        },
       });
       res.json(makeModelInfos(model));
       return;
@@ -97,6 +104,13 @@ export default async function handler(
         },
         orderBy: {
           [`${sort}`]: orderBy,
+        },
+        include: {
+          _count: {
+            select: {
+              Comment: true,
+            },
+          },
         },
       };
       if (category) {
@@ -145,6 +159,11 @@ export default async function handler(
         createdAt: "desc",
       },
       include: {
+        _count: {
+          select: {
+            Comment: true,
+          },
+        },
         uploader: {
           select: {
             name: true,
