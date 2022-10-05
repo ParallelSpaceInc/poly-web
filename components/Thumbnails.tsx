@@ -32,22 +32,22 @@ function Thumbnails({
                   <span className="block my-auto text-gray-500 truncate">
                     {AddUnit(info.modelSize) + "B"}
                   </span>
-                  {info.viewed !== 0 ? (
-                    <div className="flex relative space-x-1 mr-2">
-                      <div className="w-6 mr-1">
-                        <Image
-                          src="/views.png"
-                          alt="views"
-                          width={30}
-                          height={30}
-                          layout="responsive"
-                        ></Image>
-                      </div>
-                      <span className="my-auto text-gray-500 truncate">
-                        {AddUnit(info.viewed)}
-                      </span>
-                    </div>
-                  ) : null}
+                  <div className="flex space-x-2 truncate">
+                    {iconWithCounter(info.viewed, {
+                      src: "/views.png",
+                      alt: "views",
+                      layout: "responsive",
+                      height: 30,
+                      width: 30,
+                    })}
+                    {iconWithCounter(info._count.Comment, {
+                      src: "/comment.png",
+                      alt: "comments",
+                      layout: "responsive",
+                      height: 30,
+                      width: 30,
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -61,3 +61,22 @@ function Thumbnails({
 }
 
 export default Thumbnails;
+
+const iconWithCounter = (views: number, imageAttributes: ImageAttributes) => {
+  return views ? (
+    <div className="flex relative space-x-1 mr-2">
+      <div className="w-6 mr-1">
+        <Image {...imageAttributes}></Image>
+      </div>
+      <span className="my-auto text-gray-500 truncate">{AddUnit(views)}</span>
+    </div>
+  ) : null;
+};
+
+interface ImageAttributes {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  layout: "responsive" | "fill" | "fixed";
+}
