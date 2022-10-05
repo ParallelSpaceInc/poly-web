@@ -16,12 +16,13 @@ type Query = {
   orderBy: string;
   filterByName?: string;
 };
-type SortType = "Last Added" | "Size" | "Alphabetic";
+type SortType = "Last Added" | "Size" | "Alphabetic" | "Popularity";
 type SortTypes = SortType[];
 interface IsDescOfSortType {
   lastAdded: boolean;
   size: boolean;
   alphabetic: boolean;
+  popularity: boolean;
   [prop: string]: boolean;
 }
 
@@ -36,6 +37,7 @@ const orderByKey: OrderByKey = {
   lastAdded: "createdAt",
   size: "modelSize",
   alphabetic: "name",
+  popularity: "viewed",
 };
 
 const categories: string[] = ["All categories", ...Categories];
@@ -45,9 +47,16 @@ function SearchBar({ setModels }: Props) {
     lastAdded: true,
     size: true,
     alphabetic: false,
+    popularity: true,
   };
 
-  const sortTypes: SortTypes = ["Last Added", "Size", "Alphabetic"];
+  const sortTypes: SortTypes = [
+    "Popularity",
+    "Last Added",
+    "Size",
+    "Alphabetic",
+  ];
+
   const [currentSortType, setCurrentSortType] = useState<SortType>(
     sortTypes[0]
   );
@@ -244,6 +253,7 @@ function SearchBar({ setModels }: Props) {
         </div>
       </div>
       {/* <div className="py-2w-full space-x-3 flex item-center flex-row">
+
         <div
           className="text-center  md:w-[12%] w-1/2 cursor-pointer text-sm text-gray-500  relative"
           id="category"
