@@ -2,7 +2,6 @@ import { ModelInfo } from "@customTypes/model";
 import { AddUnit } from "@libs/client/Util";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye } from "./svg";
 
 function Thumbnails({
   loading,
@@ -35,11 +34,15 @@ function Thumbnails({
                   </span>
                   {info.viewed !== 0 ? (
                     <div className="flex relative space-x-1 mr-2">
-                      <Eye
-                        className="mr-1 my-auto"
-                        height={20}
-                        color="#828282"
-                      />
+                      <div className="w-6 mr-1">
+                        <Image
+                          src="/views.png"
+                          alt="views"
+                          width={30}
+                          height={30}
+                          layout="responsive"
+                        ></Image>
+                      </div>
                       <span className="my-auto text-gray-500 truncate">
                         {AddUnit(info.viewed)}
                       </span>
