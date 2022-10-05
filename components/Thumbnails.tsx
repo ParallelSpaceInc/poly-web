@@ -30,13 +30,17 @@ function Thumbnails({
               <div className="flex flex-col ">
                 <p className="mt-2 text-gray-900 truncate">{info.name}</p>
                 <div className="flex justify-between">
-                  <span className="block my-auto -mt-1 text-gray-500 truncate">
+                  <span className="block my-auto text-gray-500 truncate">
                     {AddUnit(info.modelSize) + "B"}
                   </span>
                   {info.viewed !== 0 ? (
                     <div className="flex relative space-x-1 mr-2">
-                      <Eye className="mr-1" height={20} color="#828282" />
-                      <span className="block -mt-1 text-gray-500 truncate">
+                      <Eye
+                        className="mr-1 my-auto"
+                        height={20}
+                        color="#828282"
+                      />
+                      <span className="my-auto text-gray-500 truncate">
                         {AddUnit(info.viewed)}
                       </span>
                     </div>
