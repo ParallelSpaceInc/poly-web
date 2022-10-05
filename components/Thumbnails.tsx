@@ -2,6 +2,7 @@ import { ModelInfo } from "@customTypes/model";
 import { AddUnit } from "@libs/client/Util";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye } from "./svg";
 
 function Thumbnails({
   loading,
@@ -28,9 +29,19 @@ function Thumbnails({
               </div>
               <div className="flex flex-col ">
                 <p className="mt-2 text-gray-900 truncate">{info.name}</p>
-                <p className="-mt-1 text-gray-500 truncate">
-                  {AddUnit(info.modelSize) + "B"}
-                </p>
+                <div className="flex justify-between">
+                  <span className="block my-auto -mt-1 text-gray-500 truncate">
+                    {AddUnit(info.modelSize) + "B"}
+                  </span>
+                  {info.viewed !== 0 ? (
+                    <div className="flex relative space-x-1 mr-2">
+                      <Eye className="mr-1" height={20} color="#828282" />
+                      <span className="block -mt-1 text-gray-500 truncate">
+                        {AddUnit(info.viewed)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </Link>
