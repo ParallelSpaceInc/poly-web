@@ -28,9 +28,27 @@ function Thumbnails({
               </div>
               <div className="flex flex-col ">
                 <p className="mt-2 text-gray-900 truncate">{info.name}</p>
-                <p className="-mt-1 text-gray-500 truncate">
-                  {AddUnit(info.modelSize) + "B"}
-                </p>
+                <div className="flex justify-between">
+                  <span className="block my-auto text-gray-500 truncate">
+                    {AddUnit(info.modelSize) + "B"}
+                  </span>
+                  {info.viewed !== 0 ? (
+                    <div className="flex relative space-x-1 mr-2">
+                      <div className="w-6 mr-1">
+                        <Image
+                          src="/views.png"
+                          alt="views"
+                          width={30}
+                          height={30}
+                          layout="responsive"
+                        ></Image>
+                      </div>
+                      <span className="my-auto text-gray-500 truncate">
+                        {AddUnit(info.viewed)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </Link>

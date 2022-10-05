@@ -1,3 +1,4 @@
+import { getAnyQueryValueOfKey } from "@api/comment";
 import { UploadForm } from "@customTypes/model";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient, { getUser } from "@libs/server/prismaClient";
@@ -5,7 +6,7 @@ import { deleteS3Files, downloadS3Files } from "@libs/server/s3client";
 import { NextApiRequest, NextApiResponse } from "next";
 import internal from "stream";
 
-const allowedMethod = ["GET", "DELETE", "PATCH"];
+const allowedMethod = ["GET", "DELETE", "PATCH", "POST"];
 
 // If CDN is adapted, this api can improve performance by checking authority then passing download request to CDN server.
 // still, this api is handling download request.
@@ -184,6 +185,23 @@ export default async function handler(
       res.status(500).json({ ok: false, message: "Failed while updating db." });
       return;
     }
+  }
+  if (req.method === "POST") {
+    const key = getAnyQueryValueOfKey(req, "view");
+    if (key) {
+      const model = await prismaClient.model.update({
+        where: {
+          id: modelId,
+        },
+        data: {
+          viewed: {
+            increment: 1,
+          },
+        },
+      });
+    }
+    res.json({ ok: true });
+    return;
   }
   res.status(500).json({ ok: false, message: "Failed handling request." });
 }

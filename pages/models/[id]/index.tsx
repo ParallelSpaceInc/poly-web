@@ -70,6 +70,7 @@ const ModelPage: NextPage = () => {
         setLogs((log) =>
           log.concat(`<system> : Loading spent ${spentTime} sec.`)
         );
+        increaseView(modelId);
       }
     };
     if (modelViewer) {
@@ -78,7 +79,7 @@ const ModelPage: NextPage = () => {
     return () => {
       modelViewer?.removeEventListener("progress", callback);
     };
-  }, [modelViewer]);
+  }, [modelViewer, modelId]);
 
   if (modelInfo.error || user.error) {
     router.push("/");
@@ -263,5 +264,10 @@ async function handleDelete(commentId: string, refresh: () => void) {
     refresh();
   }
 }
+const increaseView = (modelId: string) => {
+  fetch(`/api/models/${modelId}?view=true`, {
+    method: "POST",
+  });
+};
 
 export default ModelPage;

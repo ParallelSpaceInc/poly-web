@@ -80,6 +80,7 @@ model Model {
   modelSize     BigInt?       @default(0)
   usdzSize      BigInt?       @default(0)
   zipSize       BigInt?       @default(0)
+  viewed        Int           @default(0)
   Comment       Comment[]
 }
 
