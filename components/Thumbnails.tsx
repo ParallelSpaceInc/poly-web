@@ -2,13 +2,17 @@ import { ModelInfo } from "@customTypes/model";
 import { AddUnit } from "@libs/client/Util";
 import Image from "next/image";
 import Link from "next/link";
+import { increaseView } from "pages/models/[id]";
+import { useState } from "react";
 
 function Thumbnails({
   loading,
   modelInfos,
+  devMode = false,
 }: {
   loading: boolean;
   modelInfos?: ModelInfo[];
+  devMode?: boolean;
 }) {
   return (
     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
@@ -33,14 +37,23 @@ function Thumbnails({
                     {AddUnit(info.modelSize) + "B"}
                   </span>
                   <div className="flex space-x-2 truncate">
-                    {iconWithCounter(info.viewed, {
-                      src: "/views.png",
-                      alt: "views",
-                      layout: "responsive",
-                      height: 30,
-                      width: 30,
-                    })}
-                    {iconWithCounter(info._count.Comment, {
+                    {IconWithCounter(
+                      info.viewed,
+                      {
+                        src: "/views.png",
+                        alt: "views",
+                        layout: "responsive",
+                        height: 30,
+                        width: 30,
+                      },
+                      {
+                        devMode: devMode,
+                        increaseServerCounter: () => {
+                          increaseView(info.id);
+                        },
+                      }
+                    )}
+                    {IconWithCounter(info._count.Comment, {
                       src: "/comment.png",
                       alt: "comments",
                       layout: "responsive",
@@ -62,13 +75,27 @@ function Thumbnails({
 
 export default Thumbnails;
 
-const iconWithCounter = (views: number, imageAttributes: ImageAttributes) => {
-  return views ? (
-    <div className="flex relative space-x-1 mr-2">
+const IconWithCounter = (
+  current: number,
+  imageAttributes: ImageAttributes,
+  option?: { devMode: boolean; increaseServerCounter: any }
+) => {
+  const [counter, setCounter] = useState(current);
+  return counter ? (
+    <div
+      className="flex relative space-x-1 mr-2"
+      onClick={(e) => {
+        if (option?.devMode) {
+          option?.increaseServerCounter();
+          setCounter((prev) => prev + 1);
+          e.stopPropagation();
+        }
+      }}
+    >
       <div className="w-6 mr-1">
         <Image {...imageAttributes}></Image>
       </div>
-      <span className="my-auto text-gray-500 truncate">{AddUnit(views)}</span>
+      <span className="my-auto text-gray-500 truncate">{AddUnit(counter)}</span>
     </div>
   ) : null;
 };

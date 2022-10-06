@@ -260,7 +260,7 @@ async function handleDelete(commentId: string, refresh: () => void) {
     refresh();
   }
 }
-const increaseView = (modelId: string) => {
+export const increaseView = (modelId: string) => {
   fetch(`/api/models/${modelId}?view=true`, {
     method: "POST",
   });
