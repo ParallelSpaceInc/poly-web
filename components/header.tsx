@@ -4,11 +4,16 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import useSWR from "swr";
 
 export default function Header() {
   const [isOpenLoginCP, setIsOpenLoginCp] = useState(false);
   const [isClickUserName, setIsClickUserName] = useState(false);
   const { data: session, status } = useSession();
+  const { data: config } = useSWR("/api/config", (url) =>
+    fetch(url).then((res) => res.json())
+  );
+  console.log(config);
 
   const router = useRouter();
 
@@ -42,7 +47,7 @@ export default function Header() {
           className={"text-3xl cursor-pointer select-none"}
           onClick={() => router.push("/")}
         >
-          POLY
+          {config?.texts.title}
         </div>
         <div className={"flex justify-between items-center space-x-5"}>
           {status === "authenticated" ? (
