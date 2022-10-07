@@ -88,7 +88,8 @@ const IconWithCounter = ({
   devOption?: { devMode: boolean; increaseServerCounter: any };
 }) => {
   const [counter, setCounter] = useState(0);
-  return current ? (
+  const { alt, ...attributesWithoutAlt } = imageAttributes;
+  return (
     <div
       className="flex relative space-x-1 mr-2"
       onClick={(e) => {
@@ -100,13 +101,13 @@ const IconWithCounter = ({
       }}
     >
       <div className="w-6 mr-1">
-        <Image {...imageAttributes}></Image>
+        <Image alt={alt} {...attributesWithoutAlt}></Image>
       </div>
       <span className="my-auto text-gray-500 truncate">
-        {AddUnit(current + counter)}
+        {AddUnit(current + counter) ?? 0}
       </span>
     </div>
-  ) : null;
+  );
 };
 
 interface ImageAttributes {
