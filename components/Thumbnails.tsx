@@ -37,29 +37,32 @@ function Thumbnails({
                     {AddUnit(info.modelSize) + "B"}
                   </span>
                   <div className="flex space-x-2 truncate">
-                    {IconWithCounter(
-                      info.viewed,
-                      {
+                    <IconWithCounter
+                      current={info.viewed}
+                      imageAttributes={{
                         src: "/views.png",
                         alt: "views",
                         layout: "responsive",
                         height: 30,
                         width: 30,
-                      },
-                      {
+                      }}
+                      devOption={{
                         devMode: devMode,
                         increaseServerCounter: () => {
                           increaseView(info.id);
                         },
-                      }
-                    )}
-                    {IconWithCounter(info._count.Comment, {
-                      src: "/comment.png",
-                      alt: "comments",
-                      layout: "responsive",
-                      height: 30,
-                      width: 30,
-                    })}
+                      }}
+                    />
+                    <IconWithCounter
+                      current={info._count.Comment}
+                      imageAttributes={{
+                        src: "/comment.png",
+                        alt: "comments",
+                        layout: "responsive",
+                        height: 30,
+                        width: 30,
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -75,18 +78,22 @@ function Thumbnails({
 
 export default Thumbnails;
 
-const IconWithCounter = (
-  current: number,
-  imageAttributes: ImageAttributes,
-  option?: { devMode: boolean; increaseServerCounter: any }
-) => {
-  const [counter, setCounter] = useState(current);
-  return counter ? (
+const IconWithCounter = ({
+  current,
+  imageAttributes,
+  devOption,
+}: {
+  current: number;
+  imageAttributes: ImageAttributes;
+  devOption?: { devMode: boolean; increaseServerCounter: any };
+}) => {
+  const [counter, setCounter] = useState(0);
+  return current ? (
     <div
       className="flex relative space-x-1 mr-2"
       onClick={(e) => {
-        if (option?.devMode) {
-          option?.increaseServerCounter();
+        if (devOption?.devMode) {
+          devOption?.increaseServerCounter();
           setCounter((prev) => prev + 1);
           e.stopPropagation();
         }
@@ -95,7 +102,9 @@ const IconWithCounter = (
       <div className="w-6 mr-1">
         <Image {...imageAttributes}></Image>
       </div>
-      <span className="my-auto text-gray-500 truncate">{AddUnit(counter)}</span>
+      <span className="my-auto text-gray-500 truncate">
+        {AddUnit(current + counter)}
+      </span>
     </div>
   ) : null;
 };
