@@ -72,7 +72,7 @@ const ModelPage: NextPage = () => {
     <Wrapper>
       <input
         className="p-1 pl-3 lg:text-3xl border-2 rounded-md border-slate-500 border-spacing-2 w-full"
-        placeholder="Find model"
+        placeholder="Search model"
       ></input>
       <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
         {!modelInfo.loading ? modelInfo.data.name : ""}

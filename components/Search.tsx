@@ -6,7 +6,7 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
-  useState,
+  useState
 } from "react";
 interface Props {
   setModels: Dispatch<SetStateAction<ModelInfos | undefined>>;
@@ -193,7 +193,7 @@ function SearchBar({ setModels }: Props) {
           <div className="p-2 border-none rounded-md outline-none pl-4 flex-1 text-xl">
             <input
               className="w-full outline-none"
-              placeholder="Find model"
+              placeholder="Search model"
               defaultValue={inputValue}
               onChange={onChangeFilter}
               onKeyDown={(e) => searchModel(e)}
@@ -208,7 +208,7 @@ function SearchBar({ setModels }: Props) {
               src="/searchIcon.png"
               width="20px"
               height="20px"
-              alt="find model"
+              alt="Search model"
             />
           </div>
         </div>
@@ -232,9 +232,8 @@ function SearchBar({ setModels }: Props) {
             </div>
           </div>
           <ul
-            className={`absolute top-12 left-0 z-10 divide-y-2 bg-white border-gray-300 border-2 rounded-md w-full shadow-md ${
-              !isClickSort ? "hidden" : "block"
-            } shadow-black `}
+            className={`absolute top-12 left-0 z-10 divide-y-2 bg-white border-gray-300 border-2 rounded-md w-full shadow-md ${!isClickSort ? "hidden" : "block"
+              } shadow-black `}
           >
             {sortTypes.map((list) => {
               return (
