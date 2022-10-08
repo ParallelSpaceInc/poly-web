@@ -34,7 +34,7 @@ function Thumbnails({
               />
             </div>
             <div className="flex flex-col ">
-              <p className="mt-2 text-gray-900 truncate">{info.name}</p>
+              <p className="mt-2 text-sm text-gray-900 truncate">{info.name}</p>
               <div className="flex justify-between">
                 <span className="block text-xs my-auto text-gray-500 truncate">
                   {AddUnit(info.modelSize) + "B"}
