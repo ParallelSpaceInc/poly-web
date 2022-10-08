@@ -91,7 +91,7 @@ const ModelPage: NextPage = () => {
 
   return (
     <Wrapper>
-      <span className="block text-2xl mt-4 md:text-3xl lg:text-4xl">
+      <span className="block text-lg mt-4 md:text-2xl lg:text-3xl">
         {!modelInfo.loading ? modelInfo.data.name : ""}
       </span>
       <div className="block mt-10 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
