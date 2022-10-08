@@ -21,7 +21,7 @@ function Thumbnails({
         modelInfos.map((info, i) => (
           <div key={i} className="flex flex-col relative cursor-pointer">
             <div
-              className="block  aspect-[4/3] relative rounded-lg shadow-md"
+              className="block aspect-[4/3] relative rounded transitiongit  hover:shadow-md"
               onClick={() => router.push(`/models/${info.id}`)}
             >
               <Image
@@ -29,14 +29,14 @@ function Thumbnails({
                 alt={info.name}
                 layout="fill"
                 objectFit="cover"
-                className="rounded-lg"
+                className="rounded"
                 loading="lazy"
               />
             </div>
             <div className="flex flex-col ">
-              <p className="mt-2 text-gray-900 truncate">{info.name}</p>
+              <p className="mt-2 text-sm text-gray-900 truncate">{info.name}</p>
               <div className="flex justify-between">
-                <span className="block my-auto text-gray-500 truncate">
+                <span className="block text-xs my-auto text-gray-500 truncate">
                   {AddUnit(info.modelSize) + "B"}
                 </span>
                 <div className="flex space-x-2 truncate">
@@ -98,7 +98,7 @@ const IconWithCounter = ({
   const { alt, ...attributesWithoutAlt } = imageAttributes;
   return (
     <div
-      className="flex relative space-x-1 mr-2"
+      className="flex relative space-x-1"
       onClick={(e) => {
         if (increaseIfDev) {
           increasingCallback?.();
@@ -107,10 +107,10 @@ const IconWithCounter = ({
         onClick?.(e);
       }}
     >
-      <div className="w-6 mr-1">
+      <div className="w-4 -mr-[1px] my-auto mr-1">
         <Image alt={alt} {...attributesWithoutAlt}></Image>
       </div>
-      <span className="my-auto text-gray-500 truncate">
+      <span className="my-auto text-[12px] text-gray-500 truncate">
         {AddUnit(current + counter) ?? 0}
       </span>
     </div>

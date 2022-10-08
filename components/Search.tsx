@@ -6,7 +6,7 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
-  useState,
+  useState
 } from "react";
 interface Props {
   setModels: Dispatch<SetStateAction<ModelInfos | undefined>>;
@@ -56,6 +56,13 @@ function SearchBar({ setModels }: Props) {
     "Size",
     "Alphabetic",
   ];
+
+  const dictionary = {
+    "Popularity": "인기순",
+    "Last Added": "등록순",
+    "Size": "용량순",
+    "Alphabetic": "이름순",
+  }
 
   const [currentSortType, setCurrentSortType] = useState<SortType>(
     sortTypes[0]
@@ -193,7 +200,7 @@ function SearchBar({ setModels }: Props) {
           <div className="p-2 border-none rounded-md outline-none pl-4 flex-1 text-xl">
             <input
               className="w-full outline-none"
-              placeholder="Find model"
+              placeholder="Search model"
               defaultValue={inputValue}
               onChange={onChangeFilter}
               onKeyDown={(e) => searchModel(e)}
@@ -208,7 +215,7 @@ function SearchBar({ setModels }: Props) {
               src="/searchIcon.png"
               width="20px"
               height="20px"
-              alt="find model"
+              alt="Search model"
             />
           </div>
         </div>
@@ -222,8 +229,8 @@ function SearchBar({ setModels }: Props) {
               setIsClickSort(!isClickSort);
             }}
           >
-            <div className="w-full break-words md:text-sm text-[11px] px-1">
-              {currentSortType}{" "}
+            <div className="w-full break-words md:text-sm text-[14px] px-1">
+              {dictionary[currentSortType]}
               {isDesc[getSortTypeKey(currentSortType)] ? (
                 <span>&darr;</span>
               ) : (
@@ -232,19 +239,18 @@ function SearchBar({ setModels }: Props) {
             </div>
           </div>
           <ul
-            className={`absolute top-12 left-0 z-10 divide-y-2 bg-white border-gray-300 border-2 rounded-md w-full shadow-md ${
-              !isClickSort ? "hidden" : "block"
-            } shadow-black `}
+            className={`absolute top-12 left-0 z-10 divide-y-2 bg-white border-gray-300 border-2 rounded-md w-full shadow-md ${!isClickSort ? "hidden" : "block"
+              } shadow-black `}
           >
             {sortTypes.map((list) => {
               return (
                 <li
                   key={list}
-                  className="md:px-3  px-2 md:py-3 py-2  justify-center w-full text-sm font-semibold text-gray-500 flex items-center cursor-pointer"
+                  className="md:px-3 md:py-3 py-2  justify-center w-full text-sm font-semibold text-gray-500 flex items-center cursor-pointer"
                   onClick={() => sortingModel(list)}
                 >
-                  <p className="w-full break-words md:text-sm text-[11px] md:leading-normal leading-tight ">
-                    {list} {arrowIcon(list)}
+                  <p className="w-full break-words md:text-sm text-[14px] md:leading-normal leading-tight ">
+                    {dictionary[list]}{arrowIcon(list)}
                   </p>
                 </li>
               );
