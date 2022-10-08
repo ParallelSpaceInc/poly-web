@@ -98,7 +98,7 @@ const IconWithCounter = ({
   const { alt, ...attributesWithoutAlt } = imageAttributes;
   return (
     <div
-      className="flex relative space-x-1 mr-2"
+      className="flex relative space-x-1"
       onClick={(e) => {
         if (increaseIfDev) {
           increasingCallback?.();
@@ -107,10 +107,10 @@ const IconWithCounter = ({
         onClick?.(e);
       }}
     >
-      <div className="w-6 mr-1">
+      <div className="w-4 -mr-[1px] my-auto mr-1">
         <Image alt={alt} {...attributesWithoutAlt}></Image>
       </div>
-      <span className="my-auto text-gray-500 truncate">
+      <span className="my-auto text-[12px] text-gray-500 truncate">
         {AddUnit(current + counter) ?? 0}
       </span>
     </div>
