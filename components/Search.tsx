@@ -229,8 +229,8 @@ function SearchBar({ setModels }: Props) {
               setIsClickSort(!isClickSort);
             }}
           >
-            <div className="w-full break-words md:text-sm text-[11px] px-1">
-              {dictionary[currentSortType]}{" "}
+            <div className="w-full break-words md:text-sm text-[14px] px-1">
+              {dictionary[currentSortType]}
               {isDesc[getSortTypeKey(currentSortType)] ? (
                 <span>&darr;</span>
               ) : (
@@ -246,11 +246,11 @@ function SearchBar({ setModels }: Props) {
               return (
                 <li
                   key={list}
-                  className="md:px-3  px-2 md:py-3 py-2  justify-center w-full text-sm font-semibold text-gray-500 flex items-center cursor-pointer"
+                  className="md:px-3 md:py-3 py-2  justify-center w-full text-sm font-semibold text-gray-500 flex items-center cursor-pointer"
                   onClick={() => sortingModel(list)}
                 >
-                  <p className="w-full break-words md:text-sm text-[11px] md:leading-normal leading-tight ">
-                    {dictionary[list]} {arrowIcon(list)}
+                  <p className="w-full break-words md:text-sm text-[14px] md:leading-normal leading-tight ">
+                    {dictionary[list]}{arrowIcon(list)}
                   </p>
                 </li>
               );
