@@ -21,7 +21,7 @@ function Thumbnails({
         modelInfos.map((info, i) => (
           <div key={i} className="flex flex-col relative cursor-pointer">
             <div
-              className="block  aspect-[4/3] relative rounded-lg shadow-md"
+              className="block aspect-[4/3] relative rounded transitiongit  hover:shadow-md"
               onClick={() => router.push(`/models/${info.id}`)}
             >
               <Image
@@ -29,7 +29,7 @@ function Thumbnails({
                 alt={info.name}
                 layout="fill"
                 objectFit="cover"
-                className="rounded-lg"
+                className="rounded"
                 loading="lazy"
               />
             </div>
