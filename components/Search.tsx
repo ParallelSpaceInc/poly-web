@@ -57,6 +57,13 @@ function SearchBar({ setModels }: Props) {
     "Alphabetic",
   ];
 
+  const dictionary = {
+    "Popularity": "인기순",
+    "Last Added": "등록순",
+    "Size": "용량순",
+    "Alphabetic": "이름순",
+  }
+
   const [currentSortType, setCurrentSortType] = useState<SortType>(
     sortTypes[0]
   );
@@ -223,7 +230,7 @@ function SearchBar({ setModels }: Props) {
             }}
           >
             <div className="w-full break-words md:text-sm text-[11px] px-1">
-              {currentSortType}{" "}
+              {dictionary[currentSortType]}{" "}
               {isDesc[getSortTypeKey(currentSortType)] ? (
                 <span>&darr;</span>
               ) : (
@@ -243,7 +250,7 @@ function SearchBar({ setModels }: Props) {
                   onClick={() => sortingModel(list)}
                 >
                   <p className="w-full break-words md:text-sm text-[11px] md:leading-normal leading-tight ">
-                    {list} {arrowIcon(list)}
+                    {dictionary[list]} {arrowIcon(list)}
                   </p>
                 </li>
               );
