@@ -92,7 +92,7 @@ const ModelPage: NextPage = () => {
   return (
     <Wrapper>
 
-      <div className="block mt-10 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
+      <div className="block mt-2 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
         <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto">
           {isLogShown ? (
             <div className="absolute top-0 right-0 z-10 w-auto p-2 justify-start flex flex-col text-white bg-opacity-50 bg-slate-700">
@@ -127,7 +127,7 @@ const ModelPage: NextPage = () => {
             </>
           ) : null}
         </div>
-        <div className="flex flex-col space-y-3 mt-10 ">
+        <div className="flex flex-col space-y-3 mt-6 hidden ">
           {hasRight(
             { method: "read", theme: "model" },
             user.data,
