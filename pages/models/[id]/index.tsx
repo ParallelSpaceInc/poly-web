@@ -91,9 +91,7 @@ const ModelPage: NextPage = () => {
 
   return (
     <Wrapper>
-      <span className="block text-xl mt-4 md:text-2xl lg:text-3xl">
-        {!modelInfo.loading ? modelInfo.data.name : ""}
-      </span>
+
       <div className="block mt-10 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
         <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto">
           {isLogShown ? (
@@ -169,8 +167,13 @@ const ModelPage: NextPage = () => {
             </button>
           ) : null}
         </div>
-        <ModelInfo modelId={modelId}></ModelInfo>
+
+
       </div>
+      <span className="block text-xl mt-4 md:text-2xl lg:text-3xl">
+        {!modelInfo.loading ? modelInfo.data.name : ""}
+      </span>
+      <ModelInfo modelId={modelId}></ModelInfo>
       {SHOW_CATEGORY ? (
         <span className="block text-lg mt-6 md:text-xl lg:text-xl text-slate-600">
           {!modelInfo.loading ? `Category > ${modelInfo.data.category}` : ""}
