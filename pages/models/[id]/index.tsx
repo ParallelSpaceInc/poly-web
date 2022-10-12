@@ -7,6 +7,7 @@ import { Role } from "@prisma/client";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -91,7 +92,6 @@ const ModelPage: NextPage = () => {
 
   return (
     <Wrapper>
-
       <div className="block mt-2 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
         <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto">
           {isLogShown ? (
@@ -167,8 +167,6 @@ const ModelPage: NextPage = () => {
             </button>
           ) : null}
         </div>
-
-
       </div>
       <span className="block text-xl mt-4 md:text-2xl lg:text-3xl">
         {!modelInfo.loading ? modelInfo.data.name : ""}
@@ -182,6 +180,15 @@ const ModelPage: NextPage = () => {
       <span className="block whitespace-pre-line mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
+      <div className="flex mt-5 h-16 justify-between max-w-xs">
+        <div className="mt-auto ml-3 text-center text-sm text-gray-500">
+          라이선스: <br />
+          <span className="font-bold">공공누리 제1 유형</span>
+        </div>
+        <div className="mt-auto h-12 relative aspect-[3/1]">
+          <Image src="/open_license.jpg" layout="fill" alt="nuri-1 license" />
+        </div>
+      </div>
       {!modelInfo.loading ? (
         <div className="p-2 border-2 border-slate-500 rounded-lg align-middle justify-center mt-10">
           <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
