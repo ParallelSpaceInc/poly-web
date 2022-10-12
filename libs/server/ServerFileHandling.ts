@@ -10,7 +10,7 @@ import {
   readdirSync,
   readFileSync,
   renameSync,
-  statSync,
+  statSync
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
@@ -231,7 +231,7 @@ export async function uploadModelToS3(dirPath: string, uuid: string) {
         Bucket: process.env.S3_BUCKET,
         Key: pathPosix.join(
           `models/${uuid}`,
-          pathPosix.relative(dirPath, file)
+          path.relative(dirPath, file)
         ),
         Body: stream,
       };
