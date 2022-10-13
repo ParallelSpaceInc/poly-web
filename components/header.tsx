@@ -32,15 +32,14 @@ export default function Header() {
 
   return (
     <div
-      className={`relativev w-full ${
-        router.pathname === "/upload"
+      className={`relativev w-full ${router.pathname === "/upload"
           ? "fixed top-0 left-0 right-0 z-20"
           : "block"
-      }`}
+        }`}
     >
       <div
         className={
-          "flex justify-between bg-header-gray w-full h-12  pl-10 pr-8 md:pr-6 items-center text-amber-50"
+          "flex justify-between bg-header-gray w-full h-14  pl-10 pr-8 md:pr-6 items-center text-amber-50"
         }
       >
         <div
