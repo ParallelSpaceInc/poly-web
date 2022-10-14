@@ -195,7 +195,7 @@ function SearchBar({ setModels }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="w-full flex justify-between mt-6">
+      <div className="w-full flex justify-between">
         <div className="w-3/4 relative ring-2 ring-gray-300 focus:ring-indigo-500 rounded-md outline-none flex justify-center items-center">
           <div className="p-2 border-none rounded-md outline-none pl-4 flex-1 text-xl">
             <input
