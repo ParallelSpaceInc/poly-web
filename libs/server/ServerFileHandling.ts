@@ -14,7 +14,8 @@ import {
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
-import path, { join } from "path";
+import path from "path";
+import pathPosix from "path/posix";
 
 type FormidableResult = {
   err: string;
@@ -87,7 +88,7 @@ export async function extractZip(
   }
   const newDirPath = `/tmp/${uuid}`;
   const filename = fileInfo.originalName;
-  const newZipPath = join(newDirPath, "model.zip");
+  const newZipPath = path.join(newDirPath, "model.zip");
   await extract(fileInfo.loadedFile, { dir: newDirPath });
   renameSync(fileInfo.loadedFile, newZipPath);
   const zipSize = await stat(newZipPath).then((res) => res.size);
@@ -162,6 +163,7 @@ export function updateModel(
   target.category ??= newObject.category;
   target.description ??= newObject.description;
   target.modelFile ??= newObject.modelFile;
+  target.modelUsdz ??= newObject.modelUsdz;
   target.modelSize ??= newObject.modelSize;
   target.modelTriangle ??= newObject.modelTriangle;
   target.usdzSize ??= newObject.usdzSize;
@@ -210,7 +212,7 @@ export async function updatePrismaDB(model: OptionalModel) {
       modelVertex: model.modelVertex,
       modelTriangle: model.modelTriangle,
       zipSize: model.zipSize,
-      modelUsdz: model.modelFile ?? undefined,
+      modelUsdz: model.modelUsdz ?? undefined,
       usdzSize: model.usdzSize ?? undefined,
       thumbnail: model.thumbnail ?? undefined,
       modelSize: model.modelSize,
@@ -228,7 +230,7 @@ export async function uploadModelToS3(dirPath: string, uuid: string) {
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
-        Key: join(`models/${uuid}`, path.relative(dirPath, file)),
+        Key: pathPosix.join(`models/${uuid}`, path.relative(dirPath, file)),
         Body: stream,
       };
       return s3client.send(new PutObjectCommand(filesParams));
@@ -280,12 +282,12 @@ const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
   const files = await readdir(dir, { withFileTypes: true });
 
   const paths = files.map(async (file) => {
-    const path = join(dir, file.name);
+    const dirPath = path.join(dir, file.name);
 
-    if (file.isDirectory()) return await dirSize(path);
+    if (file.isDirectory()) return await dirSize(dirPath);
 
     if (file.isFile()) {
-      const { size } = await stat(path);
+      const { size } = await stat(dirPath);
 
       return size;
     }

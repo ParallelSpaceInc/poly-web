@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'MaruBuri': ['MaruBuri-Regular']
+      },
       colors: {
         "google-blue": "#4285F4",
         "header-gray": "#444444",

@@ -16,6 +16,11 @@ const DevIndexPage: NextPage = () => {
             모델 여러개 삭제
           </div>
         </Link>
+        <Link href="/dev/config">
+          <div className="w-32 bg-slate-100  p-3 text-center">
+            홈페이지 설정
+          </div>
+        </Link>
       </div>
     </Wrapper>
   );

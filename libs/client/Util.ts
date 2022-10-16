@@ -11,7 +11,7 @@ export function AddUnit(
   ];
   for (const [limit, Unit] of numberUnitPair) {
     if (parsedNumber >= limit)
-      return Math.floor(+parsedNumber.toString() / limit).toString() + Unit;
+      return (+parsedNumber.toString() / limit).toFixed(1).toString() + Unit;
   }
   return parsedNumber.toString();
 }
