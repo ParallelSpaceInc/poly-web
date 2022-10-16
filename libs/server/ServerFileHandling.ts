@@ -10,7 +10,7 @@ import {
   readdirSync,
   readFileSync,
   renameSync,
-  statSync
+  statSync,
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
@@ -163,6 +163,7 @@ export function updateModel(
   target.category ??= newObject.category;
   target.description ??= newObject.description;
   target.modelFile ??= newObject.modelFile;
+  target.modelUsdz ??= newObject.modelUsdz;
   target.modelSize ??= newObject.modelSize;
   target.modelTriangle ??= newObject.modelTriangle;
   target.usdzSize ??= newObject.usdzSize;
@@ -229,10 +230,7 @@ export async function uploadModelToS3(dirPath: string, uuid: string) {
       const stream = createReadStream(file);
       const filesParams = {
         Bucket: process.env.S3_BUCKET,
-        Key: pathPosix.join(
-          `models/${uuid}`,
-          path.relative(dirPath, file)
-        ),
+        Key: pathPosix.join(`models/${uuid}`, path.relative(dirPath, file)),
         Body: stream,
       };
       return s3client.send(new PutObjectCommand(filesParams));
