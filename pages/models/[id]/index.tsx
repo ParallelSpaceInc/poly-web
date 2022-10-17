@@ -184,6 +184,14 @@ const ModelPage: NextPage = () => {
           <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
             {`댓글 (${modelInfo.data.Comment?.length})`}
           </div>
+          <NewComment
+            session={session}
+            handler={handleSubmit(onValid)}
+            register={register}
+            openLogin={() => {
+              document.getElementById("login-button")?.click();
+            }}
+          ></NewComment>
           <Comments
             comments={modelInfo.data.Comment}
             handleDelete={(commentId: string) =>
@@ -193,14 +201,6 @@ const ModelPage: NextPage = () => {
             }
             user={user.data}
           ></Comments>
-          <NewComment
-            session={session}
-            handler={handleSubmit(onValid)}
-            register={register}
-            openLogin={() => {
-              document.getElementById("login-button")?.click();
-            }}
-          ></NewComment>
         </div>
       ) : null}
     </Wrapper>
