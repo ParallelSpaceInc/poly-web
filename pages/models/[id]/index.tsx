@@ -42,7 +42,7 @@ const ModelPage: NextPage = () => {
       alert("코멘트 업로드에 실패하였습니다.");
     }
     componentMutate(`/api/models?id=${modelId}`);
-    resetComment();
+    resetComment({ text: "" });
   };
   useEffect(() => {
     // hook modelviewer elemet when loading is complete.

@@ -1,6 +1,5 @@
 import { hasRight } from "@libs/server/Authorization";
 import { Comment, User } from "@prisma/client";
-import Image from "next/image";
 
 const Comments = ({
   comments,
@@ -43,11 +42,11 @@ export function Comment({ comment, handleDelete, user }: any) {
           width="40"
           alt="profile"
         /> */}
-        <div className="h-10 w-10 bg-gray-500 rounded-full " />
+        <div className="h-10 w-10 bg-gray-500 rounded-full mr-2" />
         <div>
           <div className="flex-col text self-end pb-1 ml-3 text-slate-600">
             {comment.commenter.name}
-            <div className="flex mt-2 text-sm whitespace-normal">
+            <div className="flex mt-1 text-sm whitespace-normal">
               {comment.text}
             </div>
             <span className="flex mt-1 text-sm text-gray-500 ">
@@ -89,26 +88,20 @@ export function NewComment({ session, handler, register, openLogin }: any) {
     );
   }
   return (
-    <form onSubmit={handler}>
-      <div className="border-2 border-slate-300 p-2 mt-4 rounded-md flex-col flex space-y-3">
-        <div className="flex">
-          <Image
-            className="rounded-full"
-            src={session.data.user?.image ?? ""}
-            height="40"
-            width="40"
-            alt="profile"
-          />
-          <div className="text-lg self-end pb-1 ml-3 text-blue-500">
-            {session.data.user?.name}
-          </div>
-        </div>
-        <input
+    <div className="p-2 mt-4 rounded-md flex">
+      <div className="h-10 w-10 bg-gray-500 rounded-full mr-2" />
+      <div className="flex ml-2 w-full">
+        <textarea
           {...register("text", { required: true, maxLength: 300 })}
-          className="ml-1 text-sm border-2 rounded p-2"
-        ></input>
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.shiftKey === false) {
+              handler();
+            }
+          }}
+          className="w-full p-2 align-top overflow-auto border-2 border-gray-300 rounded h-20 focus:outline-sky-200"
+        ></textarea>
       </div>
-    </form>
+    </div>
   );
 }
 
