@@ -49,10 +49,13 @@ export default async function handler(
         where: { id: req.query.id as string },
         include: {
           Comment: {
+            orderBy: { createdAt: "desc" },
             include: {
               commenter: {
                 select: {
                   name: true,
+                  image: true,
+                  createdAt: true,
                 },
               },
             },

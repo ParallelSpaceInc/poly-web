@@ -43,7 +43,7 @@ const ModelPage: NextPage = () => {
       alert("코멘트 업로드에 실패하였습니다.");
     }
     componentMutate(`/api/models?id=${modelId}`);
-    resetComment();
+    resetComment({ text: "" });
   };
   useEffect(() => {
     // hook modelviewer elemet when loading is complete.
@@ -190,10 +190,18 @@ const ModelPage: NextPage = () => {
         </div>
       </div>
       {!modelInfo.loading ? (
-        <div className="p-2 border-2 border-slate-500 rounded-lg align-middle justify-center mt-10">
+        <div className="p-2 shadow-md rounded-lg align-middle justify-center mt-10">
           <div className="relative text-2xl inline-block bg-white px-2 text-slate-700 -top-5 left-3">
             {`댓글 (${modelInfo.data.Comment?.length})`}
           </div>
+          <NewComment
+            session={session}
+            handler={handleSubmit(onValid)}
+            register={register}
+            openLogin={() => {
+              document.getElementById("login-button")?.click();
+            }}
+          ></NewComment>
           <Comments
             comments={modelInfo.data.Comment}
             handleDelete={(commentId: string) =>
@@ -203,14 +211,6 @@ const ModelPage: NextPage = () => {
             }
             user={user.data}
           ></Comments>
-          <NewComment
-            session={session}
-            handler={handleSubmit(onValid)}
-            register={register}
-            openLogin={() => {
-              document.getElementById("login-button")?.click();
-            }}
-          ></NewComment>
         </div>
       ) : null}
     </Wrapper>
