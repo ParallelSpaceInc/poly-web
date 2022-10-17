@@ -1,5 +1,6 @@
 import { hasRight } from "@libs/server/Authorization";
 import { Comment, User } from "@prisma/client";
+import moment from "moment";
 import Image from "next/image";
 
 const Comments = ({
@@ -33,34 +34,42 @@ export function Comment({ comment, handleDelete, user }: any) {
   return (
     <div
       key={comment.id}
-      className="border-2 border-slate-300 p-2 pb-4 rounded-md flex-col flex space-y-3"
+      className="p-2 pb-4 rounded-md flex-col flex space-y-3"
     >
       <div className="flex">
         <Image
+          src={comment.commenter.image ?? "/cube.png"}
+          alt="profile image"
+          width={40}
+          height={40}
+          layout="fixed"
           className="rounded-full"
-          src="/cube.png"
-          height="40"
-          width="40"
-          alt="profile"
-        />
-        <div className="text-lg self-end pb-1 ml-3 text-slate-600">
-          {comment.commenter.name}
-        </div>
-        {hasRight(
-          { method: "delete", theme: "comment" },
-          user,
-          null,
-          comment
-        ) ? (
-          <div
-            className="ml-auto select-none"
-            onClick={() => handleDelete(comment.id)}
-          >
-            X
+        ></Image>
+        <div>
+          <div className="flex-col text self-end pb-1 ml-3 text-slate-600">
+            {comment.commenter.name}
+            <div className="flex mt-1 text-sm whitespace-normal">
+              {comment.text}
+            </div>
+            <span className="flex mt-1 text-sm text-gray-500 ">
+              {moment(comment.createdAt).fromNow()}
+            </span>
+            {hasRight(
+              { method: "delete", theme: "comment" },
+              user,
+              null,
+              comment
+            ) ? (
+              <span
+                className="ml-auto text-sm text-blue-700 select-none"
+                onClick={() => handleDelete(comment.id)}
+              >
+                Delete
+              </span>
+            ) : null}
           </div>
-        ) : null}
+        </div>
       </div>
-      <div className="flex ml-3 text-sm whitespace-normal">{comment.text}</div>
     </div>
   );
 }
@@ -81,26 +90,27 @@ export function NewComment({ session, handler, register, openLogin }: any) {
     );
   }
   return (
-    <form onSubmit={handler}>
-      <div className="border-2 border-slate-300 p-2 mt-4 rounded-md flex-col flex space-y-3">
-        <div className="flex">
-          <Image
-            className="rounded-full"
-            src={session.data.user?.image ?? ""}
-            height="40"
-            width="40"
-            alt="profile"
-          />
-          <div className="text-lg self-end pb-1 ml-3 text-blue-500">
-            {session.data.user?.name}
-          </div>
-        </div>
-        <input
+    <div className="p-2 mt-4 rounded-md flex">
+      <Image
+        src={session.data.user.image}
+        alt="profile image"
+        width={40}
+        height={40}
+        layout="fixed"
+        className="rounded-full"
+      ></Image>
+      <div className="flex ml-2 w-full">
+        <textarea
           {...register("text", { required: true, maxLength: 300 })}
-          className="ml-1 text-sm border-2 rounded p-2"
-        ></input>
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.shiftKey === false) {
+              handler();
+            }
+          }}
+          className="w-full p-2 align-top overflow-auto border-2 border-gray-300 rounded h-20 focus:outline-sky-200"
+        ></textarea>
       </div>
-    </form>
+    </div>
   );
 }
 
