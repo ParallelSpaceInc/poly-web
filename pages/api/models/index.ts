@@ -53,6 +53,7 @@ export default async function handler(
               commenter: {
                 select: {
                   name: true,
+                  image: true,
                 },
               },
             },

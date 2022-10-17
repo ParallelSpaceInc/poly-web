@@ -1,5 +1,6 @@
 import { hasRight } from "@libs/server/Authorization";
 import { Comment, User } from "@prisma/client";
+import Image from "next/image";
 
 const Comments = ({
   comments,
@@ -35,14 +36,14 @@ export function Comment({ comment, handleDelete, user }: any) {
       className="p-2 pb-4 rounded-md flex-col flex space-y-3"
     >
       <div className="flex">
-        {/* <Image
+        <Image
+          src={comment.commenter.image ?? "/cube.png"}
+          alt="profile image"
+          width={40}
+          height={40}
+          layout="fixed"
           className="rounded-full"
-          src="/cube.png"
-          height="40"
-          width="40"
-          alt="profile"
-        /> */}
-        <div className="h-10 w-10 bg-gray-500 rounded-full mr-2" />
+        ></Image>
         <div>
           <div className="flex-col text self-end pb-1 ml-3 text-slate-600">
             {comment.commenter.name}
@@ -89,7 +90,14 @@ export function NewComment({ session, handler, register, openLogin }: any) {
   }
   return (
     <div className="p-2 mt-4 rounded-md flex">
-      <div className="h-10 w-10 bg-gray-500 rounded-full mr-2" />
+      <Image
+        src={session.data.user.image}
+        alt="profile image"
+        width={40}
+        height={40}
+        layout="fixed"
+        className="rounded-full"
+      ></Image>
       <div className="flex ml-2 w-full">
         <textarea
           {...register("text", { required: true, maxLength: 300 })}
