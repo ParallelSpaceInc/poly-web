@@ -1,5 +1,6 @@
 import { hasRight } from "@libs/server/Authorization";
 import { Comment, User } from "@prisma/client";
+import moment from "moment";
 import Image from "next/image";
 
 const Comments = ({
@@ -51,7 +52,7 @@ export function Comment({ comment, handleDelete, user }: any) {
               {comment.text}
             </div>
             <span className="flex mt-1 text-sm text-gray-500 ">
-              about 7 hours ago
+              {moment(comment.createdAt).fromNow()}
             </span>
             {hasRight(
               { method: "delete", theme: "comment" },

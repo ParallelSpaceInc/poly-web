@@ -55,6 +55,7 @@ export default async function handler(
                 select: {
                   name: true,
                   image: true,
+                  createdAt: true,
                 },
               },
             },
