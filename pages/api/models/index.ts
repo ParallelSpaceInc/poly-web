@@ -12,6 +12,7 @@ import {
 } from "@libs/server/ServerFileHandling";
 import { Model, User } from "@prisma/client";
 import formidable from "formidable";
+import _ from "lodash";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
@@ -236,6 +237,44 @@ export default async function handler(
       files.map((file) => handlePOST(file, model))
     );
     res.json({ results });
+  } else if (req.method === "PATCH") {
+    const user = await getUser(req);
+    let models: (Model | null)[] = [];
+    if (getAnyQueryValueOfKey(req, "blind") === "true") {
+      const {
+        err,
+        fields: { modelList },
+      } = await getFormidableFileFromReq(req);
+      if (err) {
+        res.status(500).json({ ok: false, message: "Failed parsing request." });
+        return;
+      }
+      const methodRes = await setSelectedModelsBlinded(
+        modelList as string[],
+        user,
+        true
+      );
+      res.json({ ok: true, results: methodRes });
+    } else {
+      res
+        .status(400)
+        .json({ ok: false, message: "Wrong request. check your query." });
+    }
+    const results = await Promise.allSettled(
+      models.map((model) =>
+        (async () => {
+          if (!model) {
+            throw "Couldn't find model by id.";
+          }
+          if (!user) {
+            throw "Couldn't find user.";
+          }
+          await deleteModelFromDBAndS3(model, user);
+          return "Success!";
+        })()
+      )
+    );
+    res.json(results);
   } else if (req.method === "DELETE") {
     const user = await getUser(req);
     let models: (Model | null)[] = [];
@@ -326,8 +365,10 @@ const getFormidableFileFromReq = async (
   });
 };
 
-// FOR RESPONE TO DELETE
-
+/**
+ * FOR RESPONE TO DELETE
+ * Check user authenication then handle delete request.
+ */
 const deleteModelFromDBAndS3 = async (model: Model, user: User) => {
   if (
     !hasRight(
@@ -347,4 +388,38 @@ const deleteModelFromDBAndS3 = async (model: Model, user: User) => {
       id: model.id,
     },
   });
+};
+
+/**
+ * FOR RESPONE TO PATCH
+ */
+const setSelectedModelsBlinded = async (
+  modelIds: string[],
+  user: User | null,
+  isBlinded: boolean
+) => {
+  const models = await prismaClient.model.findMany({
+    where: {
+      id: { in: modelIds },
+    },
+  });
+  const [autheds, faileds] = _.partition(models, (m) =>
+    hasRight({ method: "update", theme: "model" }, user, m)
+  );
+  const getIds = (models: Model[]) =>
+    models.reduce((prev: string[], cur) => {
+      prev.push(cur.id);
+      return prev;
+    }, []);
+  const authedIds = getIds(autheds);
+  const failedIds = getIds(faileds);
+  await prismaClient.model.updateMany({
+    where: {
+      id: { in: getIds(autheds) },
+    },
+    data: {
+      blinded: isBlinded,
+    },
+  });
+  return { successed: authedIds, failedIds: failedIds };
 };
