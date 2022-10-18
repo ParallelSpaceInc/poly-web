@@ -39,7 +39,7 @@ export default function Header() {
     >
       <div
         className={
-          "flex justify-between bg-header-gray w-full h-12  pl-10 pr-8 md:pr-6 items-center text-amber-50"
+          "flex justify-between bg-header-gray w-full h-14  pl-10 pr-8 md:pr-6 items-center text-amber-50"
         }
       >
         <div
