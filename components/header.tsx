@@ -33,8 +33,8 @@ export default function Header() {
   return (
     <div
       className={`relativev w-full ${router.pathname === "/upload"
-          ? "fixed top-0 left-0 right-0 z-20"
-          : "block"
+        ? "fixed top-0 left-0 right-0 z-20"
+        : "block"
         }`}
     >
       <div
@@ -43,7 +43,7 @@ export default function Header() {
         }
       >
         <div
-          className={"text-3xl cursor-pointer select-none"}
+          className={"text-3xl cursor-pointer select-none font-MaruBuri"}
           onClick={() => router.push("/")}
         >
           {config?.texts.title}
