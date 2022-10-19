@@ -13,8 +13,6 @@ export default function Header() {
   const { data: config } = useSWR("/api/config", (url) =>
     fetch(url).then((res) => res.json())
   );
-  console.log(config);
-
   const router = useRouter();
 
   const closeLoginBox = (): void => {
@@ -32,10 +30,11 @@ export default function Header() {
 
   return (
     <div
-      className={`relativev w-full ${router.pathname === "/upload"
+      className={`relativev w-full ${
+        router.pathname === "/upload"
           ? "fixed top-0 left-0 right-0 z-20"
           : "block"
-        }`}
+      }`}
     >
       <div
         className={

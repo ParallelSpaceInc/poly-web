@@ -24,7 +24,6 @@ function Thumbnails({
       {!loading && modelInfos ? (
         modelInfos.map((info, i) => (
           <div key={i} className="flex flex-col relative cursor-pointer">
-            <div>{mode}</div>
             <div
               className={`block aspect-[4/3] relative rounded hover:shadow-md ${
                 mode === "select" && selectedModels.includes(info.id)
