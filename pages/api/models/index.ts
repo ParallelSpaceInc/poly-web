@@ -12,7 +12,6 @@ import {
 } from "@libs/server/ServerFileHandling";
 import { Model, User } from "@prisma/client";
 import formidable from "formidable";
-import _ from "lodash";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
@@ -32,7 +31,7 @@ type FormidableResult = {
   files: formidable.Files;
 };
 
-const allowedMethod = ["GET", "POST", "DELETE"];
+const allowedMethod = ["GET", "POST", "PATCH", "DELETE"];
 
 export default async function handler(
   req: NextApiRequest,
@@ -88,10 +87,7 @@ export default async function handler(
       });
       const model = await prismaClient.model.findMany({
         where: {
-          AND: {
-            OR: querys,
-            blinded: false,
-          },
+          OR: querys,
         },
         include: {
           _count: {
@@ -109,11 +105,8 @@ export default async function handler(
       const { sort, category, filterByName, orderBy } = req.query;
       let options = {
         where: {
-          AND: {
-            name: {
-              contains: filterByName?.toString(),
-            },
-            blinded: false,
+          name: {
+            contains: filterByName?.toString(),
           },
         },
         orderBy: {
@@ -239,42 +232,41 @@ export default async function handler(
     res.json({ results });
   } else if (req.method === "PATCH") {
     const user = await getUser(req);
-    let models: (Model | null)[] = [];
-    if (getAnyQueryValueOfKey(req, "blind") === "true") {
+    if (getAnyQueryValueOfKey(req, "devMode") === "true") {
       const {
         err,
-        fields: { modelList },
+        fields: { model, blind },
       } = await getFormidableFileFromReq(req);
       if (err) {
         res.status(500).json({ ok: false, message: "Failed parsing request." });
         return;
       }
-      const methodRes = await setSelectedModelsBlinded(
-        modelList as string[],
-        user,
-        true
-      );
-      res.json({ ok: true, results: methodRes });
-    } else {
-      res
-        .status(400)
-        .json({ ok: false, message: "Wrong request. check your query." });
+      if (
+        !hasRight(
+          { method: "update", theme: "model" },
+          user,
+          await prismaClient.model.findUnique({
+            where: { id: model as string },
+          })
+        )
+      ) {
+        res.status(403).json({ ok: false });
+        return;
+      }
+
+      await prismaClient.model.update({
+        where: {
+          id: model as string,
+        },
+        data: {
+          blinded: blind === "true" ? true : false,
+        },
+      });
+      res.end();
+      return;
     }
-    const results = await Promise.allSettled(
-      models.map((model) =>
-        (async () => {
-          if (!model) {
-            throw "Couldn't find model by id.";
-          }
-          if (!user) {
-            throw "Couldn't find user.";
-          }
-          await deleteModelFromDBAndS3(model, user);
-          return "Success!";
-        })()
-      )
-    );
-    res.json(results);
+    res.status(400).end();
+    return;
   } else if (req.method === "DELETE") {
     const user = await getUser(req);
     let models: (Model | null)[] = [];
@@ -388,38 +380,4 @@ const deleteModelFromDBAndS3 = async (model: Model, user: User) => {
       id: model.id,
     },
   });
-};
-
-/**
- * FOR RESPONE TO PATCH
- */
-const setSelectedModelsBlinded = async (
-  modelIds: string[],
-  user: User | null,
-  isBlinded: boolean
-) => {
-  const models = await prismaClient.model.findMany({
-    where: {
-      id: { in: modelIds },
-    },
-  });
-  const [autheds, faileds] = _.partition(models, (m) =>
-    hasRight({ method: "update", theme: "model" }, user, m)
-  );
-  const getIds = (models: Model[]) =>
-    models.reduce((prev: string[], cur) => {
-      prev.push(cur.id);
-      return prev;
-    }, []);
-  const authedIds = getIds(autheds);
-  const failedIds = getIds(faileds);
-  await prismaClient.model.updateMany({
-    where: {
-      id: { in: getIds(autheds) },
-    },
-    data: {
-      blinded: isBlinded,
-    },
-  });
-  return { successed: authedIds, failedIds: failedIds };
 };
