@@ -141,21 +141,11 @@ export default async function handler(
 
       if (modelList?.length === 0) {
         if (filterByName) {
-          if (category) {
-            errorMessage =
-              `We couldn't find any matches for "` +
-              req.query.filterByName +
-              `" ` +
-              "in " +
-              category;
-          } else {
-            errorMessage =
-              `We couldn't find any matches for "` +
-              req.query.filterByName +
-              `"`;
-          }
+          errorMessage = `We couldn't find any matches for "${
+            req.query.filterByName
+          }"${category ? ` in ${category}` : ""}`;
         } else if (category) {
-          errorMessage = `We couldn't find any matches in "` + category + `"`;
+          errorMessage = `We couldn't find any matches in "${category}"`;
         }
 
         res.status(404).json({
