@@ -31,7 +31,7 @@ type FormidableResult = {
   files: formidable.Files;
 };
 
-const allowedMethod = ["GET", "POST", "DELETE"];
+const allowedMethod = ["GET", "POST", "PATCH", "DELETE"];
 
 export default async function handler(
   req: NextApiRequest,
@@ -64,6 +64,10 @@ export default async function handler(
       });
       if (!model) {
         res.status(404).end();
+        return;
+      }
+      if (model.blinded === true) {
+        res.status(403).end();
         return;
       }
       res.json([makeModelInfo(model)]);
@@ -130,21 +134,11 @@ export default async function handler(
 
       if (modelList?.length === 0) {
         if (filterByName) {
-          if (category) {
-            errorMessage =
-              `We couldn't find any matches for "` +
-              req.query.filterByName +
-              `" ` +
-              "in " +
-              category;
-          } else {
-            errorMessage =
-              `We couldn't find any matches for "` +
-              req.query.filterByName +
-              `"`;
-          }
+          errorMessage = `We couldn't find any matches for "${
+            req.query.filterByName
+          }"${category ? ` in ${category}` : ""}`;
         } else if (category) {
-          errorMessage = `We couldn't find any matches in "` + category + `"`;
+          errorMessage = `We couldn't find any matches in "${category}"`;
         }
 
         res.status(404).json({
@@ -236,6 +230,43 @@ export default async function handler(
       files.map((file) => handlePOST(file, model))
     );
     res.json({ results });
+  } else if (req.method === "PATCH") {
+    const user = await getUser(req);
+    if (getAnyQueryValueOfKey(req, "devMode") === "true") {
+      const {
+        err,
+        fields: { model, blind },
+      } = await getFormidableFileFromReq(req);
+      if (err) {
+        res.status(500).json({ ok: false, message: "Failed parsing request." });
+        return;
+      }
+      if (
+        !hasRight(
+          { method: "update", theme: "model" },
+          user,
+          await prismaClient.model.findUnique({
+            where: { id: model as string },
+          })
+        )
+      ) {
+        res.status(403).json({ ok: false });
+        return;
+      }
+
+      await prismaClient.model.update({
+        where: {
+          id: model as string,
+        },
+        data: {
+          blinded: blind === "true" ? true : false,
+        },
+      });
+      res.end();
+      return;
+    }
+    res.status(400).end();
+    return;
   } else if (req.method === "DELETE") {
     const user = await getUser(req);
     let models: (Model | null)[] = [];
@@ -326,8 +357,10 @@ const getFormidableFileFromReq = async (
   });
 };
 
-// FOR RESPONE TO DELETE
-
+/**
+ * FOR RESPONE TO DELETE
+ * Check user authenication then handle delete request.
+ */
 const deleteModelFromDBAndS3 = async (model: Model, user: User) => {
   if (
     !hasRight(

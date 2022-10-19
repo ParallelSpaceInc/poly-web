@@ -3,7 +3,9 @@ import { AddUnit } from "@libs/client/Util";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
-import { MouseEvent, useState } from "react";
+import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
+
+type pageMode = "default" | "blind" | "delete";
 
 function Thumbnails({
   loading,
@@ -15,66 +17,98 @@ function Thumbnails({
   devMode?: boolean;
 }) {
   const router = useRouter();
+  const [mode, setMode] = useState<pageMode>("default");
   return (
     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
       {!loading && modelInfos ? (
-        modelInfos.map((info, i) => (
-          <div key={i} className="flex flex-col relative cursor-pointer">
-            <div
-              className="block aspect-[4/3] relative rounded transitiongit  hover:shadow-md"
-              onClick={() => router.push(`/models/${info.id}`)}
-            >
-              <Image
-                src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
-                alt={info.name}
-                layout="fill"
-                objectFit="cover"
-                className="rounded"
-                loading="lazy"
-              />
-            </div>
-            <div className="flex flex-col ">
-              <p className="mt-2 text-sm text-gray-900 truncate">{info.name}</p>
-              <div className="flex justify-between">
-                <span className="block text-xs my-auto text-gray-500 truncate">
-                  {AddUnit(info.modelSize) + "B"}
-                </span>
-                <div className="flex space-x-2 truncate">
-                  <IconWithCounter
-                    current={info.viewed}
-                    imageAttributes={{
-                      src: "/views.png",
-                      alt: "views",
-                      layout: "responsive",
-                      height: 30,
-                      width: 30,
-                    }}
-                    increaseIfDev={devMode}
-                    increasingCallback={() => {
-                      increaseView(info.id);
-                    }}
-                  />
-                  <IconWithCounter
-                    current={info._count.Comment}
-                    imageAttributes={{
-                      src: "/comment.png",
-                      alt: "comments",
-                      layout: "responsive",
-                      height: 30,
-                      width: 30,
-                    }}
-                    onClick={() => {
-                      router.push(`models/${info.id}`);
-                    }}
-                  />
+        modelInfos.map((info, i) =>
+          !info.blinded || devMode ? (
+            <div key={i} className={`flex flex-col relative cursor-pointer`}>
+              <div
+                className={`block aspect-[4/3] relative rounded hover:shadow-md`}
+                onClick={() => {
+                  if (mode === "blind") {
+                    handleHideRequest(info.id, !info.blinded);
+                  } else if (mode === "delete") {
+                    handleDeleteRequest(info.id);
+                  } else {
+                    router.push(`/models/${info.id}`);
+                  }
+                }}
+              >
+                <Image
+                  src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
+                  alt={info.name}
+                  layout="fill"
+                  objectFit="cover"
+                  draggable="false"
+                  className={`rounded ${
+                    info.blinded ? "opacity-30" : "opacity-100"
+                  }`}
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex flex-col ">
+                <p className="mt-2 text-sm text-gray-900 truncate">
+                  {info.name}
+                </p>
+                <div className="flex justify-between">
+                  <span className="block text-xs my-auto text-gray-500 truncate">
+                    {AddUnit(info.modelSize) + "B"}
+                  </span>
+                  <div className="flex space-x-2 truncate">
+                    <IconWithCounter
+                      current={info.viewed}
+                      imageAttributes={{
+                        src: "/views.png",
+                        alt: "views",
+                        layout: "responsive",
+                        height: 30,
+                        width: 30,
+                      }}
+                      increaseIfDev={devMode}
+                      increasingCallback={() => {
+                        increaseView(info.id);
+                      }}
+                    />
+                    <IconWithCounter
+                      current={info._count.Comment}
+                      imageAttributes={{
+                        src: "/comment.png",
+                        alt: "comments",
+                        layout: "responsive",
+                        height: 30,
+                        width: 30,
+                      }}
+                      onClick={() => {
+                        router.push(`models/${info.id}`);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))
+          ) : null
+        )
       ) : (
         <span>Loading...</span>
       )}
+      {devMode ? (
+        <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
+          <ModeChangeButton
+            buttonMode="blind"
+            curMode={mode}
+            setMode={setMode}
+            router={router}
+          />
+          <ModeChangeButton
+            buttonMode="delete"
+            curMode={mode}
+            setMode={setMode}
+            router={router}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -107,7 +141,7 @@ const IconWithCounter = ({
         onClick?.(e);
       }}
     >
-      <div className="w-4 -mr-[1px] my-auto mr-1">
+      <div className="w-4 -mr-[1px] my-auto">
         <Image alt={alt} {...attributesWithoutAlt}></Image>
       </div>
       <span className="my-auto text-[12px] text-gray-500 truncate">
@@ -115,6 +149,50 @@ const IconWithCounter = ({
       </span>
     </div>
   );
+};
+
+const ModeChangeButton = ({
+  curMode,
+  buttonMode,
+  setMode,
+  router,
+}: {
+  curMode: pageMode;
+  buttonMode: pageMode;
+  setMode: Dispatch<SetStateAction<pageMode>>;
+  router: any;
+}) => (
+  <div
+    className={`${curMode === buttonMode ? "modeOn" : ""}`}
+    onClick={(e) => {
+      curMode !== buttonMode
+        ? setMode(buttonMode)
+        : (() => {
+            setMode("default");
+            router.reload();
+          })();
+    }}
+  >
+    {curMode !== buttonMode
+      ? buttonMode + "모드 켜기"
+      : buttonMode + "모드 끄기"}
+  </div>
+);
+
+const handleHideRequest = async (selectedModel: string, blind: boolean) => {
+  const form = new FormData();
+  form.append("blind", String(blind));
+  form.append("model", selectedModel);
+  const res = await fetch(`/api/models?devMode=true`, {
+    body: form,
+    method: "PATCH",
+  });
+};
+
+const handleDeleteRequest = async (selectedModel: string) => {
+  const res = await fetch(`/api/models/${selectedModel}`, {
+    method: "DELETE",
+  });
 };
 
 interface ImageAttributes {
