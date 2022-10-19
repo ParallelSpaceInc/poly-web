@@ -81,6 +81,7 @@ model Model {
   usdzSize      BigInt?       @default(0)
   zipSize       BigInt?       @default(0)
   viewed        Int           @default(0)
+  blinded       Boolean       @default(false)
   Comment       Comment[]
 }
 
