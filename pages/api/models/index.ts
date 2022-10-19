@@ -233,37 +233,58 @@ export default async function handler(
   } else if (req.method === "PATCH") {
     const user = await getUser(req);
     if (getAnyQueryValueOfKey(req, "devMode") === "true") {
-      const {
-        err,
-        fields: { model, blind },
-      } = await getFormidableFileFromReq(req);
-      if (err) {
-        res.status(500).json({ ok: false, message: "Failed parsing request." });
-        return;
-      }
-      if (
-        !hasRight(
-          { method: "update", theme: "model" },
-          user,
-          await prismaClient.model.findUnique({
-            where: { id: model as string },
-          })
-        )
-      ) {
-        res.status(403).json({ ok: false });
-        return;
-      }
+      if (getAnyQueryValueOfKey(req, "massive") === "true") {
+        const {
+          err,
+          fields: { modelList },
+        } = await getFormidableFileFromReq(req);
+        const blindVal =
+          getAnyQueryValueOfKey(req, "blind") === "true" ? true : false;
+        const mlist = modelList ?? [];
+        await prismaClient.model.updateMany({
+          where: {
+            id: { in: mlist as string[] },
+          },
+          data: {
+            blinded: blindVal,
+          },
+        });
+        res.json({ ok: true });
+      } else {
+        const {
+          err,
+          fields: { model, blind },
+        } = await getFormidableFileFromReq(req);
+        if (err) {
+          res
+            .status(500)
+            .json({ ok: false, message: "Failed parsing request." });
+          return;
+        }
+        if (
+          !hasRight(
+            { method: "update", theme: "model" },
+            user,
+            await prismaClient.model.findUnique({
+              where: { id: model as string },
+            })
+          )
+        ) {
+          res.status(403).json({ ok: false });
+          return;
+        }
 
-      await prismaClient.model.update({
-        where: {
-          id: model as string,
-        },
-        data: {
-          blinded: blind === "true" ? true : false,
-        },
-      });
-      res.end();
-      return;
+        await prismaClient.model.update({
+          where: {
+            id: model as string,
+          },
+          data: {
+            blinded: blind === "true" ? true : false,
+          },
+        });
+        res.end();
+        return;
+      }
     }
     res.status(400).end();
     return;
@@ -279,11 +300,14 @@ export default async function handler(
         res.status(500).json({ ok: false, message: "Failed parsing request." });
         return;
       }
-      models = await prismaClient.model.findMany({
-        where: {
-          id: { in: modelList },
-        },
-      });
+      console.log(modelList);
+      models = modelList
+        ? await prismaClient.model.findMany({
+            where: {
+              id: { in: modelList },
+            },
+          })
+        : [];
     } else {
       const modelId = getAnyQueryValueOfKey(req, "id");
       if (!modelId) {

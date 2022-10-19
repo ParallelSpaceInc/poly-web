@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
 import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
 
-type pageMode = "default" | "blind" | "delete";
+type pageMode = "default" | "select";
 
 function Thumbnails({
   loading,
@@ -18,6 +18,8 @@ function Thumbnails({
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<pageMode>("default");
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  console.log(selectedModels);
   return (
     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
       {!loading && modelInfos ? (
@@ -25,12 +27,20 @@ function Thumbnails({
           !info.blinded || devMode ? (
             <div key={i} className={`flex flex-col relative cursor-pointer`}>
               <div
-                className={`block aspect-[4/3] relative rounded hover:shadow-md`}
+                className={`block aspect-[4/3] relative rounded hover:shadow-md ${
+                  mode === "select" && selectedModels.includes(info.id)
+                    ? "border-4 border-dashed border-blue-300"
+                    : null
+                }`}
                 onClick={() => {
-                  if (mode === "blind") {
-                    handleHideRequest(info.id, !info.blinded);
-                  } else if (mode === "delete") {
-                    handleDeleteRequest(info.id);
+                  if (mode === "select") {
+                    if (selectedModels.includes(info.id)) {
+                      setSelectedModels((prev) =>
+                        prev.filter((val) => val !== info.id)
+                      );
+                    } else {
+                      setSelectedModels((prev) => [...prev, info.id]);
+                    }
                   } else {
                     router.push(`/models/${info.id}`);
                   }
@@ -94,20 +104,44 @@ function Thumbnails({
         <span>Loading...</span>
       )}
       {devMode ? (
-        <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
-          <ModeChangeButton
-            buttonMode="blind"
-            curMode={mode}
-            setMode={setMode}
-            router={router}
-          />
-          <ModeChangeButton
-            buttonMode="delete"
-            curMode={mode}
-            setMode={setMode}
-            router={router}
-          />
-        </div>
+        <>
+          <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
+            <ModeChangeButton
+              buttonMode="select"
+              curMode={mode}
+              setMode={setMode}
+              router={router}
+            />
+          </div>
+          <div className="fixed flex flex-col right-12 bottom-60 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded ">
+            <div
+              className="bg-red-300"
+              onClick={async () => {
+                await handleMultipleDeleteRequest(selectedModels);
+                router.reload();
+              }}
+            >
+              삭제
+            </div>
+            <div
+              className="bg-slate-300"
+              onClick={async () => {
+                await handleMultipleBlindRequest(selectedModels, true);
+                router.reload();
+              }}
+            >
+              블라인드
+            </div>
+            <div
+              onClick={async () => {
+                await handleMultipleBlindRequest(selectedModels, false);
+                router.reload();
+              }}
+            >
+              블라인드 해제
+            </div>
+          </div>
+        </>
       ) : null}
     </div>
   );
@@ -193,6 +227,33 @@ const handleDeleteRequest = async (selectedModel: string) => {
   const res = await fetch(`/api/models/${selectedModel}`, {
     method: "DELETE",
   });
+};
+
+const handleMultipleBlindRequest = async (
+  modelIds: string[],
+  blindValue: boolean
+) => {
+  const formBody = new FormData();
+  const targetModels = modelIds.forEach((id) =>
+    formBody.append("modelList", id)
+  );
+  console.log(formBody);
+  await fetch(`/api/models?devMode=true&massive=true&blind=${blindValue}`, {
+    method: "PATCH",
+    body: formBody,
+  }).then((res) => res.json());
+};
+
+const handleMultipleDeleteRequest = async (modelIds: string[]) => {
+  const formBody = new FormData();
+  const targetModels = modelIds.forEach((id) =>
+    formBody.append("modelList", id)
+  );
+  console.log(formBody);
+  await fetch("/api/models?massive=true", {
+    method: "DELETE",
+    body: formBody,
+  }).then((res) => res.json());
 };
 
 interface ImageAttributes {
