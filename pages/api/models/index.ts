@@ -67,6 +67,10 @@ export default async function handler(
         res.status(404).end();
         return;
       }
+      if (model.blinded === true) {
+        res.status(403).end();
+        return;
+      }
       res.json([makeModelInfo(model)]);
       return;
     } else if (req.query.uploader) {
@@ -84,7 +88,10 @@ export default async function handler(
       });
       const model = await prismaClient.model.findMany({
         where: {
-          OR: querys,
+          AND: {
+            OR: querys,
+            blinded: false,
+          },
         },
         include: {
           _count: {
@@ -102,8 +109,11 @@ export default async function handler(
       const { sort, category, filterByName, orderBy } = req.query;
       let options = {
         where: {
-          name: {
-            contains: filterByName?.toString(),
+          AND: {
+            name: {
+              contains: filterByName?.toString(),
+            },
+            blinded: false,
           },
         },
         orderBy: {
