@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
 import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
 
-type pageMode = "default" | "blind toggle";
+type pageMode = "default" | "blind" | "delete";
 
 function Thumbnails({
   loading,
@@ -27,8 +27,10 @@ function Thumbnails({
               <div
                 className={`block aspect-[4/3] relative rounded hover:shadow-md`}
                 onClick={() => {
-                  if (mode === "blind toggle") {
+                  if (mode === "blind") {
                     handleHideRequest(info.id, !info.blinded);
+                  } else if (mode === "delete") {
+                    handleDeleteRequest(info.id);
                   } else {
                     router.push(`/models/${info.id}`);
                   }
@@ -92,9 +94,15 @@ function Thumbnails({
         <span>Loading...</span>
       )}
       {devMode ? (
-        <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-32 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
+        <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
           <ModeChangeButton
-            buttonMode="blind toggle"
+            buttonMode="blind"
+            curMode={mode}
+            setMode={setMode}
+            router={router}
+          />
+          <ModeChangeButton
+            buttonMode="delete"
             curMode={mode}
             setMode={setMode}
             router={router}
@@ -178,6 +186,12 @@ const handleHideRequest = async (selectedModel: string, blind: boolean) => {
   const res = await fetch(`/api/models?devMode=true`, {
     body: form,
     method: "PATCH",
+  });
+};
+
+const handleDeleteRequest = async (selectedModel: string) => {
+  const res = await fetch(`/api/models/${selectedModel}`, {
+    method: "DELETE",
   });
 };
 
