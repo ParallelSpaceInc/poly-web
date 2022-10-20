@@ -21,6 +21,11 @@ const DevIndexPage: NextPage = () => {
             홈페이지 설정
           </div>
         </Link>
+        <Link href="/dev/models/diff">
+          <div className="w-32 bg-slate-100  p-3 text-center">
+            저장소, DB 차이 확인
+          </div>
+        </Link>
       </div>
     </Wrapper>
   );
