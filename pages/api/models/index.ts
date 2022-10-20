@@ -300,7 +300,6 @@ export default async function handler(
         res.status(500).json({ ok: false, message: "Failed parsing request." });
         return;
       }
-      console.log(modelList);
       models = modelList
         ? await prismaClient.model.findMany({
             where: {
@@ -308,6 +307,7 @@ export default async function handler(
             },
           })
         : [];
+      console.log(models);
     } else {
       const modelId = getAnyQueryValueOfKey(req, "id");
       if (!modelId) {
@@ -323,18 +323,16 @@ export default async function handler(
       ];
     }
     const results = await Promise.allSettled(
-      models.map((model) =>
-        (async () => {
-          if (!model) {
-            throw "Couldn't find model by id.";
-          }
-          if (!user) {
-            throw "Couldn't find user.";
-          }
-          await deleteModelFromDBAndS3(model, user);
-          return "Success!";
-        })()
-      )
+      models.map(async (model) => {
+        if (!model) {
+          throw "Couldn't find model by id.";
+        }
+        if (!user) {
+          throw "Couldn't find user.";
+        }
+        await deleteModelFromDBAndS3(model, user);
+        return "Success!";
+      })
     );
     res.json(results);
   }
