@@ -23,6 +23,21 @@ global.s3Client ??= new S3Client({
 
 export default global.s3Client;
 
+export const getSavedModelList = async () => {
+  const objects = await s3Client.send(
+    new ListObjectsCommand({
+      Bucket: process.env.S3_BUCKET,
+      Prefix: `models/`,
+    })
+  );
+  const modelUuids =
+    objects.Contents?.reduce((prev, cur) => {
+      prev.add(cur.Key?.split("/")[1] ?? cur.Key ?? "error");
+      return prev;
+    }, new Set<string>()) ?? new Set<string>();
+  return modelUuids;
+};
+
 export const deleteS3Files = async (uuid: string) => {
   const objects = await s3Client.send(
     new ListObjectsCommand({
