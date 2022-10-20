@@ -1,7 +1,6 @@
 import Login from "@components/login";
 import UserMenuModal from "@components/userMenuModal";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import useSWR from "swr";
@@ -30,7 +29,6 @@ export default function Header() {
 
   return (
     <div
-
       className={`relativev w-full ${
         router.pathname === "/upload"
           ? "fixed top-0 left-0 right-0 z-20"
@@ -39,32 +37,35 @@ export default function Header() {
     >
       <div
         className={
-          "flex justify-between bg-header-gray w-full h-14  pl-10 pr-8 md:pr-6 items-center text-amber-50"
+          "flex justify-between bg-header-gray w-full py-1 sm:py-2 pl-6 pr-6 md:pr-6 items-center text-amber-50"
         }
       >
         <div
-          className={"text-3xl cursor-pointer select-none font-MaruBuri"}
+          className={
+            "text-2xl sm:text-3xl  cursor-pointer select-none font-MaruBuri"
+          }
           onClick={() => router.push("/")}
         >
           {config?.texts.title}
         </div>
         <div className={"flex justify-between items-center space-x-5"}>
-          {status === "authenticated" ? (
-            <button
-              onClick={uploadRounter}
-              className={
-                "border bg-white text-black py-1.5 pr-3 pl-2 text-[10px] font-extrabold rounded flex justify-between items-center"
-              }
-            >
-              <Image
-                src="/upload1.png"
-                width={"10px"}
-                height={"10px"}
-                alt="uploadPng"
-              />
-              <p className={"ml-1"}>UPLOAD</p>
-            </button>
-          ) : null}
+          {status === "authenticated"
+            ? // <button
+              //   onClick={uploadRounter}
+              //   className={
+              //     "border bg-white text-black py-1.5 pr-3 pl-2 text-[10px] font-extrabold rounded flex justify-between items-center"
+              //   }
+              // >
+              //   <Image
+              //     src="/upload1.png"
+              //     width={"10px"}
+              //     height={"10px"}
+              //     alt="uploadPng"
+              //   />
+              //   <p className={"ml-1"}>UPLOAD</p>
+              // </button>
+              null
+            : null}
           {status === "authenticated" ? (
             <div
               onClick={clickUserNameBox}
