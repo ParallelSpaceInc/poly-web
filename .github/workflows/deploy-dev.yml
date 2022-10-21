@@ -5,6 +5,7 @@ on:
 jobs:
   build:
     name: Build
+    if: github.repository == 'parallelspaceInc/poly-web'
     runs-on: ubuntu-latest
     steps:
       - name: executing remote ssh commands using key
