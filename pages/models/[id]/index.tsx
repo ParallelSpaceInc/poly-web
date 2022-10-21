@@ -127,7 +127,11 @@ const ModelPage: NextPage = () => {
             </>
           ) : null}
         </div>
-        <div className="flex flex-col space-y-3 mt-6 hidden ">
+        <div
+          className={`flex flex-col space-y-3 mt-6 ${
+            ["ADMIN", "DEVELOPER"].includes(user.data?.role!) ? "" : "hidden"
+          }`}
+        >
           {hasRight(
             { method: "read", theme: "model" },
             user.data,
