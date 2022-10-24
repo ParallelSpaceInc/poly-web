@@ -281,7 +281,7 @@ async function handleUsdzMod(id: string) {
   tempInput.type = "file";
   const form = new FormData();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   tempInput.onchange = async (e: any) => {
     form.append("file", tempInput.files?.[0] ?? "");
     const res = await fetch(`/api/models?modUsdz=true&modelId=${id}`, {
