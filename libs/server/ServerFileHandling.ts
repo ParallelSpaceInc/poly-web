@@ -243,7 +243,7 @@ async function readTextFile(textFile: string) {
   return buffer;
 }
 
-const getOriginalNameAndPath = (fileData: formidable.File) => {
+export const getOriginalNameAndPath = (fileData: formidable.File) => {
   const parsed = fileData.toJSON();
   return Promise.resolve({
     originalName: parsed.originalFilename ?? "noName",

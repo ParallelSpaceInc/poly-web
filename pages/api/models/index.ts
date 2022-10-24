@@ -1,19 +1,23 @@
 import { getAnyQueryValueOfKey } from "@api/comment";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { ModelInfo, OptionalModel, UploadForm } from "@customTypes/model";
 import { Categories } from "@libs/client/Util";
 import { hasRight } from "@libs/server/Authorization";
 import prismaClient, { getUser } from "@libs/server/prismaClient";
-import { deleteS3Files } from "@libs/server/s3client";
+import s3client, { deleteS3Files } from "@libs/server/s3client";
 import {
   getModelFromForm,
+  getOriginalNameAndPath,
   handlePOST,
   makeMaybeArrayToArray,
   updateModel,
 } from "@libs/server/ServerFileHandling";
 import { Model, User } from "@prisma/client";
 import formidable from "formidable";
+import { createReadStream, ReadStream } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
+import path from "path/posix";
 
 export const config = {
   api: {
@@ -187,49 +191,123 @@ export default async function handler(
       res.status(401).end();
       return;
     }
-    if (
-      // if don't have right, reply code 403.
-      !hasRight(
-        {
-          theme: "model",
-          method: "create",
-        },
-        user
-      )
-    ) {
-      res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
-      return;
-    }
-    // upload to s3
-    const isAdminOrDev = user.role === "ADMIN" || user.role === "DEVELOPER";
-    const option: formidable.Options | undefined = isAdminOrDev
-      ? { multiples: true, maxFileSize: Infinity, keepExtensions: true }
-      : undefined;
-    const formidable = await getFormidableFileFromReq(req, option).catch(
-      (e) => "Failed"
-    );
 
-    if (typeof formidable === "string") {
-      res.json({
-        ok: false,
-        message: "Failed to parse your request. Check your model size.",
+    if (
+      getAnyQueryValueOfKey(req, "modUsdz") === "true" &&
+      getAnyQueryValueOfKey(req, "modelId")
+    ) {
+      const modelId = getAnyQueryValueOfKey(req, "modelId");
+      const model = await prismaClient.model.findUnique({
+        where: {
+          id: modelId,
+        },
       });
+      if (model === null) {
+        res.status(404).json({ ok: false, message: "Can't find the model." });
+        return;
+      }
+      if (
+        !hasRight(
+          {
+            method: "update",
+            theme: "model",
+          },
+          user,
+          model
+        )
+      ) {
+        res
+          .status(403)
+          .json({ ok: false, message: "You don't have a permission." });
+        return;
+      }
+      const formidable = await getFormidableFileFromReq(req, {
+        multiples: true,
+        maxFileSize: 100 << 20, // 100MB for zip file
+        keepExtensions: true,
+      });
+      const files = makeMaybeArrayToArray<formidable.File>(
+        formidable.files.file
+      );
+      const deleteFile = (uuid: string, relPath: string) => {
+        return s3client.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.S3_BUCKET,
+            Key: path.join(`models/${uuid}`, relPath),
+          })
+        );
+      };
+      if (model.modelUsdz) {
+        await deleteFile(model.id, model.modelUsdz);
+      }
+      const fileInfo = await getOriginalNameAndPath(files[0]);
+      const fileStream = createReadStream(fileInfo.loadedFile);
+      const uploadFile = (
+        uuid: string,
+        usdzName: string,
+        stream: ReadStream
+      ) => {
+        const filesParams = {
+          Bucket: process.env.S3_BUCKET,
+          Key: path.join(`models/${uuid}`, usdzName),
+          Body: stream,
+        };
+        return s3client.send(new PutObjectCommand(filesParams));
+      };
+      await uploadFile(model.id, fileInfo.originalName, fileStream);
+      await prismaClient.model.update({
+        where: { id: modelId },
+        data: { modelUsdz: fileInfo.originalName },
+      });
+      res.json({ ok: true });
       return;
-    }
-    const doesFormExist = !!formidable.fields.form;
-    const model: OptionalModel = {};
-    model.userId = user.id;
-    if (doesFormExist) {
-      const form: UploadForm = JSON.parse(formidable.fields.form as string);
-      updateModel(model, getModelFromForm(form));
     } else {
-      model.category = "MISC"; // add if form data is not exist.
+      if (
+        // if don't have right, reply code 403.
+        !hasRight(
+          {
+            theme: "model",
+            method: "create",
+          },
+          user
+        )
+      ) {
+        res.status(403).json({ ok: false, message: "로그인이 필요합니다." });
+        return;
+      }
+      // upload to s3
+      const isAdminOrDev = user.role === "ADMIN" || user.role === "DEVELOPER";
+      const option: formidable.Options | undefined = isAdminOrDev
+        ? { multiples: true, maxFileSize: Infinity, keepExtensions: true }
+        : undefined;
+      const formidable = await getFormidableFileFromReq(req, option).catch(
+        (e) => "Failed"
+      );
+
+      if (typeof formidable === "string") {
+        res.json({
+          ok: false,
+          message: "Failed to parse your request. Check your model size.",
+        });
+        return;
+      }
+      const doesFormExist = !!formidable.fields.form;
+      const model: OptionalModel = {};
+      model.userId = user.id;
+      if (doesFormExist) {
+        const form: UploadForm = JSON.parse(formidable.fields.form as string);
+        updateModel(model, getModelFromForm(form));
+      } else {
+        model.category = "MISC"; // add if form data is not exist.
+      }
+      const files = makeMaybeArrayToArray<formidable.File>(
+        formidable.files.file
+      );
+      const results = await Promise.allSettled(
+        files.map((file) => handlePOST(file, model))
+      );
+      res.json({ results });
     }
-    const files = makeMaybeArrayToArray<formidable.File>(formidable.files.file);
-    const results = await Promise.allSettled(
-      files.map((file) => handlePOST(file, model))
-    );
-    res.json({ results });
   } else if (req.method === "PATCH") {
     const user = await getUser(req);
     if (getAnyQueryValueOfKey(req, "devMode") === "true") {
@@ -307,7 +385,6 @@ export default async function handler(
             },
           })
         : [];
-      console.log(models);
     } else {
       const modelId = getAnyQueryValueOfKey(req, "id");
       if (!modelId) {
@@ -360,7 +437,7 @@ const makeModelInfos: (models: Model[]) => ModelInfo[] = (models) =>
 
 // FOR RESPONE TO POST
 
-const getFormidableFileFromReq = async (
+export const getFormidableFileFromReq = async (
   req: NextApiRequest,
   options?: formidable.Options
 ) => {
@@ -373,7 +450,9 @@ const getFormidableFileFromReq = async (
       }
     );
     form.parse(req, (err: Error, fields, files) => {
-      if (err) return rej(err);
+      if (err) {
+        return rej(err);
+      }
       return res({ err, fields, files });
     });
   });
