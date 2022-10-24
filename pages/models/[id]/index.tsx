@@ -127,7 +127,11 @@ const ModelPage: NextPage = () => {
             </>
           ) : null}
         </div>
-        <div className="flex flex-col space-y-3 mt-6 hidden ">
+        <div
+          className={`flex flex-col space-y-3 mt-6 ${
+            ["ADMIN", "DEVELOPER"].includes(user.data?.role!) ? "" : "hidden"
+          }`}
+        >
           {hasRight(
             { method: "read", theme: "model" },
             user.data,
@@ -152,6 +156,20 @@ const ModelPage: NextPage = () => {
               className=" text-white bg-slate-700 h-10"
             >
               modify
+            </button>
+          ) : null}
+          {hasRight(
+            { method: "update", theme: "model" },
+            user.data,
+            modelInfo.data
+          ) ? (
+            <button
+              onClick={async () => {
+                await handleUsdzMod(modelId);
+              }}
+              className=" text-white bg-slate-700 h-10"
+            >
+              modifiy usdz
             </button>
           ) : null}
           {hasRight(
@@ -257,6 +275,32 @@ const onDownloadClick = async (
     logs.concat(`<system> : download spent ${spentTime / 1000} sec.`)
   );
 };
+
+async function handleUsdzMod(id: string) {
+  const tempInput = document.createElement("input");
+  tempInput.type = "file";
+  const form = new FormData();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  tempInput.onchange = async (e: any) => {
+    form.append("file", tempInput.files?.[0] ?? "");
+    const res = await fetch(`/api/models?modUsdz=true&modelId=${id}`, {
+      body: form,
+      method: "POST",
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw Error();
+        } else {
+          alert("성공적으로 수정되었습니다.");
+        }
+      })
+      .catch((e) => alert(`usdz 수정에 실패하였습니다.\n${e}`));
+    tempInput.remove();
+  };
+  tempInput.click();
+}
 
 async function handleDelete(commentId: string, refresh: () => void) {
   const res = await fetch(`/api/comment?commentId=${commentId}`, {
