@@ -19,7 +19,6 @@ function Thumbnails({
   const router = useRouter();
   const [mode, setMode] = useState<pageMode>("default");
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
-  console.log(selectedModels);
   return (
     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
       {!loading && modelInfos ? (
@@ -237,7 +236,6 @@ const handleMultipleBlindRequest = async (
   const targetModels = modelIds.forEach((id) =>
     formBody.append("modelList", id)
   );
-  console.log(formBody);
   await fetch(`/api/models?devMode=true&massive=true&blind=${blindValue}`, {
     method: "PATCH",
     body: formBody,
@@ -249,7 +247,6 @@ const handleMultipleDeleteRequest = async (modelIds: string[]) => {
   const targetModels = modelIds.forEach((id) =>
     formBody.append("modelList", id)
   );
-  console.log(formBody);
   await fetch("/api/models?massive=true", {
     method: "DELETE",
     body: formBody,
