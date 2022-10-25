@@ -26,22 +26,25 @@
 [3D 콘텐츠 데모 링크](https://www.k-heritage.xyz/models/8662da3f-333f-4646-a67f-a604c28b8d52)   
 
 <p align="left">
-<img src="./imgs/demo1_3d_view0.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
-<img src="./imgs/demo1_ar_view0.jpg" width="30%" style="border-image: url('./imgs/demo2_ar_view1.jpg') 1px lightgray;">
-<img src="./imgs/demo1_QRCodeImg.jpg" width="30%">
+<img src="./imgs/demo0_mainpage.jpg" width="30%" style="border: 1px solid lightgray;">
+<img src="./imgs/demo1_3d_view0.jpg" width="30%" style="border: 1px solid  lightgray;">
+<img src="./imgs/demo1_ar_view0.jpg" width="30%" style="border: 1px solid  lightgray;">
+<!-- <img src="./imgs/demo1_QRCodeImg.jpg" width="30%"> -->
 <br>
 <br>
 
 - 도기 기마인물형 뿔잔 (우리나라 문화유산 공공데이터) <br> 
 [3D 콘텐츠 데모 링크](https://www.k-heritage.xyz/models/9c2c3e89-53d6-453b-a5f3-fa164f2d5609) 
  
-<p align="left"><img src="./imgs/demo2_3d_view0.jpg" width="30%">
-<img src="./imgs/demo2_ar_view0.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
-<img src="./imgs/demo2_QRCodeImg.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
+<p align="left">
+<img src="./imgs/demo0_mainpage.jpg" width="30%" style="border: 1px solid  lightgray;">
+<img src="./imgs/demo2_3d_view0.jpg" width="30%" style="border: 1px solid  lightgray;">
+<img src="./imgs/demo2_ar_view0.jpg" width="30%" style="border: 1px solid  lightgray;">
+<!-- <img src="./imgs/demo2_QRCodeImg.jpg" width="30%"> -->
 </p>
 <br>
 
 
 ## 별도의 플랫폼을 개설해 이용하고 싶은 경우
-* 본 프로젝트 소스코드를 이용하여 별도의 공공 3D 모델 플랫폼을 자체 개설할 수 있습니다. 
+* 본 프로젝트를 이용하여 공공 3D 모델 플랫폼을 자체 개설할 수 있습니다. 
 * 설치는 INSTALLATION.md를 참고 바랍니다. S3, AWS 등의 셋팅이 필요합니다.
