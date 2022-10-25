@@ -27,7 +27,7 @@
 
 <p align="left">
 <img src="./imgs/demo1_3d_view0.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
-<img src="./imgs/demo1_ar_view0.jpg" width="30%"style="border-image: url('./imgs/demo2_ar_view1.jpg') 1px lightgray;">
+<img src="./imgs/demo1_ar_view0.jpg" width="30%" style="border-image: url('./imgs/demo2_ar_view1.jpg') 1px lightgray;">
 <img src="./imgs/demo1_QRCodeImg.jpg" width="30%">
 <br>
 <br>
@@ -36,8 +36,8 @@
 [3D 콘텐츠 데모 링크](https://www.k-heritage.xyz/models/9c2c3e89-53d6-453b-a5f3-fa164f2d5609) 
  
 <p align="left"><img src="./imgs/demo2_3d_view0.jpg" width="30%">
-<img src="./imgs/demo2_ar_view0.jpg" width="30%">
-<img src="./imgs/demo2_QRCodeImg.jpg" width="30%">
+<img src="./imgs/demo2_ar_view0.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
+<img src="./imgs/demo2_QRCodeImg.jpg" width="30%" style="border-image: url('./imgs/demo1_3d_view0.jpg') 1px lightgray;">
 </p>
 <br>
 
