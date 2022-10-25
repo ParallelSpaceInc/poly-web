@@ -37,7 +37,7 @@ export default function Header() {
     >
       <div
         className={
-          "flex justify-between bg-header-gray w-full py-1 sm:py-2 pl-6 pr-6 md:pr-6 items-center text-amber-50"
+          "flex justify-between bg-header-gray w-full py-2 pl-6 pr-6 md:pr-6 items-center text-amber-50"
         }
       >
         <div
