@@ -128,21 +128,18 @@ Poly 프로젝트를 구동하는 방법에 대해 설명합니다.
 
 ### Poly project settings and build
 
-## 서버 구동하기
+Poly 서버를 구축하려면 다음 단계를 수행하십시오.
 
-## Build server
-
-To build you Poly Server, perform the following steps.
-
-- Clone repository and install node packages
-- Prepare S3Server for Poly server
-- Create OAuth ID from Google and Github
-- Update .env file
-- Run Poly Server
+- 리포지토리 복제 및 노드 패키지 설치
+- Poly 서버용 S3Server 준비
+- Google 및 Github에서 OAuth ID 생성
+- .env 파일 업데이트
+- 폴리 서버 실행
 
 ### Cloning repository
 
-To clone Poly repository, execute the commands below.
+Poly 저장소를 복제하려면 아래 명령을 실행하십시오.
+
 
 ```bash
 $ git clone --depth=1 https://github.com/parallelspaceRE/poly-web
@@ -150,36 +147,37 @@ $ cd poly-web
 $ npm install
 ```
 
-### Preparing S3Server
 
-Using AWS S3 may be charged under AWS policy.
+### Preparing S3 Server
 
-Create new S3 Bucket for Poly server.
+AWS S3를 사용하면 AWS 정책에 따라 요금이 부과될 수 있습니다.
+
+Poly 서버용 새 S3 버킷을 생성합니다.
 
 ### Creating OAuth ID
 
-Following steps are guides for server which domain name is **poly-web.com**
+다음 단계는 도메인 이름이 poly-web.com 인 서버에 대한 안내입니다.
 
-If you don't have domain and want to run server for test, you can replace domain name to **http://localhost:3000**.
+도메인이 없고 테스트를 위해 서버를 실행하려는 경우 도메인 이름을 http://localhost:3000 으로 바꿀 수 있습니다 .
 
 #### Google
 
-Create OAuth 2.0 Client ID from [Google Cloud console](https://console.cloud.google.com/apis/credentials)
+[Google Cloud console](https://console.cloud.google.com/apis/credentials) 에서 OAuth 2.0 클라이언트 ID 만들기
 
-- Click _Create Credentials_ -> OAuth client ID
-- Selecet _Web application_
-- Fill **https://poly-web.com** for Authorized JavaScript origins
-- Fill **https://poly-web.com/api/auth/callback/google** for Authorized redirect URIs
-- Click _Create_ Button
-- Memo your client id and Secret
+- 자격 증명 만들기 -> OAuth 클라이언트 ID를 클릭 합니다.
+- 웹 애플리케이션 선택 
+- 승인된 JavaScript 출처에 대해 https://poly-web.com 입력 
+- 승인된 리디렉션 URI에 대해 https://poly-web.com/api/auth/callback/google 을 입력 합니다. 
+- 만들기 버튼 클릭 
+- 클라이언트 ID와 비밀 메모
 
 #### Github
 
-Create OAuth ID from [Github Developer settings](https://github.com/settings/developers)
+[Github Developer settings] (https://github.com/settings/developers)에서 OAuth ID 생성
 
-- Click _New OAuth App_
-- Fill App name
-- Fill **https://poly-web.com** for Homepage URL
-- Fill **https://poly-web.com/api/auth/callback/github** for Authorized callback URIs
-- Click _Register application_
-- Click _Generate a new client secret_ then memo the secret and Client ID
+- 새 OAuth 앱 클릭 
+- 앱 이름 채우기 
+- 홈페이지 URL에 https://poly-web.com 입력 
+- 승인된 콜백 URI에 대해 https://poly-web.com/api/auth/callback/github 채우기 
+- 신청 등록 클릭 
+- 새 클라이언트 암호 생성을 클릭 한 다음 암호와 클라이언트 ID를 메모합니다.
