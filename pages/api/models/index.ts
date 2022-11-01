@@ -223,7 +223,7 @@ export default async function handler(
       }
       const formidable = await getFormidableFileFromReq(req, {
         multiples: true,
-        maxFileSize: 100 << 20, // 100MB for zip file
+        maxFileSize: 150 << 20, // 100MB for zip file
         keepExtensions: true,
       });
       const files = makeMaybeArrayToArray<formidable.File>(
@@ -445,7 +445,7 @@ export const getFormidableFileFromReq = async (
     const form = formidable(
       options ?? {
         multiples: true,
-        maxFileSize: 100 << 20, // 100MB for zip file
+        maxFileSize: 150 << 20, // 100MB for zip file
         keepExtensions: true,
       }
     );
