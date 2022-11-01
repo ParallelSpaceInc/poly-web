@@ -1,6 +1,7 @@
 import Wrapper from "@components/Wrapper";
 import { useModelInfos } from "@libs/client/AccessDB";
 import { AddUnit } from "@libs/client/Util";
+import path from "path";
 import { SyntheticEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
@@ -47,6 +48,8 @@ const DeleteModelsPage = () => {
                 </th>
                 <th className="border-b pb-3">Number</th>
                 <th className="border-b pb-3 text-left pl-3">Name</th>
+                <th className="border-b pb-3 text-left pl-3">usdz</th>
+                <th className="border-b pb-3 text-left pl-3">gltf</th>
                 <th className="border-b pb-3">UploadAt</th>
                 <th className="border-b pb-3">Size</th>
                 <th className="border-b pb-3">Uploader</th>
@@ -68,6 +71,12 @@ const DeleteModelsPage = () => {
                   </td>
                   <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
                     {model.name}
+                  </td>
+                  <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
+                    {path.basename(model.usdzSrc)}
+                  </td>
+                  <td className="pt-1 pl-3 border-b text-lg whitespace-nowrap">
+                    {path.basename(model.modelSrc)}
                   </td>
                   <td className="pt-1 border-b text-lg text-center">
                     {new Date(model.createdAt).toUTCString()}
