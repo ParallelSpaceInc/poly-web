@@ -26,7 +26,9 @@ export async function executeConvertor(
   await execute(`sh exec/convert.sh "${filePath}"`);
   const convertedFile =
     path.basename(filePath).split(".").slice(0, -1).join(".") + ".glb";
-  await execute(`mv "${convertedFile}" ${destDir}`);
+  await execute(`mv "${convertedFile}" ${destDir}`).catch((e) =>
+    console.log(e)
+  );
   return `${destDir}/${convertedFile}`;
 }
 
