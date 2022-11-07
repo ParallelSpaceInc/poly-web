@@ -11,11 +11,13 @@ import {
   readFileSync,
   renameSync,
   statSync,
+  writeFileSync,
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
 import path from "path";
-import pathPosix from "path/posix";
+import pathPosix, { extname } from "path/posix";
+import { env } from "process";
 
 type FormidableResult = {
   err: string;
@@ -33,6 +35,21 @@ export async function handlePOST(
   const uuid = randomUUID();
   model.id = uuid;
   const extRes = await extractZip(uuid, file);
+  const hereIsModelToConv = isThereModelToeconvert(extRes.newDirPath);
+  if (hereIsModelToConv) {
+    const convedBlob = await requestConvert(extRes.newZipPath)
+      .then((res) => {
+        return res.blob();
+      })
+      .catch((e) => {
+        throw e;
+      });
+    const convedModelPath = pathPosix.join(extRes.newDirPath, uuid + ".glb");
+    writeFileSync(
+      convedModelPath,
+      new DataView(await convedBlob.arrayBuffer())
+    );
+  }
   model.name ??= trimExt(extRes.filename);
   model.zipSize = BigInt(extRes.zipSize);
   updateModel(model, await getModelFromDir(extRes.newDirPath));
@@ -92,7 +109,7 @@ export async function extractZip(
   await extract(fileInfo.loadedFile, { dir: newDirPath });
   renameSync(fileInfo.loadedFile, newZipPath);
   const zipSize = await stat(newZipPath).then((res) => res.size);
-  return { newDirPath, filename, zipSize };
+  return { newDirPath, filename, zipSize, newZipPath };
 }
 // name, zipSize
 
@@ -131,7 +148,7 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
       const relativeFileName = path.relative(dirPath, file);
       const fileSzie = statSync(file).size;
       modelSize += fileSzie;
-      if (["scene.gltf", "scene.glb"].includes(relativeFileName)) {
+      if ([".gltf", ".glb"].includes(extname(relativeFileName))) {
         model.modelFile = relativeFileName;
       }
       if ("thumbnail.png" === relativeFileName) {
@@ -299,3 +316,33 @@ const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
     .flat(Infinity)
     .reduce((i, size) => i + size, 0);
 };
+
+function isThereModelToeconvert(dir: string) {
+  const supportedExt = [
+    ".abc",
+    ".blend",
+    ".dae",
+    ".fbx",
+    ".obj",
+    ".ply",
+    ".stl",
+    ".usd",
+    ".wrl",
+    ".x3d",
+  ];
+  const file = readdirSync(dir).find((val) => {
+    return supportedExt.includes("." + val.split(".").pop());
+  });
+  return !!file;
+}
+
+function requestConvert(zipPath: string) {
+  const form = new FormData();
+  const blob = new Blob([readFileSync(zipPath)], { type: "application/zip" });
+  form.append("file", blob, "blob.zip");
+
+  return fetch(env.CONVERTER_URL as string, {
+    body: form,
+    method: "POST",
+  });
+}
