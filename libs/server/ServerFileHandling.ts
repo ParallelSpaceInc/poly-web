@@ -11,13 +11,12 @@ import {
   readFileSync,
   renameSync,
   statSync,
-  writeFileSync,
 } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
 import path from "path";
 import pathPosix, { extname } from "path/posix";
-import { env } from "process";
+import { executeConvertor } from "./ModelConverter";
 
 type FormidableResult = {
   err: string;
@@ -35,20 +34,9 @@ export async function handlePOST(
   const uuid = randomUUID();
   model.id = uuid;
   const extRes = await extractZip(uuid, file);
-  const hereIsModelToConv = isThereModelToeconvert(extRes.newDirPath);
-  if (hereIsModelToConv) {
-    const convedBlob = await requestConvert(extRes.newZipPath)
-      .then((res) => {
-        return res.blob();
-      })
-      .catch((e) => {
-        throw e;
-      });
-    const convedModelPath = pathPosix.join(extRes.newDirPath, uuid + ".glb");
-    writeFileSync(
-      convedModelPath,
-      new DataView(await convedBlob.arrayBuffer())
-    );
+  const fileToConv = isThereModelToeconvert(extRes.newDirPath);
+  if (fileToConv) {
+    const convedFile = await executeConvertor(fileToConv, `/tmp/${uuid}`);
   }
   model.name ??= trimExt(extRes.filename);
   model.zipSize = BigInt(extRes.zipSize);
@@ -317,7 +305,7 @@ const dirSize: (dir: string) => Promise<number> = async (dir: string) => {
     .reduce((i, size) => i + size, 0);
 };
 
-function isThereModelToeconvert(dir: string) {
+function isThereModelToeconvert(dir: string): string | null {
   const supportedExt = [
     ".abc",
     ".blend",
@@ -330,19 +318,8 @@ function isThereModelToeconvert(dir: string) {
     ".wrl",
     ".x3d",
   ];
-  const file = readdirSync(dir).find((val) => {
+  const baseName = readdirSync(dir).find((val) => {
     return supportedExt.includes("." + val.split(".").pop());
   });
-  return !!file;
-}
-
-function requestConvert(zipPath: string) {
-  const form = new FormData();
-  const blob = new Blob([readFileSync(zipPath)], { type: "application/zip" });
-  form.append("file", blob, "blob.zip");
-
-  return fetch(env.CONVERTER_URL as string, {
-    body: form,
-    method: "POST",
-  });
+  return baseName ? path.join(dir, baseName) : null;
 }
