@@ -33,7 +33,6 @@ from os.path import basename
 
 import bpy
 from bpy import context
-from PIL import Image
 
 #
 # Globals
