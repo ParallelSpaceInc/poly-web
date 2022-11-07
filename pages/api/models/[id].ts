@@ -68,8 +68,17 @@ export default async function handler(
       return;
     }
 
+    const fileName = await prismaClient.model.findUnique({
+      where: {
+        id: modelId,
+      },
+    });
+
     // download file from s3
-    const objectbuffer = await downloadS3Files(modelId).catch((error) => {
+    const objectbuffer = await downloadS3Files(
+      modelId,
+      fileName?.modelFile
+    ).catch((error) => {
       throw Error("Can't find model.");
     });
     if (objectbuffer instanceof Error) {

@@ -266,7 +266,8 @@ const onDownloadClick = async (
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = zipName + ".zip" ?? "model.zip";
+      // link.download = zipName + ".zip" ?? "model.zip";
+      link.download = zipName + ".glb";
       link.click();
       link.remove();
     });
