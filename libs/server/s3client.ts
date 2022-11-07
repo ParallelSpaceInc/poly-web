@@ -58,11 +58,11 @@ export const deleteS3Files = async (uuid: string) => {
   );
 };
 
-export const downloadS3Files = async (uuid: string) => {
+export const downloadS3Files = async (uuid: string, file = "model.zip") => {
   const objectBuffer = await s3Client.send(
     new GetObjectCommand({
       Bucket: process.env.S3_BUCKET,
-      Key: `models/${uuid}/model.zip`,
+      Key: `models/${uuid}/${file}`,
     })
   );
   return objectBuffer;

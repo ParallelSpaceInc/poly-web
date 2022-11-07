@@ -109,7 +109,7 @@ const ModelPage: NextPage = () => {
           ) ? (
             <>
               <button
-                className="absolute -bottom-10 right-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                className="absolute bottom-16 left-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
                 onClick={() => {
                   setIsLogShown((val) => !val);
                 }}
@@ -117,12 +117,12 @@ const ModelPage: NextPage = () => {
                 show log
               </button>
               <button
-                className="absolute -bottom-10 right-24 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
+                className="absolute bottom-0 left-0 border justify-center align-middle px-2 h-12 border-slate-300 bg-slate-50 shadow-md rounded-md text-gray-800"
                 onClick={() => {
                   router.push(`/models/${modelId}/three`);
                 }}
               >
-                to threejs viewer
+                Frame Check
               </button>
             </>
           ) : null}
@@ -266,7 +266,8 @@ const onDownloadClick = async (
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = zipName + ".zip" ?? "model.zip";
+      // link.download = zipName + ".zip" ?? "model.zip";
+      link.download = zipName + ".glb";
       link.click();
       link.remove();
     });
