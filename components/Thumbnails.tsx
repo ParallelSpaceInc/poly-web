@@ -25,38 +25,39 @@ function Thumbnails({
         modelInfos.map((info, i) =>
           !info.blinded || devMode ? (
             <div key={i} className={`flex flex-col relative cursor-pointer`}>
-              <div
-                className={`block aspect-[4/3] relative rounded hover:shadow-md ${
-                  mode === "select" && selectedModels.includes(info.id)
-                    ? "border-4 border-dashed border-blue-300"
-                    : null
-                }`}
-                onClick={() => {
-                  if (mode === "select") {
-                    if (selectedModels.includes(info.id)) {
-                      setSelectedModels((prev) =>
-                        prev.filter((val) => val !== info.id)
-                      );
-                    } else {
-                      setSelectedModels((prev) => [...prev, info.id]);
-                    }
-                  } else {
-                    router.push(`/models/${info.id}`);
-                  }
-                }}
-              >
-                <Image
-                  src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
-                  alt={info.name}
-                  layout="fill"
-                  objectFit="cover"
-                  draggable="false"
-                  className={`rounded ${
-                    info.blinded ? "opacity-30" : "opacity-100"
+              <a href={mode === "select" ? undefined : `/models/${info.id}`}>
+                <div
+                  className={`block aspect-[4/3] relative rounded hover:shadow-md ${
+                    mode === "select" && selectedModels.includes(info.id)
+                      ? "border-4 border-dashed border-blue-300"
+                      : null
                   }`}
-                  loading="lazy"
-                />
-              </div>
+                  onClick={() => {
+                    if (mode === "select") {
+                      if (selectedModels.includes(info.id)) {
+                        setSelectedModels((prev) =>
+                          prev.filter((val) => val !== info.id)
+                        );
+                      } else {
+                        setSelectedModels((prev) => [...prev, info.id]);
+                      }
+                    }
+                  }}
+                >
+                  <Image
+                    src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
+                    alt={info.name}
+                    layout="fill"
+                    objectFit="cover"
+                    draggable="false"
+                    className={`rounded ${
+                      info.blinded ? "opacity-30" : "opacity-100"
+                    }`}
+                    loading="lazy"
+                  />
+                </div>
+              </a>
+
               <div className="flex flex-col ">
                 <p className="mt-2 text-sm text-gray-900 truncate">
                   {info.name}
