@@ -17,13 +17,13 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
   return (
     <div
       id="main-showcase"
-      className="hidden md:grid md:grid-cols-3 md:h-60 lg:h-80  bg-gradient-to-r from-gray-800 via-gray-500/50 to-white/0 mb-10 rounded-lg"
+      className="hidden md:grid md:grid-cols-3 md:h-60 xl:h-80  bg-gradient-to-r from-gray-800 via-gray-500/50 to-white/0 mb-10 rounded-lg"
     >
       <div className="col-span-2 text-white p-8">
-        <span className="block md:text-2xl mb-3">
+        <span className="block md:text-2xl xl:text-4xl mb-5 xl:mb-8">
           {texts?.mainPageGuideHead}
         </span>
-        <div className="[&>span]:block [&>span]:text-lg pl-3 text-gary space-y-3">
+        <div className="[&>span]:block [&>span]:text-lg [&>span]:xl:text-2xl pl-3 text-gary space-y-3 xl:space-y-5">
           <span>{texts?.mainPageGuideBody1}</span>
           <span>{texts?.mainPageGuideBody2}</span>
           <span>{texts?.mainPageGuideBody3}</span>
