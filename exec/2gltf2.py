@@ -100,8 +100,9 @@ for current_argument in sys.argv:
         #Ready to bake
         if mat:
             mat.node_tree.nodes.new("ShaderNodeVertexColor")
-            base_node = mat.node_tree.nodes[1]
-            mat.node_tree.links.new(mat.node_tree.nodes[2].outputs['Color'], mat.node_tree.nodes[1].inputs['Base Color'])
+            base_node = mat.node_tree.nodes['Principled BSDF']
+            base_node.inputs['Roughness'].default_value = 1
+            mat.node_tree.links.new(mat.node_tree.nodes[2].outputs['Color'], base_node.inputs['Base Color'])
 
             mat.use_nodes = True
             texture_node =mat.node_tree.nodes.new('ShaderNodeTexImage')
