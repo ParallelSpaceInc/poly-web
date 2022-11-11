@@ -1,5 +1,7 @@
+import { SiteConfig } from "@api/config";
 import { ModelInfo } from "@customTypes/model";
 import dynamic from "next/dynamic";
+import useSWR from "swr";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 
@@ -8,6 +10,10 @@ type Props = {
 };
 
 const MainPageShowcase = ({ modelInfo }: Props) => {
+  const { data: { texts } = {} } = useSWR<SiteConfig>("/api/config", (url) =>
+    fetch(url).then((res) => res.json())
+  );
+
   return (
     <div
       id="main-showcase"
@@ -15,12 +21,12 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
     >
       <div className="col-span-2 text-white p-8">
         <span className="block md:text-2xl mb-3">
-          안녕하세요. 폴리에 어서오세요.
+          {texts?.mainPageGuideHead}
         </span>
         <div className="[&>span]:block [&>span]:text-lg pl-3 text-gary space-y-3">
-          <span>✓ 고품질의 3D 모델 체험</span>
-          <span>✓ AR을 사용한 증강현실 뷰</span>
-          <span>✓ 3D 모델 업로드와 다운로드</span>
+          <span>{texts?.mainPageGuideBody1}</span>
+          <span>{texts?.mainPageGuideBody2}</span>
+          <span>{texts?.mainPageGuideBody3}</span>
         </div>
       </div>
       {modelInfo ? <Model info={modelInfo}></Model> : null}

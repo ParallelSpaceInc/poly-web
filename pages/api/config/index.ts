@@ -1,8 +1,13 @@
+import { SiteTextProps } from "@customTypes/model";
 import { Role } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 const allowedMethod = ["GET", "PATCH"];
+
+export type SiteConfig = {
+  texts: SiteTextProps;
+};
 
 export default async function handler(
   req: NextApiRequest,

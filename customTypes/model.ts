@@ -79,3 +79,15 @@ export type Comment = {
   text: string;
   userName: string;
 };
+
+const siteTextIds = [
+  "title",
+  "mainPageGuideHead",
+  "mainPageGuideBody1",
+  "mainPageGuideBody2",
+  "mainPageGuideBody3",
+] as const;
+
+export type SiteTextProps = {
+  [K in typeof siteTextIds[number]]: string;
+};
