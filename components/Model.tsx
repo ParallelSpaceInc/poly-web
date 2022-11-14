@@ -35,7 +35,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
     <div className="flex w-full h-full justify-center items-center ">
       <div
         className={`w-full h-full ${
-          loading === 1 ? "opacity-100" : "opacity-80"
+          loading === 1 ? "opacity-100" : "opacity-0"
         }`}
       >
         <model-viewer id="modelViewer" {...parsed} />

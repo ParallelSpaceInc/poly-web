@@ -18,13 +18,13 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
   return (
     <div
       id="main-showcase"
-      className="hidden md:flex md:h-60 xl:h-80  bg-gradient-to-r from-gray-800 via-gray-500/50 to-white/0 mb-10 rounded-lg"
+      className="hidden md:flex xl:h-80 mb-10 rounded-lg bg-cover bg-[url('/showcaseBanner-blackToWhite.png')]"
     >
-      <div className="text-white p-8 flex-1">
-        <span className="block md:text-2xl xl:text-4xl mb-5 xl:mb-8">
+      <div className="text-white p-12 xl:p-16 flex-1">
+        <span className="block md:text-2xl xl:text-3xl mb-5 xl:mb-8">
           {texts?.mainPageGuideHead}
         </span>
-        <div className="[&>span]:block [&>span]:text-lg [&>span]:xl:text-2xl pl-3 text-gary space-y-3 xl:space-y-5">
+        <div className="[&>span]:block [&>span]:text-lg [&>span]:xl:text-xl pl-5 text-gary space-y-3 xl:space-y-5">
           <span>{texts?.mainPageGuideBody1}</span>
           <span>{texts?.mainPageGuideBody2}</span>
           <span>{texts?.mainPageGuideBody3}</span>
