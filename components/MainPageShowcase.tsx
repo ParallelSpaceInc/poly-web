@@ -17,9 +17,9 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
   return (
     <div
       id="main-showcase"
-      className="hidden md:grid md:grid-cols-3 md:h-60 xl:h-80  bg-gradient-to-r from-gray-800 via-gray-500/50 to-white/0 mb-10 rounded-lg"
+      className="hidden md:flex md:h-60 xl:h-80  bg-gradient-to-r from-gray-800 via-gray-500/50 to-white/0 mb-10 rounded-lg"
     >
-      <div className="col-span-2 text-white p-8">
+      <div className="text-white p-8 flex-1">
         <span className="block md:text-2xl xl:text-4xl mb-5 xl:mb-8">
           {texts?.mainPageGuideHead}
         </span>
@@ -29,7 +29,9 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
           <span>{texts?.mainPageGuideBody3}</span>
         </div>
       </div>
-      {modelInfo ? <Model info={modelInfo}></Model> : null}
+      <div className="flex-1">
+        {modelInfo ? <Model info={modelInfo}></Model> : null}
+      </div>
     </div>
   );
 };
