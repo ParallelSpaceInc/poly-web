@@ -47,7 +47,7 @@ export default function Header() {
           }
           onClick={() => router.push("/")}
         >
-          {/* {texts?.title} */}
+          {texts?.title}
         </div>
         <div className={"flex justify-between items-center space-x-5"}>
           {status === "authenticated" ? (
