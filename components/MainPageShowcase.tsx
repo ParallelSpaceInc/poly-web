@@ -1,4 +1,4 @@
-import { ResponeQuery } from "@api/config";
+import { ResponseQuery } from "@api/config";
 import { ModelInfo } from "@customTypes/model";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
@@ -10,7 +10,7 @@ type Props = {
 };
 
 const MainPageShowcase = ({ modelInfo }: Props) => {
-  const { data: { texts } = {} } = useSWR<ResponeQuery>(
+  const { data: { texts } = {} } = useSWR<ResponseQuery>(
     "/api/config?texts=true",
     (url) => fetch(url).then((res) => res.json())
   );

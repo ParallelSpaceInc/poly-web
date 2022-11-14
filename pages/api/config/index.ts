@@ -15,7 +15,7 @@ export type RequestQuery = Partial<{
   [key in typeof Query[number]]: string | string[];
 }>;
 
-export type ResponeQuery = {
+export type ResponseQuery = {
   texts?: Partial<SiteTextProps>;
   config?: Partial<SiteConfigProps>;
 };
@@ -37,7 +37,7 @@ export default async function handler(
 
 const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   const query: RequestQuery = req.query;
-  const answer: ResponeQuery = {};
+  const answer: ResponseQuery = {};
   if (query.texts === "true") {
     const texts = await prismaClient.siteText.findMany();
     answer.texts = parseDBGetResult(texts, "text");

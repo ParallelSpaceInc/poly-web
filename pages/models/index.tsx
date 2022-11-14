@@ -1,4 +1,4 @@
-import { ResponeQuery } from "@api/config";
+import { ResponseQuery } from "@api/config";
 import MainPageShowcase from "@components/MainPageShowcase";
 import SearchBar from "@components/Search";
 import Thumbnails from "@components/Thumbnails";
@@ -22,7 +22,7 @@ const ModelsMainPage: NextPage = () => {
   const session = useSession();
   const devMode =
     session.data?.role === "ADMIN" || session.data?.role === "DEVELOPER";
-  const { data: { config } = {} } = useSWR<ResponeQuery>(
+  const { data: { config } = {} } = useSWR<ResponseQuery>(
     "/api/config?config=true",
     (url) => fetch(url).then((res) => res.json())
   );
