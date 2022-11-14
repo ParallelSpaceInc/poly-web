@@ -1,3 +1,4 @@
+import { ResponeQuery } from "@api/config";
 import MainPageShowcase from "@components/MainPageShowcase";
 import SearchBar from "@components/Search";
 import Thumbnails from "@components/Thumbnails";
@@ -7,6 +8,7 @@ import { useModelInfos } from "@libs/client/AccessDB";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import useSWR from "swr";
 
 export interface ModelInfos {
   loading: boolean;
@@ -20,10 +22,13 @@ const ModelsMainPage: NextPage = () => {
   const session = useSession();
   const devMode =
     session.data?.role === "ADMIN" || session.data?.role === "DEVELOPER";
+  const { data: { config } = {} } = useSWR<ResponeQuery>(
+    "/api/config?config=true",
+    (url) => fetch(url).then((res) => res.json())
+  );
   const { data: [mainModel] = [null] } = useModelInfos({
-    id: "5979780b-ca07-4087-bd09-e1b4935a4b5f",
+    id: config?.showCaseModelId,
   });
-
   return (
     <Wrapper>
       <MainPageShowcase modelInfo={mainModel} />

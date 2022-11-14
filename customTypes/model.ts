@@ -88,12 +88,12 @@ const siteTextIds = [
   "mainPageGuideBody3",
 ] as const;
 
-const siteConfigIds = ["showUpload"] as const;
+const siteConfigIds = ["showCaseModelId"] as const;
 
 export type SiteTextProps = {
   [props in typeof siteTextIds[number]]: string;
 };
 
 export type SiteConfigProps = {
-  [props in typeof siteTextIds[number]]: string;
+  [props in typeof siteConfigIds[number]]: string;
 };
