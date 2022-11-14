@@ -1,4 +1,4 @@
-import { SiteConfig } from "@api/config";
+import { ResponeQuery } from "@api/config";
 import { ModelInfo } from "@customTypes/model";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
@@ -10,8 +10,9 @@ type Props = {
 };
 
 const MainPageShowcase = ({ modelInfo }: Props) => {
-  const { data: { texts } = {} } = useSWR<SiteConfig>("/api/config", (url) =>
-    fetch(url).then((res) => res.json())
+  const { data: { texts } = {} } = useSWR<ResponeQuery>(
+    "/api/config?texts=true",
+    (url) => fetch(url).then((res) => res.json())
   );
 
   return (
