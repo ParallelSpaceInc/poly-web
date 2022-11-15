@@ -31,7 +31,9 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
         </div>
       </div>
       <div className="flex-1">
-        {modelInfo ? <Model info={modelInfo}></Model> : null}
+        {modelInfo ? (
+          <Model hideThumbnailUntilLoaded={true} info={modelInfo}></Model>
+        ) : null}
       </div>
     </div>
   );

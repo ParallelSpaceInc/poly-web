@@ -3,12 +3,26 @@ import "@google/model-viewer";
 import { round } from "lodash";
 import { useEffect, useState } from "react";
 
-const Model = ({ info }: { info: ModelInfo }) => {
-  const [loading, setLoading] = useState<number>(0);
+const Model = ({
+  info,
+  hideThumbnailUntilLoaded = false,
+}: {
+  info: ModelInfo;
+  hideThumbnailUntilLoaded?: boolean;
+}) => {
+  const [progress, setProgress] = useState<number>(0);
+  const [isVisible, setIsVisible] = useState<boolean>(
+    !hideThumbnailUntilLoaded
+  );
   useEffect(() => {
     const modelComponent = document.getElementById("modelViewer");
     modelComponent?.addEventListener("progress", (xhr: any) => {
-      setLoading(xhr.detail.totalProgress);
+      setProgress(xhr.detail.totalProgress);
+      if (xhr.detail.totalProgress === 1) {
+        setTimeout(() => {
+          setIsVisible(true);
+        }, 500);
+      }
     });
   }, []);
   const parsed = {
@@ -34,13 +48,16 @@ const Model = ({ info }: { info: ModelInfo }) => {
   return (
     <div className="flex w-full h-full justify-center items-center ">
       <div
-        className={`w-full h-full ${
-          loading === 1 ? "opacity-100" : "opacity-0"
+        className={`w-full h-full transition duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }
         }`}
       >
-        <model-viewer id="modelViewer" {...parsed} />
+        <model-viewer id="modelViewer" {...parsed}>
+          <div slot="progress-bar"></div>
+        </model-viewer>
       </div>
-      <LoadingBar progress={loading} />
+      <LoadingBar progress={progress} />
     </div>
   );
 };
