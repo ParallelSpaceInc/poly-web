@@ -48,7 +48,7 @@ const Model = ({ info }: { info: ModelInfo }) => {
 const LoadingBar = ({ progress }: any) => {
   return (
     <div
-      className={`flex flex-col w-full max-w-xs transition-opacity duration-500 fixed ${
+      className={`flex flex-col w-full max-w-xs transition-opacity duration-500 absolute ${
         progress === 1 ? "opacity-0" : "opacity-100"
       }`}
     >
