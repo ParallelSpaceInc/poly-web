@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
 import ModalWrapper from "./ModalWrapper";
@@ -30,8 +30,6 @@ const ModelModal = ({
   const router = useRouter();
   const modelInfo = useModelInfo(modelId);
   const user = useUser();
-  const timer = useRef(Date.now());
-  const [modelViewer, setModelViewer] = useState<ModelElemet>();
   const [isLogShown, setIsLogShown] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const session = useSession();
@@ -49,42 +47,7 @@ const ModelModal = ({
     componentMutate(`/api/models?id=${modelId}`);
     resetComment({ text: "" });
   };
-  useEffect(() => {
-    // hook modelviewer elemet when loading is complete.
-    const checker = setInterval(() => {
-      const modelElem = document.querySelector("#modelViewer");
-      if (modelElem) {
-        setModelViewer(modelElem as ModelElemet);
-        clearInterval(checker);
-        return;
-      }
-    }, 50);
-    return () => {
-      if (!modelViewer) {
-        clearInterval(checker);
-      }
-    };
-  }, [modelViewer]);
-
-  useEffect(() => {
-    // when modelViewer founded
-    const callback = (e: any) => {
-      if (e.detail?.totalProgress === 1) {
-        const spentTime = (Date.now() - timer.current) / 1000;
-
-        setLogs((log) =>
-          log.concat(`<system> : Loading spent ${spentTime} sec.`)
-        );
-        increaseView(modelId);
-      }
-    };
-    if (modelViewer) {
-      modelViewer.addEventListener("progress", callback);
-    }
-    return () => {
-      modelViewer?.removeEventListener("progress", callback);
-    };
-  }, [modelViewer, modelId]);
+  const appendLog = (message: string) => setLogs(() => logs.concat(message));
 
   if (modelInfo.error || user.error) {
     router.push("/");
@@ -107,7 +70,11 @@ const ModelModal = ({
               ))}
             </div>
           ) : null}
-          {!modelInfo.loading ? <Model info={modelInfo.data} /> : "Loading..."}
+          {!modelInfo.loading ? (
+            <Model appendLog={appendLog} info={modelInfo.data} />
+          ) : (
+            "Loading..."
+          )}
           {([Role.ADMIN, Role.DEVELOPER] as any).includes(
             user?.data?.role ?? Role.UNAUTHENTICATED
           ) ? (

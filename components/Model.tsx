@@ -1,30 +1,50 @@
 import { ModelInfo } from "@customTypes/model";
 import "@google/model-viewer";
 import { round } from "lodash";
+import { increaseView } from "pages/models/[id]";
 import { useEffect, useState } from "react";
 
 const Model = ({
   info,
   hideThumbnailUntilLoaded = false,
+  appendLog,
+  increaseViewCount = true,
 }: {
   info: ModelInfo;
   hideThumbnailUntilLoaded?: boolean;
+  appendLog?: (log: string) => void;
+  increaseViewCount?: boolean;
 }) => {
   const [progress, setProgress] = useState<number>(0);
+  const [viewerId, setViewerId] = useState<string>("");
   const [isVisible, setIsVisible] = useState<boolean>(
     !hideThumbnailUntilLoaded
   );
   useEffect(() => {
-    const modelComponent = document.getElementById("modelViewer");
-    modelComponent?.addEventListener("progress", (xhr: any) => {
+    setViewerId(`model-viewer-${Math.random()}`);
+  }, []);
+  useEffect(() => {
+    const begin = Date.now();
+    const progressCallback = (xhr: any) => {
       setProgress(xhr.detail.totalProgress);
       if (xhr.detail.totalProgress === 1) {
         setTimeout(() => {
           setIsVisible(true);
         }, 500);
+        appendLog?.(
+          `<system> : Loading spent ${(Date.now() - begin) / 1000} sec.`
+        );
+        if (increaseViewCount) {
+          increaseView(info.id);
+        }
       }
-    });
-  }, []);
+    };
+    const modelComponent = document.getElementById(viewerId);
+    modelComponent?.addEventListener("progress", progressCallback);
+    return () => {
+      modelComponent?.removeEventListener("progress", progressCallback);
+    };
+  }, [info.id, appendLog, viewerId]);
   const parsed = {
     src: `${info.modelSrc}`,
     "ios-src": info.usdzSrc ?? "",
@@ -53,7 +73,7 @@ const Model = ({
         }
         }`}
       >
-        <model-viewer id="modelViewer" {...parsed}>
+        <model-viewer id={viewerId} {...parsed}>
           <div slot="progress-bar"></div>
         </model-viewer>
       </div>
