@@ -163,7 +163,7 @@ function Thumbnails({
         <ModelModal
           modelId={modalId}
           closeCallback={() => {
-            router.push(router.basePath);
+            router.push(router.basePath, router.basePath, { scroll: false });
             document.body.classList.remove("overflow-hidden");
           }}
         />
