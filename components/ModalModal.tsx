@@ -20,9 +20,14 @@ interface ModelElemet extends Element {
   dismissPoster: () => void;
 }
 
-const ModelModal = ({ closeCallback }: { closeCallback: () => void }) => {
+const ModelModal = ({
+  closeCallback,
+  modelId,
+}: {
+  closeCallback: () => void;
+  modelId: string;
+}) => {
   const router = useRouter();
-  const modelId = (router.query.id as string) ?? "";
   const modelInfo = useModelInfo(modelId);
   const user = useUser();
   const timer = useRef(Date.now());

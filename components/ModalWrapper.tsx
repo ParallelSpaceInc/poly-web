@@ -7,8 +7,7 @@ function ModalWrapper({
   //if clicked outside of modal, close modal
   const handleClick = (e: any) => {
     if (e.target.classList.contains("backlayer")) {
-      // closeCallback();
-      console.log("clicked outside");
+      closeCallback();
     }
   };
   return (
