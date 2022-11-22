@@ -12,10 +12,10 @@ function ModalWrapper({
   };
   return (
     <div
-      className="backlayer sm:fixed sm:top-0 sm:left-0 sm:w-screen sm:h-screen sm:bg-black sm:bg-opacity-50"
+      className="backlayer fixed top-0 left-0 w-screen h-screen bg-white sm:bg-black sm:bg-opacity-50"
       onClick={handleClick}
     >
-      <div className="flex flex-col p-4 sm:h-[90%] sm:scroll sm:overflow-y-scroll scroll-m-4 sm:bg-white sm:m-10 sm:rounded">
+      <div className="flex flex-col p-4 sm:h-[90%] h-full overflow-y-scroll scroll-m-4 sm:bg-white sm:m-10 sm:rounded">
         {children}
       </div>
     </div>
