@@ -44,7 +44,7 @@ const Model = ({
     return () => {
       modelComponent?.removeEventListener("progress", progressCallback);
     };
-  }, [info.id, appendLog, viewerId]);
+  }, [info.id, appendLog, viewerId, increaseViewCount]);
   const parsed = {
     src: `${info.modelSrc}`,
     "ios-src": info.usdzSrc ?? "",
