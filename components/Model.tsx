@@ -63,9 +63,17 @@ const Model = ({
 };
 
 const LoadingBar = ({ progress }: any) => {
+  const [isVisible, setIsVisible] = useState(true);
+  if (progress === 1) {
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 500);
+  }
   return (
     <div
-      className={`flex flex-col w-full max-w-xs transition-opacity duration-500 absolute ${
+      className={`${
+        isVisible ? "flex" : "hidden"
+      } flex-col w-full max-w-xs transition-opacity duration-500 absolute ${
         progress === 1 ? "opacity-0" : "opacity-100"
       }`}
     >
