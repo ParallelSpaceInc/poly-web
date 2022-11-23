@@ -31,7 +31,7 @@ function Thumbnails({
                 <a
                   href={mode === "select" ? undefined : `/models/${info.id}`}
                   onClick={(e) => {
-                    if (!e.ctrlKey && !e.shiftKey) {
+                    if (!e.ctrlKey && !e.shiftKey && mode !== "select") {
                       //open modal
                       e.preventDefault();
                       router.push("/models", `/models/${info.id}`, {
