@@ -23,9 +23,11 @@ interface ModelElemet extends Element {
 const ModelModal = ({
   closeCallback,
   modelId,
+  pageMode = false,
 }: {
   closeCallback: () => void;
   modelId: string;
+  pageMode?: boolean;
 }) => {
   const router = useRouter();
   const modelInfo = useModelInfo(modelId);
@@ -58,7 +60,7 @@ const ModelModal = ({
   }
 
   return (
-    <ModalWrapper closeCallback={closeCallback}>
+    <ModalWrapper closeCallback={closeCallback} pageMode={pageMode}>
       <div className="block mt-2 sm:grid sm:grid-cols-3 gap-x-4 gap-y-8">
         <div className="relative aspect-[4/3] w-full col-span-2 max-w-5xl mx-auto">
           {isLogShown ? (
