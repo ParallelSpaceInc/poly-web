@@ -1,4 +1,5 @@
 import Comments, { NewComment } from "@components/Comments";
+import ModalWrapper from "@components/ModalWrapper";
 import ModelInfo from "@components/ModelInfo";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
@@ -10,7 +11,6 @@ import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
-import ModalWrapper from "./ModalWrapper";
 
 const Model = dynamic(() => import("@components/Model"), { ssr: false });
 const SHOW_CATEGORY = false;
