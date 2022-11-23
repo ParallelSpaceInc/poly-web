@@ -1,4 +1,4 @@
-import ModelModal from "@components/ModalModal";
+import ModelModal from "@components/ModelModal";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";

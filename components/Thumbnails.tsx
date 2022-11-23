@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
 import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
-import ModelModal from "./ModalModal";
+import ModelModal from "./ModelModal";
 
 type pageMode = "default" | "select";
 
