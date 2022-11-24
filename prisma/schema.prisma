@@ -101,6 +101,11 @@ model SiteText {
   text String @default("default")
 }
 
+model SiteConfig {
+  id    String @id
+  value String
+}
+
 enum Role {
   UNAUTHENTICATED
   USER

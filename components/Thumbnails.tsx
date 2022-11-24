@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
 import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
+import ModelModal from "./ModelModal";
 
 type pageMode = "default" | "select";
 
@@ -19,130 +20,155 @@ function Thumbnails({
   const router = useRouter();
   const [mode, setMode] = useState<pageMode>("default");
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const modalId = router.asPath.match(/\/models\/(.+)/)?.[1];
   return (
-    <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-      {!loading && modelInfos ? (
-        modelInfos.map((info, i) =>
-          !info.blinded || devMode ? (
-            <div key={i} className={`flex flex-col relative cursor-pointer`}>
-              <div
-                className={`block aspect-[4/3] relative rounded hover:shadow-md ${
-                  mode === "select" && selectedModels.includes(info.id)
-                    ? "border-4 border-dashed border-blue-300"
-                    : null
-                }`}
-                onClick={() => {
-                  if (mode === "select") {
-                    if (selectedModels.includes(info.id)) {
-                      setSelectedModels((prev) =>
-                        prev.filter((val) => val !== info.id)
-                      );
-                    } else {
-                      setSelectedModels((prev) => [...prev, info.id]);
+    <>
+      <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+        {!loading && modelInfos ? (
+          modelInfos.map((info, i) =>
+            !info.blinded || devMode ? (
+              <div key={i} className={`flex flex-col relative cursor-pointer`}>
+                <a
+                  href={mode === "select" ? undefined : `/models/${info.id}`}
+                  onClick={(e) => {
+                    if (!e.ctrlKey && !e.shiftKey && mode !== "select") {
+                      //open modal
+                      e.preventDefault();
+                      router.push("/models", `/models/${info.id}`, {
+                        scroll: false,
+                      });
+                      document.body.classList.add("overflow-hidden");
                     }
-                  } else {
-                    router.push(`/models/${info.id}`);
-                  }
-                }}
-              >
-                <Image
-                  src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
-                  alt={info.name}
-                  layout="fill"
-                  objectFit="cover"
-                  draggable="false"
-                  className={`rounded ${
-                    info.blinded ? "opacity-30" : "opacity-100"
-                  }`}
-                  loading="lazy"
-                />
-              </div>
-              <div className="flex flex-col ">
-                <p className="mt-2 text-sm text-gray-900 truncate">
-                  {info.name}
-                </p>
-                <div className="flex justify-between">
-                  <span className="block text-xs my-auto text-gray-500 truncate">
-                    {AddUnit(info.modelSize) + "B"}
-                  </span>
-                  <div className="flex space-x-2 truncate">
-                    <IconWithCounter
-                      current={info.viewed}
-                      imageAttributes={{
-                        src: "/views.png",
-                        alt: "views",
-                        layout: "responsive",
-                        height: 30,
-                        width: 30,
-                      }}
-                      increaseIfDev={devMode}
-                      increasingCallback={() => {
-                        increaseView(info.id);
-                      }}
+                  }}
+                >
+                  <div
+                    className={`block aspect-[4/3] relative rounded hover:shadow-md ${
+                      mode === "select" && selectedModels.includes(info.id)
+                        ? "border-4 border-dashed border-blue-300"
+                        : null
+                    }`}
+                    onClick={() => {
+                      if (mode === "select") {
+                        if (selectedModels.includes(info.id)) {
+                          setSelectedModels((prev) =>
+                            prev.filter((val) => val !== info.id)
+                          );
+                        } else {
+                          setSelectedModels((prev) => [...prev, info.id]);
+                        }
+                      }
+                    }}
+                  >
+                    <Image
+                      src={info.thumbnailSrc ? info.thumbnailSrc : "/cube.png"}
+                      alt={info.name}
+                      layout="fill"
+                      objectFit="cover"
+                      draggable="false"
+                      className={`rounded ${
+                        info.blinded ? "opacity-30" : "opacity-100"
+                      }`}
+                      loading="lazy"
                     />
-                    <IconWithCounter
-                      current={info._count.Comment}
-                      imageAttributes={{
-                        src: "/comment.png",
-                        alt: "comments",
-                        layout: "responsive",
-                        height: 30,
-                        width: 30,
-                      }}
-                      onClick={() => {
-                        router.push(`models/${info.id}`);
-                      }}
-                    />
+                  </div>
+                </a>
+
+                <div className="flex flex-col ">
+                  <p className="mt-2 text-sm text-gray-900 truncate">
+                    {info.name}
+                  </p>
+                  <div className="flex justify-between">
+                    <span className="block text-xs my-auto text-gray-500 truncate">
+                      {AddUnit(info.modelSize) + "B"}
+                    </span>
+                    <div className="flex space-x-2 truncate">
+                      <IconWithCounter
+                        current={info.viewed}
+                        imageAttributes={{
+                          src: "/views.png",
+                          alt: "views",
+                          layout: "responsive",
+                          height: 30,
+                          width: 30,
+                        }}
+                        increaseIfDev={devMode}
+                        increasingCallback={() => {
+                          increaseView(info.id);
+                        }}
+                      />
+                      <IconWithCounter
+                        current={info._count.Comment}
+                        imageAttributes={{
+                          src: "/comment.png",
+                          alt: "comments",
+                          layout: "responsive",
+                          height: 30,
+                          width: 30,
+                        }}
+                        onClick={() => {
+                          router.push(`models/${info.id}`);
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
+            ) : null
+          )
+        ) : (
+          <span>Loading...</span>
+        )}
+        {devMode ? (
+          <>
+            <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
+              <ModeChangeButton
+                buttonMode="select"
+                curMode={mode}
+                setMode={setMode}
+                router={router}
+              />
             </div>
-          ) : null
-        )
-      ) : (
-        <span>Loading...</span>
-      )}
-      {devMode ? (
-        <>
-          <div className="fixed flex flex-col right-5 top-32 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded">
-            <ModeChangeButton
-              buttonMode="select"
-              curMode={mode}
-              setMode={setMode}
-              router={router}
-            />
-          </div>
-          <div className="fixed flex flex-col right-12 bottom-60 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded ">
-            <div
-              className="bg-red-300"
-              onClick={async () => {
-                await handleMultipleDeleteRequest(selectedModels);
-                router.reload();
-              }}
-            >
-              삭제
+            <div className="fixed flex flex-col right-12 bottom-60 rounded bg-slate-200 w-36 text-center select-none cursor-pointer [&>div]:p-2 [&>div.modeOn]:bg-red-200 [&>div]:rounded ">
+              <div
+                className="bg-red-300"
+                onClick={async () => {
+                  await handleMultipleDeleteRequest(selectedModels);
+                  router.reload();
+                }}
+              >
+                삭제
+              </div>
+              <div
+                className="bg-slate-300"
+                onClick={async () => {
+                  await handleMultipleBlindRequest(selectedModels, true);
+                  router.reload();
+                }}
+              >
+                블라인드
+              </div>
+              <div
+                onClick={async () => {
+                  await handleMultipleBlindRequest(selectedModels, false);
+                  router.reload();
+                }}
+              >
+                블라인드 해제
+              </div>
             </div>
-            <div
-              className="bg-slate-300"
-              onClick={async () => {
-                await handleMultipleBlindRequest(selectedModels, true);
-                router.reload();
-              }}
-            >
-              블라인드
-            </div>
-            <div
-              onClick={async () => {
-                await handleMultipleBlindRequest(selectedModels, false);
-                router.reload();
-              }}
-            >
-              블라인드 해제
-            </div>
-          </div>
-        </>
+          </>
+        ) : null}
+      </div>
+      {modalId ? (
+        <ModelModal
+          modelId={modalId}
+          closeCallback={() => {
+            router.push(router.basePath, router.basePath, { scroll: false });
+            document.body.classList.remove("overflow-hidden");
+          }}
+        />
       ) : null}
-    </div>
+    </>
   );
 }
 
