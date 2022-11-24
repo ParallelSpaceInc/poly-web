@@ -20,7 +20,7 @@ const MainPageShowcase = ({ modelInfo }: Props) => {
       id="main-showcase"
       className="hidden md:flex xl:h-80 mb-10 rounded-lg bg-cover bg-[url('/showcaseBanner-blackToWhite.png')]"
     >
-      <div className="text-white p-12 xl:p-16 flex-1">
+      <div className="text-zinc-800 p-12 xl:p-16 flex-1">
         <span className="block md:text-2xl xl:text-3xl mb-5 xl:mb-8">
           {texts?.mainPageGuideHead}
         </span>
