@@ -32,7 +32,7 @@ export async function executeConvertor(
   return `${destDir}/${convertedFile}`;
 }
 
-async function execute(command: string) {
+export async function execute(command: string) {
   return new Promise((res, rej) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
