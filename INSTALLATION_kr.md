@@ -173,7 +173,7 @@ Poly 서버용 새 S3 버킷을 생성합니다.
 
 #### Github
 
-[Github Developer settings] (https://github.com/settings/developers)에서 OAuth ID 생성
+[Github Developer settings](https://github.com/settings/developers) 에서 OAuth ID 생성
 
 - 새 OAuth 앱 클릭 
 - 앱 이름 채우기 
