@@ -16,7 +16,7 @@ import { readdir, readFile, stat } from "fs/promises";
 import { validateBytes } from "gltf-validator";
 import path from "path";
 import pathPosix, { extname } from "path/posix";
-import { executeConvertor } from "./ModelConverter";
+import { execute, executeConvertor } from "./ModelConverter";
 
 type FormidableResult = {
   err: string;
@@ -38,6 +38,14 @@ export async function handlePOST(
   if (fileToConv) {
     const convedFile = await executeConvertor(fileToConv, `/tmp/${uuid}`);
   }
+  // if thumbnail.png is not exist in /tmp/${uuid}, use default.png
+  if (
+    readdirSync(`/tmp/${uuid}`).find((val) => val === "thumbnail.png") ===
+    undefined
+  ) {
+    await generateThumbnail(`/tmp/${uuid}`);
+  }
+
   model.name ??= trimExt(extRes.filename);
   model.zipSize = BigInt(extRes.zipSize);
   updateModel(model, await getModelFromDir(extRes.newDirPath));
@@ -322,4 +330,17 @@ function isThereModelToeconvert(dir: string): string | null {
     return supportedExt.includes("." + val.split(".").pop());
   });
   return baseName ? path.join(dir, baseName) : null;
+}
+async function generateThumbnail(modelDir: string) {
+  // find model file with .gltf or .glb
+  const gltfFile = readdirSync(modelDir).find((val) => {
+    return val.endsWith(".gltf") || val.endsWith(".glb");
+  });
+  if (!gltfFile)
+    throw Error(
+      "No gltf or glb file in modelDir. Failed to generate thumbnail"
+    );
+  // execute command
+  await execute(`sh exec/thumbGen.sh "${pathPosix.join(modelDir, gltfFile)}"`);
+  return path.join(modelDir, "thumbnail.png");
 }
