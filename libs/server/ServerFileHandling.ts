@@ -142,7 +142,7 @@ export async function getModelFromDir(dirPath: string): Promise<OptionalModel> {
       if ("thumbnail.png" === relativeFileName) {
         model.thumbnail = relativeFileName;
       }
-      if ("scene.usdz" === relativeFileName) {
+      if ([".usdz"].includes(extname(relativeFileName))) {
         model.modelUsdz = relativeFileName;
         model.usdzSize = BigInt(statSync(file).size);
       }
