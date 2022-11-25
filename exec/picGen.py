@@ -14,9 +14,6 @@ for obj in bpy.data.objects:
 bpy.ops.object.delete()
 
 
-# double the size of the objects
-bpy.ops.transform.resize(value=(2, 2, 2))    
-
 # set camera clip range
 bpy.data.cameras['Camera'].clip_end = 1000
 bpy.data.cameras['Camera'].clip_start = 0.1
