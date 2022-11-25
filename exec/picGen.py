@@ -13,6 +13,10 @@ for obj in bpy.data.objects:
         obj.select_set(False)
 bpy.ops.object.delete()
 
+
+# double the size of the objects
+bpy.ops.transform.resize(value=(2, 2, 2))    
+
 # set camera clip range
 bpy.data.cameras['Camera'].clip_end = 1000
 bpy.data.cameras['Camera'].clip_start = 0.1
@@ -37,24 +41,33 @@ for current_argument in sys.argv:
     # import gltf object
     bpy.ops.import_scene.gltf(filepath=current_argument)
 
+    # select all meshes
+    for obj in bpy.data.objects:
+        if obj.type == 'MESH':
+            obj.select_set(True)
+        else:
+            obj.select_set(False)
+
     # select gltf object
     obj = bpy.context.view_layer.objects.active = bpy.context.selected_objects[0]
-    mutiplier = 1/obj.dimensions.x
-    # multiply object dimensions by 1/x to fit in camera view
-    obj.scale = (mutiplier, mutiplier, mutiplier)
+    
+    if obj.dimensions:
+        mutiplier = 1/obj.dimensions.x
+        # resize object
+        bpy.ops.transform.resize(value=(mutiplier, mutiplier, mutiplier))
 
     # make camera look at the object to fit the object in the camera view
     bpy.ops.view3d.camera_to_view_selected()
 
-    # make the object smaller
-    # bpy.ops.transform.resize(value=(1.1, 1.1, 1.1))
+    bpy.ops.transform.resize(value=(1.1, 1.1, 1.1))
     
     # set the render background white
     bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (1, 1, 1, 1)
+    bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[1].default_value = 0.6
 
     # add a bright directional light
-    bpy.ops.object.light_add(type='SUN', location=(0, 0, 10), rotation=(-1, -1, -10))
-    bpy.data.objects['Sun'].data.energy = 1
+    # bpy.ops.object.light_add(type='SUN', location=(0, 0, 10), rotation=(-1, -1, -10))
+    # bpy.data.objects['Sun'].data.energy = 1
 
     # set the render resolution
     bpy.context.scene.render.resolution_x = 512
