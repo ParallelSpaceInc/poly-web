@@ -1,4 +1,5 @@
 import Comments, { NewComment } from "@components/Comments";
+import License from "@components/License";
 import ModalWrapper from "@components/ModalWrapper";
 import ModelInfo from "@components/ModelInfo";
 import { useModelInfo, useUser } from "@libs/client/AccessDB";
@@ -6,7 +7,6 @@ import { hasRight } from "@libs/server/Authorization";
 import { Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { NextRouter, useRouter } from "next/router";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
@@ -101,8 +101,9 @@ const ModelModal = ({
           ) : null}
         </div>
         <div
-          className={`flex flex-col space-y-3 mt-6 ${["ADMIN", "DEVELOPER"].includes(user.data?.role!) ? "" : "hidden"
-            }`}
+          className={`flex flex-col space-y-3 mt-6 ${
+            ["ADMIN", "DEVELOPER"].includes(user.data?.role!) ? "" : "hidden"
+          }`}
         >
           {hasRight(
             { method: "read", theme: "model" },
@@ -170,15 +171,7 @@ const ModelModal = ({
       <span className="block whitespace-pre-line mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
-      <div className="flex mt-5 h-16 justify-between max-w-xs">
-        <div className="mt-auto ml-3 text-center text-sm text-gray-500">
-          라이선스: <br />
-          <span className="font-bold">공공누리 제1 유형</span>
-        </div>
-        <div className="mt-auto h-12 relative aspect-[3/1]">
-          <Image src="/open_license.jpg" layout="fill" alt="nuri-1 license" />
-        </div>
-      </div>
+      <License />
       {!modelInfo.loading ? (
         <div className="p-2 shadow-md rounded-lg align-middle justify-center mt-10">
           <div className="relative text-base md:text-lg inline-block bg-white px-2 text-slate-700 -top-5 left-3">
