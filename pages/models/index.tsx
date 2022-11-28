@@ -31,7 +31,9 @@ const ModelsMainPage: NextPage = () => {
   });
   return (
     <Wrapper>
-      <MainPageShowcase modelInfo={mainModel} />
+      {config?.isShowcaseVisible === "true" ? (
+        <MainPageShowcase modelInfo={mainModel} />
+      ) : null}
       <SearchBar setModels={setModels} />
       {models?.error ? (
         <div className="w-full rounded-md h-96 border-2 mt-5 flex justify-center items-center">
