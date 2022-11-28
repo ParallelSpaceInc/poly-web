@@ -3,7 +3,13 @@ import { AddUnit } from "@libs/client/Util";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { increaseView } from "pages/models/[id]";
-import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
+import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import ModelModal from "./ModelModal";
 
 type pageMode = "default" | "select";
@@ -21,6 +27,17 @@ function Thumbnails({
   const [mode, setMode] = useState<pageMode>("default");
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const modalId = router.asPath.match(/\/models\/(.+)/)?.[1];
+  useEffect(() => {
+    if (router.asPath.match(/\/models\/(.+)/)?.[1]) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [router]);
+
   return (
     <>
       <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
@@ -37,7 +54,6 @@ function Thumbnails({
                       router.push("/models", `/models/${info.id}`, {
                         scroll: false,
                       });
-                      document.body.classList.add("overflow-hidden");
                     }
                   }}
                 >
