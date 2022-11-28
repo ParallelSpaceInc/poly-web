@@ -88,7 +88,11 @@ const siteTextIds = [
   "mainPageGuideBody3",
 ] as const;
 
-const siteConfigIds = ["showCaseModelId"] as const;
+const siteConfigIds = [
+  "showCaseModelId",
+  "isShowcaseVisible",
+  "isLicenseVisible",
+] as const;
 
 export type SiteTextProps = {
   [props in typeof siteTextIds[number]]: string;
