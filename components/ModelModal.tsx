@@ -2,7 +2,7 @@ import Comments, { NewComment } from "@components/Comments";
 import License from "@components/License";
 import ModalWrapper from "@components/ModalWrapper";
 import ModelInfo from "@components/ModelInfo";
-import { useModelInfo, useUser } from "@libs/client/AccessDB";
+import { useModelInfo, useSiteConfig, useUser } from "@libs/client/AccessDB";
 import { hasRight } from "@libs/server/Authorization";
 import { Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
@@ -37,6 +37,8 @@ const ModelModal = ({
   const session = useSession();
   const { register, formState, reset: resetComment, handleSubmit } = useForm();
   const { mutate: componentMutate } = useSWRConfig();
+  const { data: { config } = {} } = useSiteConfig();
+
   const onValid = async (form: FieldValues) => {
     if (formState.isSubmitting) return;
     const res = await fetch(`/api/comment?modelId=${modelId}`, {
@@ -171,7 +173,7 @@ const ModelModal = ({
       <span className="block whitespace-pre-line mt-10 text-slate-500 text-md md:text-lg lg:text-xl">
         {!modelInfo.loading ? modelInfo.data.description : ""}
       </span>
-      <License />
+      {config?.isLicenseVisible === "true" ? <License /> : null}
       {!modelInfo.loading ? (
         <div className="p-2 shadow-md rounded-lg align-middle justify-center mt-10">
           <div className="relative text-base md:text-lg inline-block bg-white px-2 text-slate-700 -top-5 left-3">
