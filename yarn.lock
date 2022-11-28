@@ -1434,6 +1434,13 @@
     "@types/mime" "^1"
     "@types/node" "*"
 
+"@types/swagger-ui-react@^4.11.0":
+  "integrity" "sha512-WPMR+GWbLd7zvY/uOTGzGzP44zK2rIZSnU00+pDR2YANnEV6/qj0kqYfdSY1Vk6qdvI7dR0Tx8JEMgUUrUQDjw=="
+  "resolved" "https://registry.npmjs.org/@types/swagger-ui-react/-/swagger-ui-react-4.11.0.tgz"
+  "version" "4.11.0"
+  dependencies:
+    "@types/react" "*"
+
 "@types/three@^0.141.0":
   "integrity" "sha512-OJdKDgTPVBUgc+s74DYoy4aLznbFFC38Xm4ElmU1YwGNgR7GGFVvFCX7lpVgOsT6S1zSJtGdajTsOYE8/xY9nA=="
   "resolved" "https://registry.npmjs.org/@types/three/-/three-0.141.0.tgz"
