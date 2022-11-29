@@ -60,7 +60,7 @@ for current_argument in sys.argv:
     
     # set the render background white
     bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (1, 1, 1, 1)
-    bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[1].default_value = 0.6
+    bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[1].default_value = 3
 
     # add a bright directional light
     # bpy.ops.object.light_add(type='SUN', location=(0, 0, 10), rotation=(-1, -1, -10))
@@ -73,9 +73,16 @@ for current_argument in sys.argv:
 
     # set render path
     bpy.context.scene.render.filepath = os.path.join(dirPath, "thumbnail.png")
-    
-    # set reneder engine to Cycles
-    bpy.context.scene.render.engine = 'CYCLES'
 
+    # post process the render to clean the edges with cycles
+    bpy.context.scene.render.engine = 'CYCLES'
+    bpy.context.scene.cycles.samples = 100
+    bpy.context.scene.cycles.max_bounces = 0
+    bpy.context.scene.cycles.min_bounces = 0
+    bpy.context.scene.cycles.diffuse_bounces = 0
+    bpy.context.scene.cycles.glossy_bounces = 0
+    bpy.context.scene.cycles.transparent_max_bounces = 0
+    bpy.context.scene.cycles.transparent_min_bounces = 0
+    
     # render the object
     bpy.ops.render.render(write_still=True)
