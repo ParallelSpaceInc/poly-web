@@ -30,7 +30,7 @@ for current_argument in sys.argv:
     root, current_extension = os.path.splitext(current_argument)
     current_basename = os.path.basename(root)
     dirPath = os.path.dirname(current_argument)
-
+    
     # if extension is not supported, skip
     if current_extension != ".gltf" and current_extension != ".glb":
         continue
@@ -73,6 +73,9 @@ for current_argument in sys.argv:
 
     # set render path
     bpy.context.scene.render.filepath = os.path.join(dirPath, "thumbnail.png")
+    
+    # set reneder engine to Cycles
+    bpy.context.scene.render.engine = 'CYCLES'
 
     # render the object
     bpy.ops.render.render(write_still=True)
