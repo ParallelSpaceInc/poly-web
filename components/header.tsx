@@ -1,5 +1,6 @@
 import Login from "@components/login";
 import UserMenuModal from "@components/userMenuModal";
+import { useUploadable } from "@libs/client/AccessDB";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -14,6 +15,7 @@ export default function Header() {
     fetch(url).then((res) => res.json())
   );
   const router = useRouter();
+  const isUploadable = useUploadable();
 
   const closeLoginBox = (): void => {
     setIsOpenLoginCp(false);
@@ -50,7 +52,7 @@ export default function Header() {
           {texts?.title}
         </div>
         <div className={"flex justify-between items-center space-x-5"}>
-          {status === "authenticated" ? (
+          {isUploadable ? (
             <button
               onClick={uploadRounter}
               className={

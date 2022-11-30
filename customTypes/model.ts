@@ -92,6 +92,7 @@ const siteConfigIds = [
   "showCaseModelId",
   "isShowcaseVisible",
   "isLicenseVisible",
+  "isUserUploadable",
 ] as const;
 
 export type SiteTextProps = {
