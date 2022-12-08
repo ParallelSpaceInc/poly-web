@@ -1,6 +1,7 @@
 import ErrorDiv from "@components/ErrorDiv";
 import Wrapper from "@components/Wrapper";
 import { UploadForm } from "@customTypes/model";
+import { useUploadable } from "@libs/client/AccessDB";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ const Upload = () => {
   const fields = getFormValue();
   const isSubmitting = formState.isSubmitting;
   const formKeyName = "uploadForm";
+  const isUploadable = useUploadable();
 
   useEffect(() => {
     // set uploadForm if upload form data remained
@@ -39,9 +41,8 @@ const Upload = () => {
   if (session.status === "loading") {
     return null;
   }
-
-  if (session.status === "unauthenticated") {
-    router.push("/models");
+  if (isUploadable === false) {
+    router.replace("/models");
   }
 
   const onValid = async (form: UploadForm) => {
