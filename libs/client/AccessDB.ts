@@ -43,3 +43,17 @@ export function useSiteConfig() {
   const loading = !data && !error;
   return { loading, data, error };
 }
+
+export function useUploadable() {
+  const {
+    data: config,
+    error: configError,
+    loading: configLoading,
+  } = useSiteConfig();
+  const { data: user, error: userError, loading: userLoading } = useUser();
+  if (configLoading || userLoading || userError) return false;
+  if (user?.role === "ADMIN" || user?.role === "DEVELOPER") return true;
+  if (user?.role === "USER" && config?.config?.isUserUploadable === "true")
+    return true;
+  return false;
+}

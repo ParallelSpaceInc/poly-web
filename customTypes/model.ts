@@ -92,6 +92,7 @@ const siteConfigIds = [
   "showCaseModelId",
   "isShowcaseVisible",
   "isLicenseVisible",
+  "isUserUploadable",
 ] as const;
 
 export type SiteTextProps = {
@@ -101,3 +102,59 @@ export type SiteTextProps = {
 export type SiteConfigProps = {
   [props in typeof siteConfigIds[number]]: string;
 };
+
+export const defaultSiteConfig: {
+  [key in typeof siteConfigIds[number]]: string | null;
+} = {
+  isLicenseVisible: "false",
+  isShowcaseVisible: "true",
+  isUserUploadable: "true",
+  showCaseModelId: null,
+};
+
+export const defaultSiteText: { [key in typeof siteTextIds[number]]: string } =
+  {
+    title: "POLY",
+    mainPageGuideHead: "Welcome to Poly Web",
+    mainPageGuideBody1:
+      "This is a sample text. You can change this text from the admin page.",
+    mainPageGuideBody2:
+      "This is a sample text. You can change this text from the admin page.",
+    mainPageGuideBody3:
+      "This is a sample text. You can change this text from the admin page.",
+  };
+
+export async function initDBRecordsOnlyNotSet() {
+  // init site config with default values if not set
+  Object.entries(defaultSiteConfig).forEach(async ([key, val]) => {
+    // find if the key is already set
+    const isSet = await prismaClient.siteConfig.findFirst({
+      where: {
+        id: key,
+      },
+    });
+    if (isSet) return;
+    await prismaClient.siteConfig.create({
+      data: {
+        id: key,
+        value: val || "",
+      },
+    });
+  });
+  // init site text with default values if not set
+  Object.entries(defaultSiteText).forEach(async ([key, val]) => {
+    // find if the key is already set
+    const isSet = await prismaClient.siteText.findFirst({
+      where: {
+        id: key,
+      },
+    });
+    if (isSet) return;
+    await prismaClient.siteText.create({
+      data: {
+        id: key,
+        text: val,
+      },
+    });
+  });
+}
